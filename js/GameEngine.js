@@ -11,32 +11,50 @@ import { SceneEngine } from './managers/SceneEngine.js';
 import { LogicManager } from './managers/LogicManager.js';
 import { UnitStatManager } from './managers/UnitStatManager.js';
 import { GameDataManager } from './managers/GameDataManager.js';
-import { GAME_EVENTS } from './constants.js'; // GAME_EVENTS 상수 임포트
+import { GAME_EVENTS, UI_STATES } from './constants.js'; // UI_STATES 추가
+
+// ◀◀◀ 추가된 내용: 영지, 전투 등 각 장면에 필요한 매니저들을 불러옵니다.
+import { TerritoryManager } from './managers/TerritoryManager.js';
+import { BattleStageManager } from './managers/BattleStageManager.js';
+import { BattleGridManager } from './managers/BattleGridManager.js';
+import { BattleLogManager } from './managers/BattleLogManager.js';
+import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js';
+import { DetailInfoManager } from './managers/DetailInfoManager.js';
+import { PassiveIconManager } from './managers/PassiveIconManager.js';
+import { ReactionSkillManager } from './managers/ReactionSkillManager.js';
+import { ShadowEngine } from './managers/ShadowEngine.js';
+import { StatusIconManager } from './managers/StatusIconManager.js';
+import { VFXManager } from './managers/VFXManager.js';
+import { DisarmManager } from './managers/DisarmManager.js';
+import { PassiveSkillManager } from './managers/PassiveSkillManager.js';
+import { UnitActionManager } from './managers/UnitActionManager.js';
 
 export class GameEngine {
     constructor(canvasId) {
         console.log("⚙️ GameEngine initializing...");
 
-        // 1. 핵심 동기 매니저 생성 (순서가 중요하지 않음)
+        // 1. 핵심 동기 매니저 생성
         this.eventManager = new EventManager();
         this.measureManager = new MeasureManager();
         this.ruleManager = new RuleManager();
+        this.sceneEngine = new SceneEngine(); // ✨ SceneEngine을 더 일찍 생성합니다.
+        this.logicManager = new LogicManager(this.measureManager, this.sceneEngine);
 
         // 2. 주요 엔진 생성
         this.assetEngine = new AssetEngine(this.eventManager);
-        this.renderEngine = new RenderEngine(canvasId, this.eventManager, this.measureManager);
+        this.renderEngine = new RenderEngine(canvasId, this.eventManager, this.measureManager, this.logicManager, this.sceneEngine); // ✨ 의존성 주입
         this.battleEngine = new BattleEngine(this.eventManager, this.measureManager, this.assetEngine, this.renderEngine);
 
         // 3. 종속성을 가지는 나머지 매니저들 생성
         this.unitStatManager = new UnitStatManager(this.eventManager, this.battleEngine.getBattleSimulationManager());
-        this.sceneEngine = new SceneEngine();
-        this.logicManager = new LogicManager(this.measureManager, this.sceneEngine);
 
-        // ✨ UIEngine이 HeroManager 기능을 활용할 수 있도록 연결
-        this.renderEngine.uiEngine.heroManager = this.battleEngine.heroManager;
-        
+        // ◀◀◀ 추가된 내용: UI 및 다른 매니저들을 여기서 직접 생성합니다.
+        this.territoryManager = new TerritoryManager();
+        this.battleStageManager = new BattleStageManager(this.assetEngine.getAssetLoaderManager());
+        this.battleGridManager = new BattleGridManager(this.measureManager, this.logicManager);
+
         // RenderEngine에 필요한 후반 종속성 주입
-        this.renderEngine.injectDependencies(this.battleEngine.getBattleSimulationManager(), this.logicManager, this.sceneEngine);
+        this.renderEngine.injectDependencies(this.battleEngine.getBattleSimulationManager(), this.battleEngine.heroManager);
 
         // 순환 참조 문제를 방지하기 위해 UIEngine 인스턴스를 ButtonEngine에도 전달
         this.renderEngine.inputManager.buttonEngine.uiEngine = this.renderEngine.uiEngine;
@@ -48,6 +66,24 @@ export class GameEngine {
         this.initializeGame();
     }
 
+    // ◀◀◀ 추가된 내용: 장면과 렌더링 레이어를 설정하는 메서드
+    _registerScenesAndLayers() {
+        const battleSim = this.getBattleSimulationManager();
+
+        // 각 장면에 필요한 매니저들을 배열로 묶어 등록합니다.
+        this.sceneEngine.registerScene('territoryScene', [this.territoryManager]);
+        this.sceneEngine.registerScene('battleScene', [
+            this.battleStageManager,
+            this.battleGridManager,
+            this.battleEngine.getBattleSimulationManager(),
+        ]);
+
+        // 렌더링 레이어를 zIndex 순서대로 등록합니다.
+        const layerEngine = this.renderEngine.getLayerEngine();
+        layerEngine.registerLayer('sceneLayer', (ctx) => this.sceneEngine.draw(ctx), 10);
+        layerEngine.registerLayer('uiLayer', (ctx) => this.getUIEngine().draw(ctx), 100);
+    }
+
     /**
      * 게임에 필요한 모든 비동기 작업을 순서대로 실행하는 초기화 매니저 역할의 함수.
      * 이 함수가 완료되어야만 게임이 시작됩니다.
@@ -56,32 +92,31 @@ export class GameEngine {
         try {
             console.log("--- Game Initialization Start ---");
 
-        const idManager = this.assetEngine.getIdManager();
+            const idManager = this.assetEngine.getIdManager();
 
-        // 단계 1: 데이터베이스 시스템 초기화
-        console.log("Initialization Step 1: Initializing IdManager (DB)...");
-        await idManager.initialize();
-        // 디버그 환경에서 남아 있을 수 있는 이전 세션 데이터를 정리합니다.
-        await idManager.clearAllData();
-        console.log("✅ IdManager Initialized.");
+            console.log("Initialization Step 1: Initializing IdManager (DB)...");
+            await idManager.initialize();
+            await idManager.clearAllData();
+            console.log("✅ IdManager Initialized.");
 
             // 단계 2: 기본 게임 데이터 등록 (클래스, 아이템 등)
             console.log("Initialization Step 2: Registering base game data...");
             await GameDataManager.registerBaseClasses(idManager);
             console.log("✅ Base game data registered.");
 
-            // 단계 3: 전투 엔진 설정 (유닛 생성 등)
-            // 이 단계는 반드시 클래스 데이터가 등록된 후에 실행되어야 합니다.
             console.log("Initialization Step 3: Setting up battle units...");
             await this.battleEngine.setupBattle();
             console.log("✅ Battle setup complete.");
-            
-            // 단계 4 (예시): 다른 비동기 작업이 있다면 여기에 추가
-            // await this.loadSoundAssets();
+
+            // ◀◀◀ 추가된 내용: 장면과 레이어를 등록하고 초기 장면을 설정합니다.
+            console.log("Initialization Step 4: Registering scenes and layers...");
+            this._registerScenesAndLayers();
+            this.sceneEngine.setCurrentScene('territoryScene');
+            this.getUIEngine().setUIState(UI_STATES.MAP_SCREEN);
+            console.log("✅ Scenes and layers registered. Initial scene set to 'territoryScene'.");
 
             console.log("--- ✅ All Initialization Steps Completed ---");
 
-            // 모든 준비가 끝났으므로 게임 시작
             this.start();
 
         } catch (error) {
@@ -91,9 +126,11 @@ export class GameEngine {
     }
 
     _update(deltaTime) {
-        // 게임 루프는 초기화가 완료된 후 시작되므로 이 코드는 안전합니다.
-        this.battleEngine.update(deltaTime);
+        // ✨ 현재 활성화된 Scene의 매니저들만 업데이트하도록 변경
+        this.sceneEngine.update(deltaTime);
         this.renderEngine.update(deltaTime);
+        this.battleEngine.update(deltaTime);
+        this.getUIEngine().update(deltaTime); // UI도 업데이트
     }
 
     _draw() {
@@ -103,8 +140,6 @@ export class GameEngine {
     start() {
         console.log("🚀 Starting Game Loop!");
         this.gameLoop.start();
-        // 전투 시작 신호를 여기서 보내거나, UI 버튼 클릭 등으로 시작할 수 있습니다.
-        this.eventManager.emit(GAME_EVENTS.BATTLE_START, {});
     }
 
     // --- Getter helpers ---
@@ -117,4 +152,14 @@ export class GameEngine {
     getRenderEngine() { return this.renderEngine; }
     getBattleEngine() { return this.battleEngine; }
     getUnitStatManager() { return this.unitStatManager; }
+
+    // ◀◀◀ 추가된 내용: UIEngine에 직접 접근할 수 있는 getter
+    getUIEngine() {
+        return this.renderEngine.uiEngine;
+    }
+
+    // ◀◀◀ 추가된 내용: BattleSimulationManager에 쉽게 접근하기 위한 getter
+    getBattleSimulationManager() {
+        return this.battleEngine.getBattleSimulationManager();
+    }
 }
