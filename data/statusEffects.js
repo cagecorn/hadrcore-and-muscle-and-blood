@@ -62,6 +62,20 @@ export const STATUS_EFFECTS = {
         }
     },
 
+    STONE_SKIN: {
+        id: 'status_stone_skin',
+        name: '스톤 스킨',
+        type: STATUS_EFFECT_TYPES.BUFF,
+        duration: 3,
+        icon: 'assets/icons/skills/stone-skin-icon.png',
+        effect: {
+            tags: ['방어', '피해감소'],
+            statModifiers: {
+                damageReduction: 0.15
+            }
+        }
+    },
+
     // ✨ 새롭게 추가된 '무장해제' 상태 이상
     DISARMED: {
         id: 'status_disarmed',

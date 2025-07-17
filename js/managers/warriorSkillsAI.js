@@ -11,6 +11,7 @@
 // import { VFXManager } from './VFXManager.js';
 import { GAME_EVENTS, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js'; // ✨ GAME_DEBUG_MODE 임포트
 import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
+import { STATUS_EFFECTS } from '../../data/statusEffects.js';
 
 export class WarriorSkillsAI {
     /**
@@ -165,6 +166,32 @@ export class WarriorSkillsAI {
         } else if (GAME_DEBUG_MODE) {
             console.log(`[WarriorSkillsAI] Target ${targetUnit.name} defeated. Second strike cancelled.`);
         }
+    }
+
+    /**
+     * 스톤 스킨 스킬을 실행합니다. 자신에게 피해 감소 버프를 적용합니다.
+     * @param {object} userUnit - 스킬 시전자
+     * @param {object} skillData - 스킬 데이터
+     */
+    async stoneSkin(userUnit, skillData) {
+        if (!userUnit || userUnit.currentHp <= 0) {
+            if (GAME_DEBUG_MODE) console.warn("[WarriorSkillsAI] Stone Skin failed: Invalid user unit.");
+            return;
+        }
+
+        if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${userUnit.name} uses ${skillData.name}!`);
+
+        this.managers.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
+            unitId: userUnit.id,
+            skillName: skillData.name
+        });
+
+        const effectId = skillData.effect.appliesEffect;
+        if (effectId) {
+            this.managers.workflowManager.triggerStatusEffectApplication(userUnit.id, effectId);
+        }
+
+        await this.managers.delayEngine.waitFor(500);
     }
 
     /**

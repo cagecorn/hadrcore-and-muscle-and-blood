@@ -54,6 +54,20 @@ export class ClassAIManager {
             };
         }
 
+        const stoneSkinData = WARRIOR_SKILLS.STONE_SKIN;
+        if (
+            this.diceEngine.getRandomFloat() < stoneSkinData.ai.usageChance &&
+            stoneSkinData.ai.condition(unit, null)
+        ) {
+            if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${stoneSkinData.name}`);
+            return {
+                actionType: 'skill',
+                skillId: stoneSkinData.id,
+                targetId: unit.id,
+                execute: () => this.warriorSkillsAI.stoneSkin(unit, stoneSkinData)
+            };
+        }
+
         const doubleStrikeData = WARRIOR_SKILLS.DOUBLE_STRIKE;
         const targetForDoubleStrike = this.targetingManager.findBestTarget('enemy', 'closest', unit);
         if (targetForDoubleStrike &&
