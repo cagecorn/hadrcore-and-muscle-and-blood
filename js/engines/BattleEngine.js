@@ -6,10 +6,7 @@ import { WeightEngine } from '../managers/WeightEngine.js';
 import { StatManager } from '../managers/StatManager.js';
 import { DiceEngine } from '../managers/DiceEngine.js';
 import { DiceBotManager } from '../managers/DiceBotManager.js';
-import { HeroManager } from '../managers/HeroManager.js';
 import { BattleFormationManager } from '../managers/BattleFormationManager.js';
-import { MonsterSpawnManager } from '../managers/MonsterSpawnManager.js';
-import { StageDataManager } from '../managers/StageDataManager.js';
 import { DelayEngine } from '../managers/DelayEngine.js';
 import { TimingEngine } from '../managers/TimingEngine.js';
 import { CoordinateManager } from '../managers/CoordinateManager.js';
@@ -36,7 +33,6 @@ export class BattleEngine {
         const assetLoaderManager = assetEngine.getAssetLoaderManager();
         this.assetLoaderManager = assetLoaderManager;
         const animationManager = renderEngine.getAnimationManager();
-        this.stageDataManager = new StageDataManager();
 
         this.valorEngine = new ValorEngine();
         this.weightEngine = new WeightEngine();
@@ -95,14 +91,7 @@ export class BattleEngine {
             this.statusEffectManager
         );
 
-        this.heroManager = new HeroManager(idManager, this.diceEngine, assetLoaderManager, this.battleSimulationManager, assetEngine.getUnitSpriteEngine());
         this.battleFormationManager = new BattleFormationManager(this.battleSimulationManager);
-        this.monsterSpawnManager = new MonsterSpawnManager(
-            idManager,
-            assetLoaderManager,
-            this.battleSimulationManager,
-            this.stageDataManager
-        );
     }
 
     async setupBattle() {
@@ -110,7 +99,6 @@ export class BattleEngine {
         await this.assetLoaderManager.loadImage('sprite_zombie_default', 'assets/images/zombie.png');
 
         // 초기 전투 설정 시에는 영웅을 자동 생성하지 않습니다. 필요 시 UI에서 고용하도록 합니다.
-        await this.monsterSpawnManager.spawnMonstersForStage('stage1');
     }
 
     async startBattle() {
@@ -123,5 +111,4 @@ export class BattleEngine {
     }
 
     getBattleSimulationManager() { return this.battleSimulationManager; }
-    getStageDataManager() { return this.stageDataManager; }
 }

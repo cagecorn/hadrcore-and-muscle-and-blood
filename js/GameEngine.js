@@ -29,6 +29,9 @@ import { VFXManager } from './managers/VFXManager.js';
 import { DisarmManager } from './managers/DisarmManager.js';
 import { PassiveSkillManager } from './managers/PassiveSkillManager.js';
 import { UnitActionManager } from './managers/UnitActionManager.js';
+import { HeroManager } from './managers/HeroManager.js';
+import { MonsterSpawnManager } from './managers/MonsterSpawnManager.js';
+import { StageDataManager } from './managers/StageDataManager.js';
 
 export class GameEngine {
     constructor(canvasId) {
@@ -44,8 +47,24 @@ export class GameEngine {
         // 2. 주요 엔진 생성
         const mainCanvas = document.getElementById(canvasId); // ✨ 캔버스 요소를 가져옵니다.
         this.assetEngine = new AssetEngine(this.eventManager);
-        this.renderEngine = new RenderEngine(mainCanvas, this.eventManager, this.measureManager, this.logicManager, this.sceneEngine); // ✨ 의존성 주입
+        this.renderEngine = new RenderEngine(mainCanvas, this.eventManager, this.measureManager, this.logicManager, this.sceneEngine);
         this.battleEngine = new BattleEngine(this.eventManager, this.measureManager, this.assetEngine, this.renderEngine);
+
+        // Hero와 Monster 관련 매니저를 GameEngine에서 직접 생성
+        this.heroManager = new HeroManager(
+            this.assetEngine.getIdManager(),
+            this.battleEngine.diceEngine,
+            this.assetEngine.getAssetLoaderManager(),
+            null,
+            this.assetEngine.getUnitSpriteEngine()
+        );
+        this.stageDataManager = new StageDataManager();
+        this.monsterSpawnManager = new MonsterSpawnManager(
+            this.assetEngine.getIdManager(),
+            this.assetEngine.getAssetLoaderManager(),
+            null,
+            this.stageDataManager
+        );
 
         // 3. 종속성을 가지는 나머지 매니저들 생성
         this.unitStatManager = new UnitStatManager(this.eventManager, this.battleEngine.getBattleSimulationManager());
@@ -55,11 +74,18 @@ export class GameEngine {
         this.battleStageManager = new BattleStageManager(this.assetEngine.getAssetLoaderManager());
         this.battleGridManager = new BattleGridManager(this.measureManager, this.logicManager);
 
+        // 생성된 battleSimulationManager를 필요한 곳에 주입
+        const battleSim = this.getBattleSimulationManager();
+        this.heroManager.battleSimulationManager = battleSim;
+        this.monsterSpawnManager.battleSimulationManager = battleSim;
+
         // RenderEngine에 필요한 후반 종속성 주입
-        this.renderEngine.injectDependencies(this.getBattleSimulationManager(), this.battleEngine.heroManager);
+        this.renderEngine.injectDependencies({
+            battleSim: battleSim,
+            heroManager: this.heroManager
+        });
 
         // ✨ MercenaryPanelManager 생성 및 UIEngine에 주입
-        const battleSim = this.getBattleSimulationManager();
         this.mercenaryPanelManager = new MercenaryPanelManager(this.measureManager, battleSim, this.logicManager, this.eventManager);
         this.getUIEngine().mercenaryPanelManager = this.mercenaryPanelManager;
 
@@ -128,6 +154,7 @@ export class GameEngine {
 
             console.log("Initialization Step 3: Setting up battle units...");
             await this.battleEngine.setupBattle();
+            await this.monsterSpawnManager.spawnMonstersForStage('stage1');
             console.log("✅ Battle setup complete.");
 
             // ◀◀◀ 추가된 내용: 장면과 레이어를 등록하고 초기 장면을 설정합니다.

@@ -34,8 +34,10 @@ export class RenderEngine {
         this.inputManager.buttonEngine.uiEngine = this.uiEngine;
     }
 
-    injectDependencies(battleSim, heroManager) {
-        // 전투 관련 매니저를 주입하여 애니메이션과 파티클 시스템이 접근하도록 합니다.
+    // 주입받는 인자를 객체 형태로 받아 유연성 확보
+    injectDependencies(dependencies) {
+        const { battleSim, heroManager } = dependencies;
+
         this.particleEngine.battleSimulationManager = battleSim;
         this.animationManager.battleSimulationManager = battleSim;
 
@@ -43,7 +45,6 @@ export class RenderEngine {
             this.uiEngine.heroManager = heroManager;
         }
 
-        // BattleSimulationManager가 LogicManager에 접근할 수 있도록 주입
         if (battleSim) {
             battleSim.logicManager = this.cameraEngine.logicManager;
         }
