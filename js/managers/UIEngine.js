@@ -119,6 +119,16 @@ export class UIEngine {
         }
     }
 
+    /**
+     * UI 요소 상태를 갱신합니다.
+     * 현재 프레임 기반 로직은 없지만 GameEngine의
+     * 업데이트 루프와의 호환을 위해 빈 메서드를 유지합니다.
+     * @param {number} deltaTime - 프레임 간 시간 차이(ms)
+     */
+    update(deltaTime) {
+        // 향후 UI 애니메이션 등을 처리할 수 있도록 남겨둡니다.
+    }
+
     getMapPanelDimensions() {
         return {
             width: this.mapPanelWidth,
