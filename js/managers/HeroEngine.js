@@ -7,12 +7,13 @@ export class HeroEngine {
      * @param {AssetLoaderManager} assetLoaderManager - 이미지 에셋 로드를 위한 AssetLoaderManager 인스턴스
      * @param {DiceBotEngine} diceBotEngine - 무작위 값 생성을 위한 DiceBotEngine 인스턴스
      */
-    constructor(idManager, assetLoaderManager, diceEngine, diceBotEngine) {
+    constructor(idManager, assetLoaderManager, diceEngine, diceBotEngine, microcosmHeroEngine) {
         console.log("\u2728 HeroEngine initialized. The foundation for all heroes begins here! \u2728");
         this.idManager = idManager;
         this.assetLoaderManager = assetLoaderManager;
         this.diceEngine = diceEngine;
         this.diceBotEngine = diceBotEngine;
+        this.microcosmHeroEngine = microcosmHeroEngine;
 
         this.heroes = new Map(); // key: heroId, value: heroData (생성된 영웅 인스턴스 저장)
         this._loadBasicHeroData(); // 예시 영웅 데이터 로드 (실제는 가챠 등으로 생성)
@@ -130,8 +131,10 @@ export class HeroEngine {
             maxBarrier: 0
         };
 
+        await this.microcosmHeroEngine.createHeroMicrocosm(newHero);
+
         this.heroes.set(heroId, newHero);
-        console.log(`[HeroEngine] Generated new hero: ${newHero.name} (${newHero.id}), Rarity: ${newHero.rarity}, Skills: ${newHero.skills.join(', ')}`);
+        console.log(`[HeroEngine] Generated new hero: ${newHero.name} (${newHero.id})`);
         return newHero;
     }
 
