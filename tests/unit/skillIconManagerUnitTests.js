@@ -15,7 +15,7 @@ export function runSkillIconManagerUnitTests(assetLoaderManager, idManager) {
             return { src: url, width: 32, height: 32 };
         },
         getImage: (assetId) => {
-            if (assetId === 'icon_skill_warrior_charge') return { src: 'assets/icons/skills/charge.png' };
+            if (assetId === 'icon_skill_warrior_battle_cry') return { src: 'assets/icons/skills/battle_cry.png' };
             if (assetId === 'icon_status_poison') return { src: 'assets/icons/status_effects/poison.png' };
             return undefined;
         }
@@ -41,7 +41,7 @@ export function runSkillIconManagerUnitTests(assetLoaderManager, idManager) {
         const sim = new SkillIconManager(mockAssetLoaderManager, mockIdManager);
         await sim._loadDefaultSkillIcons();
         const expectedIconCount = 5 + 5;
-        if (sim.skillIcons.size === expectedIconCount && sim.skillIcons.has('skill_warrior_charge')) {
+        if (sim.skillIcons.size === expectedIconCount && sim.skillIcons.has('skill_warrior_battle_cry')) {
             console.log("SkillIconManager: _loadDefaultSkillIcons loaded icons correctly. [PASS]");
             passCount++;
         } else {
@@ -55,8 +55,8 @@ export function runSkillIconManagerUnitTests(assetLoaderManager, idManager) {
     try {
         const sim = new SkillIconManager(mockAssetLoaderManager, mockIdManager);
         await sim._loadDefaultSkillIcons();
-        const icon = sim.getSkillIcon('skill_warrior_charge');
-        if (icon && icon.src && icon.src.includes('charge.png')) {
+        const icon = sim.getSkillIcon('skill_warrior_battle_cry');
+        if (icon && icon.src && icon.src.includes('battle_cry.png')) {
             console.log("SkillIconManager: getSkillIcon returned correct icon. [PASS]");
             passCount++;
         } else {

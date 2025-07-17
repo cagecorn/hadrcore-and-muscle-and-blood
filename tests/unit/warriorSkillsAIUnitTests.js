@@ -27,7 +27,9 @@ export function runWarriorSkillsAIUnitTests() {
             getGridRenderParameters: () => ({ effectiveTileSize: 100, gridOffsetX: 0, gridOffsetY: 0 })
         },
         battleCalculationManager: {
+            requestDamageCalculationCalled: false,
             requestDamageCalculation: (attackerId, targetId, skillData) => {
+                mockManagers.battleCalculationManager.requestDamageCalculationCalled = true;
                 if (GAME_DEBUG_MODE) console.log(`[MockBattleCalculationManager] Damage requested: ${attackerId} -> ${targetId}`);
             }
         },
@@ -50,7 +52,8 @@ export function runWarriorSkillsAIUnitTests() {
             }
         },
         coordinateManager: {
-            isTileOccupied: (x, y, excludeId) => false
+            isTileOccupied: (x, y, excludeId) => false,
+            findClosestUnit: (unitId, type) => mockTargetUnit
         },
         targetingManager: {},
         vfxManager: {},
@@ -91,18 +94,19 @@ export function runWarriorSkillsAIUnitTests() {
     mockUserUnit.gridX = 0; mockUserUnit.gridY = 0;
     mockTargetUnit.gridX = 3; mockTargetUnit.gridY = 0;
     mockManagers.statusEffectManager.applyStatusEffectCalled = false;
+    mockManagers.battleCalculationManager.requestDamageCalculationCalled = false;
     try {
         const warriorSkillsAI = new WarriorSkillsAI(mockManagers);
-        await warriorSkillsAI.charge(mockUserUnit, mockTargetUnit, WARRIOR_SKILLS.CHARGE);
+        await warriorSkillsAI.battleCry(mockUserUnit, WARRIOR_SKILLS.BATTLE_CRY);
 
-        if (mockUserUnit.gridX === 2 && mockUserUnit.gridY === 0 && mockManagers.statusEffectManager.applyStatusEffectCalled) {
-            if (GAME_DEBUG_MODE) console.log("WarriorSkillsAI: Charge skill executed correctly with movement and stun. [PASS]");
+        if (mockManagers.statusEffectManager.applyStatusEffectCalled && mockManagers.battleCalculationManager.requestDamageCalculationCalled) {
+            if (GAME_DEBUG_MODE) console.log("WarriorSkillsAI: Battle Cry executed with buff and additional attack. [PASS]");
             passCount++;
         } else {
-            if (GAME_DEBUG_MODE) console.error("WarriorSkillsAI: Charge skill failed movement or stun. [FAIL]", { x: mockUserUnit.gridX, y: mockUserUnit.gridY, stunCalled: mockManagers.statusEffectManager.applyStatusEffectCalled });
+            if (GAME_DEBUG_MODE) console.error("WarriorSkillsAI: Battle Cry failed to apply buff or attack. [FAIL]", { buff: mockManagers.statusEffectManager.applyStatusEffectCalled, attack: mockManagers.battleCalculationManager.requestDamageCalculationCalled });
         }
     } catch (e) {
-        if (GAME_DEBUG_MODE) console.error("WarriorSkillsAI: Error during Charge skill test. [FAIL]", e);
+        if (GAME_DEBUG_MODE) console.error("WarriorSkillsAI: Error during Battle Cry test. [FAIL]", e);
     }
 
     if (GAME_DEBUG_MODE) console.log(`--- WarriorSkillsAI Unit Test End: ${passCount}/${testCount} tests passed ---`);

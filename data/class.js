@@ -20,7 +20,6 @@ export const CLASSES = {
         role: CLASS_ROLES.MELEE_DPS,
         description: '강력한 근접 공격과 방어력을 겸비한 병종.',
         skills: [
-            WARRIOR_SKILLS.CHARGE.id,
             WARRIOR_SKILLS.BATTLE_CRY.id,
             WARRIOR_SKILLS.IRON_WILL.id
         ],
@@ -84,7 +83,6 @@ export const CLASSES = {
         role: CLASS_ROLES.TANK,
         description: '전사의 전투 경험을 극대화한 고급 병종으로, 방어와 리더십이 뛰어납니다.',
         skills: [
-            WARRIOR_SKILLS.CHARGE.id,
             WARRIOR_SKILLS.BATTLE_CRY.id,
             WARRIOR_SKILLS.IRON_WILL.id
         ],

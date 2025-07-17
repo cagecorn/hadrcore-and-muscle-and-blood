@@ -10,21 +10,6 @@ export const SKILL_TYPES = {
 };
 
 export const WARRIOR_SKILLS = {
-    // 액티브 스킬 (첫 번째 슬롯에 있으면 좋은 스킬 예시)
-    CHARGE: {
-        id: 'skill_warrior_charge',
-        name: '돌격',
-        type: SKILL_TYPES.ACTIVE,
-        aiFunction: 'charge',
-        probability: 40, // 이 확률은 RuleManager에 정의된 슬롯 확률에 따라 재조정될 수 있습니다.
-        description: '적에게 돌진하여 물리 피해를 입힙니다. 이동과 공격을 동시에 수행합니다.',
-        requiredUserTags: ['근접'], // 근접 태그를 가진 유닛만 사용 가능
-        effect: {
-            dice: { num: 1, sides: 8 },
-            damageMultiplier: 1.5,
-            stunChance: 0.2 // 20% 확률로 기절
-        }
-    },
     // 버프 스킬 (한 턴에 스킬 + 일반 공격 예시)
     BATTLE_CRY: {
         id: 'skill_warrior_battle_cry',
