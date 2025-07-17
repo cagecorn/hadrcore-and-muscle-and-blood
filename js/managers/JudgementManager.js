@@ -48,6 +48,12 @@ export class JudgementManager {
                 this.actualActionTaken = true;
             }
         });
+        // ✨ 이동도 유효한 행동으로 간주
+        this.eventManager.subscribe(GAME_EVENTS.UNIT_MOVED, data => {
+            if (this.activeUnit && this.activeUnit.id === data.unitId) {
+                this.actualActionTaken = true;
+            }
+        });
 
         this.eventManager.subscribe(GAME_EVENTS.UNIT_TURN_END, this._judgeTurnAction.bind(this));
     }

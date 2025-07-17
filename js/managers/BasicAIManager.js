@@ -60,20 +60,22 @@ export class BasicAIManager {
             };
         }
 
-        // 공격 위치로 이동할 수 없을 때: 그냥 적에게 다가간다.
-        const pathToTarget = this.positionManager.findPath(
-            { x: unit.gridX, y: unit.gridY },
-            { x: target.gridX, y: target.gridY }
-        );
-        if (pathToTarget && pathToTarget.length > 1) {
-            // 경로의 마지막 지점은 적이므로, 그 바로 앞 칸으로 이동
-            // ✨ 경로가 이동 범위보다 길 경우, 이동 가능한 최대 지점으로 이동하도록 수정
-            const moveIndex = Math.min(pathToTarget.length - 1, moveRange);
-            const moveDestination = pathToTarget[moveIndex];
+        // 공격 위치로 이동할 수 없을 때: 목표에 인접한 빈 타일로 이동 시도
+        const adjacentPositions = this.positionManager.getAttackablePositions(target, 1);
+        let pathToAdjacent = null;
+        for (const pos of adjacentPositions) {
+            const path = this.positionManager.findPath({ x: unit.gridX, y: unit.gridY }, pos);
+            if (path && (!pathToAdjacent || path.length < pathToAdjacent.length)) {
+                pathToAdjacent = path;
+            }
+        }
 
-            // ✨ 목적지가 비어있는지 마지막으로 확인
+        if (pathToAdjacent && pathToAdjacent.length > 1) {
+            const moveIndex = Math.min(pathToAdjacent.length - 1, moveRange);
+            const moveDestination = pathToAdjacent[moveIndex];
+
             if (moveDestination && !this.positionManager.battleSimulationManager.isTileOccupied(moveDestination.x, moveDestination.y, unit.id)) {
-                if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving closer to ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
+                if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving adjacent to ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
                 return { actionType: 'move', moveTargetX: moveDestination.x, moveTargetY: moveDestination.y };
             }
         }

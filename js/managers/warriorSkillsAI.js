@@ -38,7 +38,12 @@ export class WarriorSkillsAI {
         if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${userUnit.name} uses ${skillData.name} on ${targetUnit.name}!`);
 
         // 1. ✨ 스킬 아이콘 애니메이션 시작 (즉시 발행)
-        this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, { skillId: skillData.id, userId: userUnit.id, targetId: targetUnit.id });
+        this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, {
+            skillId: skillData.id,
+            skillName: skillData.name, // 이름 추가
+            userId: userUnit.id,
+            targetId: targetUnit.id
+        });
         await this.managers.delayEngine.waitFor(800);
 
         const userUnitClassData = await this.managers.idManager.get(userUnit.classId);
@@ -54,6 +59,15 @@ export class WarriorSkillsAI {
 
         if (!moved) {
             if (GAME_DEBUG_MODE) console.log("[WarriorSkillsAI] Charge: Failed to move to optimal position, proceeding with attack from current location.");
+
+            // ✨ 수정: 이동 실패 시, 현재 위치에서 공격 가능한지 확인
+            const distance = Math.abs(userUnit.gridX - targetUnit.gridX) + Math.abs(userUnit.gridY - targetUnit.gridY);
+            const attackRange = userUnit.baseStats.attackRange || 1; // 기본 공격 사거리
+
+            if (distance > attackRange) {
+                if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Charge: Attack cancelled. Target is out of range (${distance} > ${attackRange}).`);
+                return; // 사거리 밖이면 스킬 종료
+            }
         }
 
         // 2. 물리 피해 계산 및 적용 (데이터 참조)
@@ -88,7 +102,11 @@ export class WarriorSkillsAI {
         if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${userUnit.name} uses ${skillData.name}!`);
 
         // 1. 스킬 시전 시각 효과
-        this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, { skillId: skillData.id, userId: userUnit.id });
+        this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, {
+            skillId: skillData.id,
+            skillName: skillData.name, // 이름 추가
+            userId: userUnit.id
+        });
 
         // 2. 자신에게 버프 상태 적용
         this.managers.workflowManager.triggerStatusEffectApplication(userUnit.id, skillData.effect.statusEffectId);
@@ -138,7 +156,12 @@ export class WarriorSkillsAI {
             if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${skillData.name} failed to apply to ${targetUnit.name}.`);
         }
 
-        this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, { skillId: skillData.id, userId: userUnit.id, targetId: targetUnit.id });
+        this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, {
+            skillId: skillData.id,
+            skillName: skillData.name, // 이름 추가
+            userId: userUnit.id,
+            targetId: targetUnit.id
+        });
     }
 
     /**
@@ -165,7 +188,12 @@ export class WarriorSkillsAI {
         this.managers.battleCalculationManager.requestDamageCalculation(userUnit.id, attackerUnit.id, attackSkillData);
         await this.managers.delayEngine.waitFor(300);
 
-        this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, { skillId: skillData.id, userId: userUnit.id, targetId: attackerUnit.id });
+        this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, {
+            skillId: skillData.id,
+            skillName: skillData.name, // 이름 추가
+            userId: userUnit.id,
+            targetId: attackerUnit.id
+        });
     }
 
     /**
