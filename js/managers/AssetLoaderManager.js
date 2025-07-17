@@ -73,4 +73,15 @@ export class AssetLoaderManager {
         }
         return this.assets.get(assetId);
     }
+
+    async preloadAssets(imagesToLoad) {
+        if (!imagesToLoad) return;
+        this.setTotalAssetsToLoad(Object.keys(imagesToLoad).length);
+        const promises = [];
+        for (const [key, src] of Object.entries(imagesToLoad)) {
+            promises.push(this.loadImage(key, src));
+        }
+        await Promise.all(promises);
+        if (GAME_DEBUG_MODE) console.log(`(AssetLoaderManager] All ${this.assetsLoadedCount} assets loaded!`);
+    }
 }

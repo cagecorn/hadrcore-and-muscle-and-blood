@@ -273,6 +273,9 @@ export class GameEngine {
             this.eventManager,
             this.particleEngine
         );
+        this.vfxManager.assetLoaderManager = this.assetLoaderManager;
+        this.vfxManager.statusEffectManager = this.statusEffectManager;
+        this.vfxManager.loadVisualEffects();
 
         this.bindingManager = new BindingManager();
 
@@ -689,6 +692,7 @@ export class GameEngine {
         await this.assetLoaderManager.loadImage('sprite_zombie_empty_default', 'assets/images/zombie-empty.png');
         // ✨ 좀비 무기 이미지 로드
         await this.assetLoaderManager.loadImage('sprite_zombie_weapon_default', 'assets/images/zombie-weapon.png');
+        await this.assetLoaderManager.loadImage('bleed', 'assets/icons/status_effects/bleed.png');
 
         await this._initBattleGrid();
     }
@@ -702,6 +706,7 @@ export class GameEngine {
         this.conditionalManager.update(); // ✨ 업데이트 루프에 추가
         this.sceneEngine.update(deltaTime);
         this.animationManager.update(deltaTime);
+        this.statusEffectManager.update(deltaTime);
         this.vfxManager.update(deltaTime);
         this.particleEngine.update(deltaTime); // ✨ ParticleEngine 업데이트 호출
         // ✨ DetailInfoManager 업데이트 호출

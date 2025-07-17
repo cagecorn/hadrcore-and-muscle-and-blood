@@ -36,7 +36,8 @@ export const STATUS_EFFECTS = {
         duration: 2,
         effect: {
             damageOnAction: 5
-        }
+        },
+        visualEffect: 'bleed'
     },
     BERSERK: {
         id: 'status_berserk',

@@ -1,7 +1,7 @@
 // js/managers/StatusEffectManager.js
 import { STATUS_EFFECTS } from '../../data/statusEffects.js';
 // ✨ 상수 파일 임포트
-import { GAME_EVENTS, ATTACK_TYPES } from '../constants.js';
+import { GAME_EVENTS, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 
 export class StatusEffectManager {
     constructor(eventManager, idManager, turnCountManager, battleCalculationManager) {
@@ -10,6 +10,8 @@ export class StatusEffectManager {
         this.idManager = idManager;
         this.turnCountManager = turnCountManager;
         this.battleCalculationManager = battleCalculationManager;
+        // timed status effects stored per unitId
+        this.activeTimedEffects = {}; // { unitId: [{ effectId, duration, startTime }] }
         this._setupEventListeners();
     }
 
@@ -20,6 +22,12 @@ export class StatusEffectManager {
                 console.log(`[StatusEffectManager] Unit ${unitId} had expired effects: ${expired.join(', ')}`);
             }
         });
+
+        // subscribe to time-based status effect application
+        this.eventManager.subscribe(
+            GAME_EVENTS.APPLY_STATUS_EFFECT,
+            this.applyEffect.bind(this)
+        );
 
         this.eventManager.subscribe(GAME_EVENTS.UNIT_TURN_START, ({ unitId }) => { // ✨ 상수 사용
             const active = this.turnCountManager.getEffectsOfUnit(unitId);
@@ -61,5 +69,46 @@ export class StatusEffectManager {
 
     getUnitActiveEffects(unitId) {
         return this.turnCountManager.getEffectsOfUnit(unitId);
+    }
+
+    // ------------------------------------------------------------------
+    // Timed effect management (millisecond-based duration)
+    // ------------------------------------------------------------------
+    applyEffect({ targetId, effectId, duration }) {
+        if (!targetId || !effectId || !duration) return;
+        if (!this.activeTimedEffects[targetId]) {
+            this.activeTimedEffects[targetId] = [];
+        }
+        this.activeTimedEffects[targetId].push({ effectId, duration, startTime: performance.now() });
+        if (GAME_DEBUG_MODE) console.log(`[StatusEffectManager] Applied effect '${effectId}' to unit ${targetId} for ${duration}ms.`);
+    }
+
+    getUnitActiveTimedEffects(unitId) {
+        return this.activeTimedEffects[unitId] || [];
+    }
+
+    hasStatusEffect(unitId, effectId) {
+        const turnEffects = this.turnCountManager.getEffectsOfUnit(unitId);
+        const hasTurn = turnEffects ? turnEffects.has(effectId) : false;
+        const timed = this.getUnitActiveTimedEffects(unitId).some(e => e.effectId === effectId);
+        return hasTurn || timed;
+    }
+
+    update(deltaTime) {
+        const now = performance.now();
+        for (const unitId in this.activeTimedEffects) {
+            const arr = this.activeTimedEffects[unitId];
+            let i = arr.length;
+            while (i--) {
+                const effect = arr[i];
+                if (now - effect.startTime > effect.duration) {
+                    if (GAME_DEBUG_MODE) console.log(`[StatusEffectManager] Effect '${effect.effectId}' expired on unit ${unitId}.`);
+                    arr.splice(i, 1);
+                }
+            }
+            if (arr.length === 0) {
+                delete this.activeTimedEffects[unitId];
+            }
+        }
     }
 }

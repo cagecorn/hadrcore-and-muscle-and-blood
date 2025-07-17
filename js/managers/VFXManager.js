@@ -19,8 +19,21 @@ export class VFXManager {
 
         this.activeWeaponDrops = new Map(); // unitId => animation data
 
+        // bleed effect tracking
+        this.bleedIcon = null;
+        this.bleedingUnits = new Set();
+
+        this.assetLoaderManager = null;
+        this.statusEffectManager = null;
+
         // 이벤트 리스너 설정
         this._setupEventListeners();
+    }
+
+    loadVisualEffects() {
+        if (!this.assetLoaderManager) return;
+        this.bleedIcon = this.assetLoaderManager.getImage('bleed');
+        if (GAME_DEBUG_MODE) console.log("[VFXManager] Loaded visual effects assets.");
     }
 
     /**
@@ -202,6 +215,17 @@ export class VFXManager {
                 if (GAME_DEBUG_MODE) console.log(`[VFXManager] Weapon drop animation for unit ${unitId} completed.`);
             }
         }
+
+        // update bleeding units
+        if (this.statusEffectManager) {
+            this.bleedingUnits.clear();
+            for (const unit of this.battleSimulationManager.unitsOnGrid) {
+                if (this.statusEffectManager.hasStatusEffect(unit.id, 'status_bleed') ||
+                    this.statusEffectManager.hasStatusEffect(unit.id, 'bleeding')) {
+                    this.bleedingUnits.add(unit.id);
+                }
+            }
+        }
     }
 
     /**
@@ -316,6 +340,13 @@ export class VFXManager {
             // if (GAME_DEBUG_MODE) console.log(`[VFXManager Debug] Unit ${unit.id} (HP/Barrier Bar): drawX=${drawX.toFixed(2)}, drawY=${drawY.toFixed(2)}`);
             this.drawHpBar(ctx, unit, effectiveTileSize, drawX, drawY);
             this.drawBarrierBar(ctx, unit, effectiveTileSize, drawX, drawY); // ✨ 배리어 바 그리기 호출
+
+            if (this.bleedIcon && this.bleedingUnits.has(unit.id)) {
+                const iconSize = effectiveTileSize * 0.3;
+                const iconX = drawX + effectiveTileSize - iconSize;
+                const iconY = drawY;
+                ctx.drawImage(this.bleedIcon, iconX, iconY, iconSize, iconSize);
+            }
         }
 
         // ✨ 데미지 숫자 그리기
