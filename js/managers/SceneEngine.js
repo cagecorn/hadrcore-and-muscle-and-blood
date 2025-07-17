@@ -1,4 +1,5 @@
 // js/managers/SceneEngine.js
+import { GAME_DEBUG_MODE } from '../constants.js';
 
 export class SceneEngine {
     constructor(injector = null) {
@@ -25,7 +26,7 @@ export class SceneEngine {
     setCurrentScene(sceneName) {
         if (this.scenes.has(sceneName)) {
             this.currentSceneName = sceneName;
-            console.log(`[SceneEngine] Current scene set to: ${sceneName}`);
+            if (GAME_DEBUG_MODE) console.log(`%c[SceneEngine] Current scene set to: ${sceneName}`, 'color: #98FB98; font-weight: bold;');
         } else {
             console.warn(`[SceneEngine] Scene '${sceneName}' not found.`);
         }
@@ -47,6 +48,9 @@ export class SceneEngine {
     update(deltaTime) {
         if (this.currentSceneName) {
             const managers = this.scenes.get(this.currentSceneName);
+            if (GAME_DEBUG_MODE && this.injector && this.injector.get('GameEngine')?.gameLoop?.frameCount % 300 === 0) {
+                console.log(`  [UpdateFlow] Scene '${this.currentSceneName}' is updating ${managers.length} managers.`);
+            }
             for (const manager of managers) {
                 if (manager.update && typeof manager.update === 'function') {
                     manager.update(deltaTime);

@@ -1,6 +1,8 @@
+import { GAME_DEBUG_MODE } from '../constants.js';
+
 export class DependencyInjector {
     constructor() {
-        console.log("\ud83d\udd27 DependencyInjector initialized. All managers will be registered here.");
+        if (GAME_DEBUG_MODE) console.log("🔧 DependencyInjector initialized. All managers will be registered here.");
         this.services = new Map();
     }
 
@@ -15,7 +17,7 @@ export class DependencyInjector {
             console.warn(`[DependencyInjector] Service '${serviceName}' is already registered. Overwriting.`);
         }
         this.services.set(serviceName, serviceInstance);
-        // console.log(`[DependencyInjector] Registered: ${serviceName}`);
+        // if (GAME_DEBUG_MODE) console.log(`[DependencyInjector] Registered: ${serviceName}`);
     }
 
     /**
@@ -26,7 +28,7 @@ export class DependencyInjector {
     get(serviceName) {
         const service = this.services.get(serviceName);
         if (!service) {
-            // console.warn(`[DependencyInjector] Service '${serviceName}' not found.`);
+            console.warn(`%c[DependencyInjector] Service '${serviceName}' not found. It might not have been registered.`, 'color: orange;');
         }
         return service;
     }

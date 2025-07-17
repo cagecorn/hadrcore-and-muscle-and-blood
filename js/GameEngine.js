@@ -11,7 +11,7 @@ import { RuleManager } from './managers/RuleManager.js';
 import { SceneEngine } from './managers/SceneEngine.js';
 import { LogicManager } from './managers/LogicManager.js';
 import { GameDataManager } from './managers/GameDataManager.js';
-import { GAME_EVENTS, UI_STATES } from './constants.js'; // UI_STATES 추가
+import { GAME_EVENTS, UI_STATES, GAME_DEBUG_MODE } from './constants.js'; // UI_STATES 추가
 
 // ◀◀◀ 추가된 내용: 영지, 전투 등 각 장면에 필요한 매니저들을 불러옵니다.
 import { TerritoryManager } from './managers/TerritoryManager.js';
@@ -76,8 +76,13 @@ export class GameEngine {
         );
         injector.register(this.compatibilityManager);
 
+        // Register GameEngine itself for other managers that might need it
+        injector.register(this, 'GameEngine');
+
         // --- 3. 게임 루프 설정 ---
         this.gameLoop = new GameLoop(this._update.bind(this), this._draw.bind(this));
+        // expose gameLoop for debug purposes
+        this.renderEngine.renderer.gameLoop = this.gameLoop;
 
         // --- 4. 비동기 초기화 실행 ---
         this.initializeGame();
@@ -166,13 +171,23 @@ export class GameEngine {
     }
 
     _update(deltaTime) {
+        // System health check: log periodically to verify the loop is alive.
+        if (GAME_DEBUG_MODE && this.gameLoop.frameCount % 300 === 0) {
+            console.log(`%c[System Health] GameEngine is updating... (Delta: ${deltaTime.toFixed(2)}ms)`, 'color: #888;');
+        }
+
         const updateableServices = this.injector.getAllUpdateable();
         for (const service of updateableServices) {
+            // if (GAME_DEBUG_MODE) console.log(` -> Updating ${service.constructor.name}`);
             service.update(deltaTime);
         }
     }
 
     _draw() {
+        if (GAME_DEBUG_MODE && this.gameLoop.frameCount % 300 === 0) {
+            console.log(`%c[System Health] GameEngine is drawing...`, 'color: #888;');
+        }
+
         const drawableServices = this.injector.getAllDrawable();
         this.renderEngine.draw();
         for (const service of drawableServices) {

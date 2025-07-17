@@ -117,9 +117,11 @@ export class BattleEngine {
     }
 
     update(deltaTime) {
-        this.conditionalManager.update();
-        this.aiEngine.update(this.battleSimulationManager.unitsOnGrid);
+        // TurnEngine handles AI actions when a unit's turn begins.
         this.turnEngine.update();
+
+        // Conditional checks should run every frame to react to battle state changes.
+        this.conditionalManager.update();
     }
 
     getBattleSimulationManager() { return this.battleSimulationManager; }
