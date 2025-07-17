@@ -1,9 +1,9 @@
 // js/managers/ClassAIManager.js
 
-import { GAME_DEBUG_MODE } from '../constants.js';
+import { GAME_DEBUG_MODE, ATTACK_TYPES } from '../constants.js';
 
 export class ClassAIManager {
-    constructor(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine) {
+    constructor(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine, monsterAI) {
         console.log("\uD83D\uDD33 ClassAIManager initialized. Ready to define class-based AI. \uD83D\uDD33");
         this.idManager = idManager;
         this.battleSimulationManager = battleSimulationManager;
@@ -13,6 +13,7 @@ export class ClassAIManager {
         this.diceEngine = diceEngine;
         this.targetingManager = targetingManager;
         this.diceBotEngine = diceBotEngine;
+        this.monsterAI = monsterAI;
     }
 
     /**
@@ -26,6 +27,11 @@ export class ClassAIManager {
         if (!unitClass) {
             console.warn(`[ClassAIManager] Class data not found for unit ${unit.name} (${unit.classId}). Cannot determine action.`);
             return null;
+        }
+
+        // 적 유닛이라면 MonsterAI에 위임
+        if (unit.type === ATTACK_TYPES.ENEMY) {
+            return this.monsterAI.getMeleeAIAction(unit, allUnits);
         }
 
         // 1. 결정된 스킬이 있는지 먼저 확인

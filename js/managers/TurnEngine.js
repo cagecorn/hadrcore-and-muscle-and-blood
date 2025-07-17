@@ -4,7 +4,7 @@
 import { GAME_EVENTS, UI_STATES, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 
 export class TurnEngine {
-    constructor(eventManager, battleSimulationManager, turnOrderManager, microcosmHeroEngine, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager, statusEffectManager) {
+    constructor(eventManager, battleSimulationManager, turnOrderManager, microcosmHeroEngine, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager, statusEffectManager, rangeManager) {
         if (GAME_DEBUG_MODE) console.log("\uD83D\uDD01 TurnEngine initialized. Ready to manage game turns. \uD83D\uDD01");
         this.eventManager = eventManager;
         this.battleSimulationManager = battleSimulationManager;
@@ -16,6 +16,7 @@ export class TurnEngine {
         this.animationManager = animationManager;
         this.battleCalculationManager = battleCalculationManager;
         this.statusEffectManager = statusEffectManager;
+        this.rangeManager = rangeManager;
 
         this.currentTurn = 0;
         this.activeUnitIndex = -1;
@@ -154,7 +155,7 @@ export class TurnEngine {
                     if (action.actionType === 'attack' || action.actionType === 'moveAndAttack') {
                         if (action.targetId) {
                             const targetUnit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === action.targetId);
-                            if (targetUnit && targetUnit.currentHp > 0) {
+                            if (targetUnit && targetUnit.currentHp > 0 && this.rangeManager.isTargetInRange(unit, targetUnit)) {
                                 if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attacks ${targetUnit.name}!`);
                                 this.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, { // ✨ 상수 사용
                                     attackerId: unit.id,
@@ -165,7 +166,7 @@ export class TurnEngine {
                                 this.battleCalculationManager.requestDamageCalculation(unit.id, targetUnit.id, defaultAttackSkillData);
                                 await this.delayEngine.waitFor(500);
                             } else {
-                                if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Target ${action.targetId} is no longer valid for attack.`);
+                                if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Target ${action.targetId} is no longer valid or out of range.`);
                             }
                         }
                     } else if (action.actionType === 'skill') {

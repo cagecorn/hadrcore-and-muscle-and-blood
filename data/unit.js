@@ -28,7 +28,8 @@ export const UNITS = {
             intelligence: 5,
             wisdom: 10,
             luck: 15,
-            weight: 30
+            weight: 30,
+            attackRange: 1 // 기본 근접 사거리
         },
         spriteId: 'sprite_warrior_default',
         tags: ['용병', '남자'] // ✨ 유닛 자체의 태그

@@ -74,6 +74,9 @@ import { BattleFormationManager } from './managers/BattleFormationManager.js';
 import { MonsterSpawnManager } from './managers/MonsterSpawnManager.js';
 import { UnitStatManager } from './managers/UnitStatManager.js';
 import { StageDataManager } from './managers/StageDataManager.js';
+import { RangeManager } from './managers/RangeManager.js';
+import { MonsterEngine } from './managers/MonsterEngine.js';
+import { MonsterAI } from './managers/MonsterAI.js';
 
 // ✨ 상수 파일 임포트
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
@@ -156,6 +159,7 @@ export class GameEngine {
         // Managers that rely on BattleSimulationManager
         this.unitStatManager = new UnitStatManager(this.battleSimulationManager);
         this.stageDataManager = new StageDataManager();
+        this.rangeManager = new RangeManager(this.battleSimulationManager);
 
         // 2. CameraEngine 초기화 (ParticleEngine에서 사용)
         this.cameraEngine = new CameraEngine(this.renderer, this.logicManager, this.sceneEngine);
@@ -380,6 +384,10 @@ export class GameEngine {
         // ✨ BasicAIManager에 신규 매니저들 주입
         this.basicAIManager = new BasicAIManager(this.targetingManager, this.positionManager);
 
+        // Monster-related managers
+        this.monsterAI = new MonsterAI(this.basicAIManager);
+        this.monsterEngine = new MonsterEngine(this.monsterAI);
+
         // AI 와 턴 진행 관련 매니저들
         this.turnOrderManager = new TurnOrderManager(
             this.eventManager,
@@ -414,8 +422,9 @@ export class GameEngine {
             this.basicAIManager,
             this.warriorSkillsAI,
             this.diceEngine,
-            this.targetingManager, // 이미 주입되고 있었는지 확인
-            this.diceBotEngine
+            this.targetingManager,
+            this.diceBotEngine,
+            this.monsterAI
         );
 
         // ✨ TurnEngine에 새로운 의존성 전달
@@ -429,7 +438,8 @@ export class GameEngine {
             this.timingEngine,
             this.animationManager,
             this.battleCalculationManager,
-            this.statusEffectManager
+            this.statusEffectManager,
+            this.rangeManager
         );
 
         // ------------------------------------------------------------------
@@ -841,4 +851,7 @@ export class GameEngine {
     getPassiveIconManager() { return this.passiveIconManager; }
     getUnitStatManager() { return this.unitStatManager; }
     getStageDataManager() { return this.stageDataManager; }
+    getRangeManager() { return this.rangeManager; }
+    getMonsterEngine() { return this.monsterEngine; }
+    getMonsterAI() { return this.monsterAI; }
 }

@@ -1,6 +1,7 @@
 // js/managers/MonsterSpawnManager.js
 
 import { ATTACK_TYPES } from '../constants.js';
+import { MONSTER_CLASSES } from '../../data/monsterClass.js';
 
 // StageDataManager will provide monster layouts
 
@@ -24,7 +25,7 @@ export class MonsterSpawnManager {
             return;
         }
 
-        const zombieClassData = await this.idManager.get('class_zombie');
+        const zombieClassData = MONSTER_CLASSES.ZOMBIE;
         const zombieImage = this.assetLoaderManager.getImage('sprite_zombie_default');
 
         if (!zombieClassData || !zombieClassData.baseStats) {
