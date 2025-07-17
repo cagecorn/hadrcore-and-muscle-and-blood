@@ -42,10 +42,14 @@ export class BasicAIManager {
             return { actionType: 'moveAndAttack', targetId: target.id, moveTargetX: destination.x, moveTargetY: destination.y };
         }
 
-        const pathToTarget = this.positionManager.findPath({ x: unit.gridX, y: unit.gridY }, { x: target.gridX, y: target.gridY });
+        const pathToTarget = this.positionManager.findPath(
+            { x: unit.gridX, y: unit.gridY },
+            { x: target.gridX, y: target.gridY }
+        );
         if (pathToTarget && pathToTarget.length > 1) {
-            const moveIndex = Math.min(pathToTarget.length - 2, moveRange - 1); // -2 to stop before target, -1 because path length includes start
-            const moveDestination = pathToTarget[moveIndex + 1];
+            // 경로의 마지막은 적 유닛이므로, 그 바로 앞(-2)까지 이동 가능한 최대 지점으로 이동
+            const maxReachableIndex = Math.min(pathToTarget.length - 2, moveRange - 1);
+            const moveDestination = pathToTarget[maxReachableIndex + 1];
 
             if (moveDestination && !this.positionManager.battleSimulationManager.isTileOccupied(moveDestination.x, moveDestination.y, unit.id)) {
                 if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving adjacent to ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
