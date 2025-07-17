@@ -1,6 +1,6 @@
 import { TurnState } from './TurnState.js';
 import { ProcessUnitTurnState } from './ProcessUnitTurnState.js';
-import { GAME_EVENTS, ATTACK_TYPES } from '../constants.js';
+import { GAME_EVENTS, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 
 export class StartTurnState extends TurnState {
     async enter() {
@@ -13,7 +13,9 @@ export class StartTurnState extends TurnState {
             return;
         }
         this.turnEngine.currentTurn++;
-        console.log(`\n--- Turn ${this.turnEngine.currentTurn} Starts ---`);
+        if (GAME_DEBUG_MODE) {
+            console.log(`%c--- Turn ${this.turnEngine.currentTurn} Starts ---`, "color: cyan; font-size: 1.1em;");
+        }
         this.turnEngine.eventManager.emit(GAME_EVENTS.TURN_START, { turn: this.turnEngine.currentTurn });
         this.turnEngine.timingEngine.clearActions();
         this.turnEngine.eventManager.emit(GAME_EVENTS.TURN_PHASE, { phase: 'startOfTurn', turn: this.turnEngine.currentTurn });

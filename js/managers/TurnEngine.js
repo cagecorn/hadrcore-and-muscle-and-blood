@@ -1,13 +1,15 @@
 // js/managers/TurnEngine.js
 
 // ✨ 상수 파일 임포트
-import { GAME_EVENTS, UI_STATES, ATTACK_TYPES } from '../constants.js';
+import { GAME_EVENTS, UI_STATES, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 import { StartTurnState } from '../states/StartTurnState.js';
 import { AIEngine } from './AIEngine.js';
 
 export class TurnEngine {
     constructor(eventManager, battleSimulationManager, turnOrderManager, classAIManager, delayEngine, timingEngine, measureManager, animationManager, battleCalculationManager, statusEffectManager) {
-        console.log("🌀 TurnEngine initialized. Ready to manage game turns. 🌀");
+        if (GAME_DEBUG_MODE) {
+            console.log("🌀 TurnEngine initialized. Ready to manage game turns. 🌀");
+        }
         this.eventManager = eventManager;
         this.battleSimulationManager = battleSimulationManager;
         this.turnOrderManager = turnOrderManager;
@@ -73,7 +75,9 @@ export class TurnEngine {
             this.currentState.exit();
         }
         this.currentState = newState;
-        console.log(`[TurnEngine] State changed to: ${this.currentState.constructor.name}`);
+        if (GAME_DEBUG_MODE) {
+            console.log(`%c[TurnEngine] State changed to: ${this.currentState.constructor.name}`, "color: #2E8B57; font-weight: bold;");
+        }
         if (this.currentState.enter) {
             this.currentState.enter();
         }
@@ -90,14 +94,18 @@ export class TurnEngine {
      */
     initializeTurnOrder() {
         this.turnOrder = this.turnOrderManager.calculateTurnOrder();
-        console.log("[TurnEngine] Turn order initialized:", this.turnOrder.map(unit => unit.name));
+        if (GAME_DEBUG_MODE) {
+            console.log("[TurnEngine] Turn order initialized:", this.turnOrder.map(unit => unit.name));
+        }
     }
 
     /**
      * 턴 진행을 시작합니다.
      */
     async startBattleTurns() {
-        console.log("[TurnEngine] Battle turns are starting!");
+        if (GAME_DEBUG_MODE) {
+            console.log("[TurnEngine] Battle turns are starting!");
+        }
         this.currentTurn = 0;
         this.initializeTurnOrder();
         // 전투 시작 시 모든 유닛을 AIEngine에 등록
@@ -117,7 +125,9 @@ export class TurnEngine {
     addTurnPhaseCallback(phase, callback) {
         if (this.turnPhaseCallbacks[phase]) {
             this.turnPhaseCallbacks[phase].push(callback);
-            console.log(`[TurnEngine] Registered callback for '${phase}' phase.`);
+            if (GAME_DEBUG_MODE) {
+                console.log(`[TurnEngine] Registered callback for '${phase}' phase.`);
+            }
         } else {
             console.warn(`[TurnEngine] Invalid turn phase: ${phase}`);
         }

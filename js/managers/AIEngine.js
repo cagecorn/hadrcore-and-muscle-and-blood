@@ -5,13 +5,16 @@ import { Selector } from '../ai/core/Selector.js';
 import { Sequence } from '../ai/core/Sequence.js';
 import { FindTargetNode, MoveToTargetNode, AttackTargetNode, UseSkillNode, DecideSkillNode } from '../ai/nodes/UnitActionNodes.js';
 import { IsTargetInRangeNode } from '../ai/nodes/UnitConditionNodes.js';
+import { GAME_DEBUG_MODE } from '../constants.js';
 
 export class AIEngine {
     /**
      * @param {object} managers - 게임의 모든 주요 매니저 객체
      */
     constructor(managers) {
-        console.log("🤖 AIEngine (Behavior Tree) initialized. Ready to orchestrate intelligent behaviors. 🤖");
+        if (GAME_DEBUG_MODE) {
+            console.log("🤖 AIEngine (Behavior Tree) initialized. Ready to orchestrate intelligent behaviors. 🤖");
+        }
         this.managers = managers;
         this.unitControllers = new Map(); // key: unitId, value: { bt: BehaviorTree, blackboard: Blackboard }
     }
@@ -29,7 +32,9 @@ export class AIEngine {
 
         const behaviorTree = this._createBehaviorTreeForUnit(unit);
         this.unitControllers.set(unit.id, { bt: behaviorTree, blackboard });
-        console.log(`[AIEngine] ${unit.name}을(를) 위한 행동 트리 컨트롤러를 생성하고 등록했습니다.`);
+        if (GAME_DEBUG_MODE) {
+            console.log(`[AIEngine] ${unit.name}을(를) 위한 행동 트리 컨트롤러를 생성하고 등록했습니다.`);
+        }
     }
 
     /**
@@ -64,7 +69,9 @@ export class AIEngine {
     async runUnitAI(unitId) {
         const controller = this.unitControllers.get(unitId);
         if (controller) {
-            console.log(`%c[AIEngine] ${controller.blackboard.getData('self').name}의 AI를 실행합니다...`, "color: yellow");
+            if (GAME_DEBUG_MODE) {
+                console.log(`%c[AIEngine] ${controller.blackboard.getData('self').name}의 AI를 실행합니다...`, "color: yellow; font-weight:bold;");
+            }
             await controller.bt.evaluate(controller.blackboard);
         } else {
             console.warn(`[AIEngine] 유닛을 위한 BT 컨트롤러를 찾을 수 없습니다: ${unitId}`);
@@ -77,7 +84,9 @@ export class AIEngine {
      */
     removeUnit(unitId) {
         if (this.unitControllers.delete(unitId)) {
-            console.log(`[AIEngine] Removed controller for unit ${unitId}.`);
+            if (GAME_DEBUG_MODE) {
+                console.log(`[AIEngine] Removed controller for unit ${unitId}.`);
+            }
         }
     }
 
@@ -86,6 +95,8 @@ export class AIEngine {
      */
     cleanup() {
         this.unitControllers.clear();
-        console.log("[AIEngine] 모든 AI 컨트롤러를 정리했습니다.");
+        if (GAME_DEBUG_MODE) {
+            console.log("[AIEngine] 모든 AI 컨트롤러를 정리했습니다.");
+        }
     }
 }

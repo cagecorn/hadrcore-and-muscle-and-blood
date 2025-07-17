@@ -3,21 +3,27 @@ import { Node, NodeState } from '../core/Node.js';
 import { AttackCommand } from '../../commands/AttackCommand.js';
 import { MoveCommand } from '../../commands/MoveCommand.js';
 import { WARRIOR_SKILLS } from '../../../data/warriorSkills.js';
+import { GAME_DEBUG_MODE } from '../../constants.js';
 
 /**
  * 공격할 대상을 찾아 블랙보드에 'target'으로 저장합니다.
  */
 export class FindTargetNode extends Node {
     async evaluate(blackboard) {
+        const unit = blackboard.getData('self');
         const { targetingManager } = blackboard.getData('managers');
         const target = targetingManager.getLowestHpUnit('enemy');
 
         if (target) {
             blackboard.setData('target', target);
-            console.log(`[BT-Action] ${blackboard.getData('self').name}이(가) 대상을 찾았습니다: ${target.name}`);
+            if (GAME_DEBUG_MODE) {
+                console.log(`  [BT-SUCCESS] ${unit.name}: 대상을 찾음 -> ${target.name}`);
+            }
             return NodeState.SUCCESS;
         }
-        console.log(`[BT-Action] ${blackboard.getData('self').name}이(가) 공격 대상을 찾지 못했습니다.`);
+        if (GAME_DEBUG_MODE) {
+            console.log(`  [BT-FAILURE] ${unit.name}: 공격 대상을 찾지 못함.`);
+        }
         return NodeState.FAILURE;
     }
 }
@@ -36,13 +42,19 @@ export class MoveToTargetNode extends Node {
         const moveRange = classData.moveRange || 3;
 
         const moveAction = basicAIManager.determineMoveAndTarget(unit, [target], moveRange, 1);
+
         if (moveAction && (moveAction.actionType === 'move' || moveAction.actionType === 'moveAndAttack')) {
-            console.log(`[BT-Action] ${unit.name}이(가) ${target.name}을(를) 향해 (${moveAction.moveTargetX}, ${moveAction.moveTargetY})로 이동합니다.`);
+            if (GAME_DEBUG_MODE) {
+                console.log(`  [BT-SUCCESS] ${unit.name}: ${target.name}을(를) 향해 (${moveAction.moveTargetX}, ${moveAction.moveTargetY})로 이동 실행.`);
+            }
             const command = new MoveCommand(unit.id, moveAction.moveTargetX, moveAction.moveTargetY);
             await command.execute({ battleSimulationManager, animationManager });
             return NodeState.SUCCESS;
         }
 
+        if (GAME_DEBUG_MODE) {
+            console.log(`  [BT-FAILURE] ${unit.name}: ${target.name}에게 이동할 수 없음.`);
+        }
         return NodeState.FAILURE;
     }
 }
@@ -58,7 +70,9 @@ export class AttackTargetNode extends Node {
         const target = blackboard.getData('target');
         const { battleCalculationManager, eventManager, delayEngine } = blackboard.getData('managers');
 
-        console.log(`[BT-Action] ${unit.name}이(가) ${target.name}을(를) 공격합니다.`);
+        if (GAME_DEBUG_MODE) {
+            console.log(`  [BT-SUCCESS] ${unit.name}: ${target.name} 공격 실행.`);
+        }
         const command = new AttackCommand(unit.id, target.id);
         await command.execute({ battleCalculationManager, eventManager, delayEngine });
 
@@ -101,7 +115,9 @@ export class DecideSkillNode extends Node {
 
                     if (targetUnit) {
                         blackboard.setData('skillTarget', targetUnit);
-                        console.log(`[BT-Action] ${unit.name}이(가) 스킬 사용을 결정했습니다: ${skillData.name}`);
+                        if (GAME_DEBUG_MODE) {
+                            console.log(`  [BT-SUCCESS] ${unit.name}: 스킬 사용 결정 -> ${skillData.name}`);
+                        }
                         return NodeState.SUCCESS;
                     } else {
                         return NodeState.FAILURE;
@@ -136,7 +152,9 @@ export class UseSkillNode extends Node {
 
         const aiFunction = warriorSkillsAI[skillData.aiFunction];
         if (typeof aiFunction === 'function') {
-            console.log(`[BT-Action] ${unit.name}이(가) 스킬 '${skillData.name}'을(를) ${target ? target.name : ''}에게 사용합니다.`);
+            if (GAME_DEBUG_MODE) {
+                console.log(`  [BT-SUCCESS] ${unit.name}: 스킬 '${skillData.name}' 사용.`);
+            }
             await aiFunction.call(warriorSkillsAI, unit, target, skillData);
 
             blackboard.setData('skillToUse', null);
