@@ -38,7 +38,6 @@ export class SkillIconManager {
     async _loadDefaultSkillIcons() {
         if (GAME_DEBUG_MODE) console.log("[SkillIconManager] Loading default skill icons...");
         const skillIconPaths = {
-            'skill_warrior_charge': 'assets/icons/skills/charge.png',
             'skill_warrior_battle_cry': 'assets/icons/skills/battle_cry.png',
             'skill_warrior_rending_strike': 'assets/icons/skills/rending_strike.png',
             'skill_warrior_retaliate': 'assets/icons/skills/retaliate.png',
@@ -72,7 +71,7 @@ export class SkillIconManager {
 
     /**
      * 특정 스킬 ID에 해당하는 아이콘 이미지를 반환합니다.
-     * @param {string} skillId - 스킬의 고유 ID (예: 'skill_warrior_charge')
+     * @param {string} skillId - 스킬의 고유 ID (예: 'skill_warrior_battle_cry')
      * @returns {HTMLImageElement | undefined} 스킬 아이콘 이미지 또는 찾을 수 없는 경우 undefined
      */
     getSkillIcon(skillId) {

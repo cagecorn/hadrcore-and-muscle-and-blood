@@ -51,7 +51,7 @@ export function runMicrocosmHeroEngineUnitTests() {
         id: 'hero_grommash_001',
         name: '그롬마쉬',
         classId: 'class_warrior',
-        skillSlots: ['skill_warrior_charge', 'skill_warrior_battle_cry', 'skill_warrior_rending_strike']
+        skillSlots: ['skill_warrior_battle_cry', 'skill_warrior_rending_strike']
     };
 
     // 테스트 1: 초기화 확인
