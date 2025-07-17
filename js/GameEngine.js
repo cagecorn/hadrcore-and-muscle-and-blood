@@ -358,6 +358,8 @@ export class GameEngine {
             this.battleCalculationManager
         );
 
+        this.battleCalculationManager.statusEffectManager = this.statusEffectManager;
+
         // 이제 StatusEffectManager가 준비되었으므로 DiceRollManager를 생성
         this.diceRollManager = new DiceRollManager(this.diceEngine, this.valorEngine, this.statusEffectManager);
         this.battleCalculationManager.diceRollManager = this.diceRollManager;
@@ -495,7 +497,12 @@ export class GameEngine {
         // ------------------------------------------------------------------
         // 13. Conditional & Passive Visual Managers
         // ------------------------------------------------------------------
-        this.passiveIconManager = new PassiveIconManager(this.battleSimulationManager, this.idManager, this.skillIconManager);
+        this.passiveIconManager = new PassiveIconManager(
+            this.battleSimulationManager,
+            this.idManager,
+            this.skillIconManager,
+            this.statusEffectManager
+        );
         this.attackManager = new AttackManager(this.eventManager, this.idManager); // AttackManager 인스턴스 생성
 
         // ------------------------------------------------------------------

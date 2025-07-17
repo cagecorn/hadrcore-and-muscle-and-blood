@@ -70,6 +70,24 @@ export const WARRIOR_SKILLS = {
             condition: (user, target) => target && user.getDistanceTo && user.getDistanceTo(target) <= 1
         }
     },
+    STONE_SKIN: {
+        id: 'skill_warrior_stone_skin',
+        name: '스톤 스킨',
+        description: '3턴 동안 받는 모든 피해가 15% 감소합니다.',
+        type: 'active',
+        icon: 'assets/icons/skills/stone-skin-icon.png',
+        cost: 20,
+        range: 0,
+        cooldown: 4,
+        effect: {
+            tags: ['방어', '버프'],
+            appliesEffect: 'status_stone_skin'
+        },
+        ai: {
+            usageChance: 0.3,
+            condition: (user, target) => user.currentHp / user.baseStats.hp <= 0.5
+        }
+    },
     // 패시브 스킬 (상시 발동 예시)
     IRON_WILL: {
         id: 'skill_warrior_iron_will',
