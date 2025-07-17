@@ -13,10 +13,10 @@ export class BindingManager {
      */
     bindUnit(unitId, components) {
         if (this.unitBindings.has(unitId)) {
-            console.warn(`[BindingManager] Unit '${unitId}' already has existing bindings. Overwriting.`);
+            // console.warn(`[BindingManager] Unit '${unitId}' already has existing bindings. Overwriting.`);
         }
         this.unitBindings.set(unitId, components);
-        console.log(`[BindingManager] Bound components to unit '${unitId}'.`);
+        // console.log(`[BindingManager] Bound components to unit '${unitId}'.`);
     }
 
     /**
