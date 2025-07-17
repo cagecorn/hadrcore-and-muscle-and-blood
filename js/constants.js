@@ -25,6 +25,7 @@ export const GAME_EVENTS = {
     CANVAS_MOUSE_MOVED: 'canvasMouseMoved', // ✨ 마우스 이동 이벤트 추가
     CRITICAL_ERROR: 'criticalError', // ✨ 심각한 오류 발생 시 발행될 이벤트
     ASSET_LOAD_PROGRESS: 'assetLoadProgress', // ✨ 에셋 로딩 진행 이벤트 추가
+    AI_ACTION_DECIDED: 'aiActionDecided', // JudgementManager에서 사용
     ASSETS_LOADED: 'assetsLoaded'             // ✨ 모든 에셋 로딩 완료 이벤트 추가
 };
 

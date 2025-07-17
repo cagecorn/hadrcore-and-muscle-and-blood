@@ -1,8 +1,9 @@
 // js/managers/DiceEngine.js
+import { GAME_DEBUG_MODE } from '../constants.js';
 
 export class DiceEngine {
     constructor() {
-        console.log("\uD83C\uDFB2 DiceEngine initialized. Ready to roll all random elements. \uD83C\uDFB2");
+        if (GAME_DEBUG_MODE) console.log("\uD83C\uDFB2 DiceEngine initialized. Ready to roll all random elements. \uD83C\uDFB2");
         // 이 엔진은 순수하게 무작위성을 제공하는 메서드를 포함합니다.
     }
 
@@ -13,11 +14,11 @@ export class DiceEngine {
      */
     rollD(sides) {
         if (sides <= 0) {
-            console.warn("[DiceEngine] Cannot roll a dice with 0 or negative sides. Returning 1.");
+            if (GAME_DEBUG_MODE) console.warn("[DiceEngine] Cannot roll a dice with 0 or negative sides. Returning 1.");
             return 1;
         }
         const result = Math.floor(Math.random() * sides) + 1;
-        console.log(`[DiceEngine] Rolled d${sides}: ${result}`);
+        if (GAME_DEBUG_MODE) console.log(`[DiceEngine] Rolled d${sides}: ${result}`);
         return result;
     }
 

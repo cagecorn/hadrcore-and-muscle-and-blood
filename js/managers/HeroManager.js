@@ -1,13 +1,13 @@
 // js/managers/HeroManager.js
 
-import { ATTACK_TYPES } from '../constants.js';
+import { ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 import { UNITS } from '../../data/unit.js';
 import { CLASSES } from '../../data/class.js';
 import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class HeroManager {
     constructor(idManager, diceEngine, assetLoaderManager, battleSimulationManager, unitSpriteEngine, diceBotEngine) {
-        console.log("\u2728 HeroManager initialized. Ready to create legendary heroes. \u2728");
+        if (GAME_DEBUG_MODE) console.log("\u2728 HeroManager initialized. Ready to create legendary heroes. \u2728");
         this.idManager = idManager;
         this.diceEngine = diceEngine;
         this.assetLoaderManager = assetLoaderManager;
@@ -26,7 +26,7 @@ export class HeroManager {
      * @returns {Promise<object[]>} 생성된 영웅 데이터 배열
      */
     async createWarriors(count) {
-        console.log(`[HeroManager] Creating data for ${count} new warriors...`);
+        if (GAME_DEBUG_MODE) console.log(`[HeroManager] Creating data for ${count} new warriors...`);
         const warriorClassData = await this.idManager.get(CLASSES.WARRIOR.id);
         const warriorImage = this.assetLoaderManager.getImage(UNITS.WARRIOR.spriteId);
 
@@ -69,7 +69,7 @@ export class HeroManager {
             });
 
             createdHeroes.push(heroUnitData);
-            console.log(`[HeroManager] Created data for warrior: ${heroUnitData.name}`);
+            if (GAME_DEBUG_MODE) console.log(`[HeroManager] Created data for warrior: ${heroUnitData.name}`);
         }
         return createdHeroes;
     }

@@ -1,116 +1,70 @@
 // js/managers/TargetingManager.js
 
-import { ATTACK_TYPES } from '../constants.js'; // ATTACK_TYPES 상수를 활용
+import { GAME_DEBUG_MODE } from '../constants.js';
 
+/**
+ * 전투에서 목표물을 찾고 우선순위를 정하는 '색적' 역할을 담당합니다.
+ */
 export class TargetingManager {
-    /**
-     * TargetingManager를 초기화합니다.
-     * @param {BattleSimulationManager} battleSimulationManager - 유닛 데이터를 가져오기 위한 BattleSimulationManager 인스턴스
-     */
     constructor(battleSimulationManager) {
-        console.log("\uD83C\uDFC6 TargetingManager initialized. Ready to scout for specific units. \uD83C\uDFC6");
+        if (GAME_DEBUG_MODE) console.log("🎯 TargetingManager initialized. Ready to find targets. 🎯");
         this.battleSimulationManager = battleSimulationManager;
     }
 
     /**
-     * 현재 전장에 있는 유닛들 중에서 특정 조건에 맞는 유닛들을 필터링합니다.
-     * @param {function(object): boolean} conditionFn - 각 유닛에 대해 실행될 조건 함수. true를 반환하면 포함됩니다.
-     * @param {string | null} [typeFilter=null] - 필터링할 유닛 타입 (예: ATTACK_TYPES.ENEMY, ATTACK_TYPES.MERCENARY). null이면 모든 타입을 포함합니다.
-     * @returns {object[]} 조건에 맞는 유닛들의 배열
+     * 지정된 기준에 따라 최적의 목표 유닛을 찾습니다.
+     * @param {string} unitType - 찾을 유닛의 타입 ('enemy' 또는 'ally')
+     * @param {string} criteria - 목표 선정 기준 ('lowestHp', 'closest', 등)
+     * @param {object} userUnit - 행동의 주체인 유닛 (기준이 'closest'일 때 필요)
+     * @returns {object | null} 찾아낸 목표 유닛 또는 null
      */
-    getUnitsByCondition(conditionFn, typeFilter = null) {
-        const matchingUnits = [];
-        for (const unit of this.battleSimulationManager.unitsOnGrid) {
-            if (unit.currentHp <= 0) continue; // 죽은 유닛은 제외
+    findBestTarget(unitType, criteria, userUnit) {
+        const allUnits = this.battleSimulationManager.unitsOnGrid;
+        const potentialTargets = allUnits.filter(u => u.type !== userUnit.type && u.currentHp > 0);
 
-            if (typeFilter && unit.type !== typeFilter) {
-                continue; // 타입 필터가 있고 일치하지 않으면 건너뛰기
-            }
-
-            if (conditionFn(unit)) {
-                matchingUnits.push(unit);
-            }
+        if (potentialTargets.length === 0) {
+            return null;
         }
-        console.log(`[TargetingManager] Found ${matchingUnits.length} units matching condition (Type filter: ${typeFilter || 'none'}).`);
-        return matchingUnits;
+
+        switch (criteria) {
+            case 'lowestHp':
+                return this.getLowestHpUnit(potentialTargets);
+            case 'closest':
+                return this.getClosestUnit(userUnit, potentialTargets);
+            // 향후 'highestThreat', 'mostVulnerable' 등 다양한 기준 추가 가능
+            default:
+                // 기본적으로는 체력이 가장 낮은 유닛을 반환
+                return this.getLowestHpUnit(potentialTargets);
+        }
     }
 
     /**
-     * 특정 타입의 유닛 중 현재 체력이 가장 낮은 유닛을 찾습니다.
-     * @param {string | null} [typeFilter=null] - 필터링할 유닛 타입 (예: ATTACK_TYPES.ENEMY, ATTACK_TYPES.MERCENARY)
-     * @returns {object | null} 체력이 가장 낮은 유닛 또는 찾을 수 없는 경우 null
+     * 주어진 유닛 목록에서 현재 체력이 가장 낮은 유닛을 반환합니다.
+     * @param {Array<object>} unitList - 대상 유닛 목록
+     * @returns {object | null}
      */
-    getLowestHpUnit(typeFilter = null) {
-        let lowestHpUnit = null;
-        let minHp = Infinity;
-
-        this.getUnitsByCondition(unit => {
-            if (unit.currentHp < minHp) {
-                minHp = unit.currentHp;
-                lowestHpUnit = unit;
+    getLowestHpUnit(unitList) {
+        return unitList.reduce((lowest, unit) => {
+            if (!lowest || unit.currentHp < lowest.currentHp) {
+                return unit;
             }
-            return false; // 모든 유닛을 순회하며 비교만 하므로 항상 false 반환
-        }, typeFilter);
-
-        if (lowestHpUnit) {
-            console.log(`[TargetingManager] Lowest HP unit (${typeFilter || 'any'}): ${lowestHpUnit.name} (${lowestHpUnit.currentHp} HP).`);
-        } else {
-            console.log(`[TargetingManager] No lowest HP unit found for type '${typeFilter || 'any'}'.`);
-        }
-        return lowestHpUnit;
+            return lowest;
+        }, null);
     }
 
     /**
-     * 특정 타입의 유닛 중 기본 공격력이 가장 높은 유닛을 찾습니다.
-     * (참고: 현재 '피해량'은 누적된 값이 없으므로, '기본 공격 스탯' 기준으로 색적합니다.)
-     * @param {string | null} [typeFilter=null] - 필터링할 유닛 타입
-     * @returns {object | null} 공격력이 가장 높은 유닛 또는 찾을 수 없는 경우 null
+     * 사용자 유닛으로부터 가장 가까운 유닛을 반환합니다.
+     * @param {object} userUnit - 기준점 유닛
+     * @param {Array<object>} unitList - 대상 유닛 목록
+     * @returns {object | null}
      */
-    getHighestAttackUnit(typeFilter = null) {
-        let highestAttackUnit = null;
-        let maxAttack = -1;
-
-        this.getUnitsByCondition(unit => {
-            const attackStat = unit.baseStats ? unit.baseStats.attack || 0 : 0;
-            if (attackStat > maxAttack) {
-                maxAttack = attackStat;
-                highestAttackUnit = unit;
+    getClosestUnit(userUnit, unitList) {
+        return unitList.reduce((closest, unit) => {
+            const dist = Math.abs(userUnit.gridX - unit.gridX) + Math.abs(userUnit.gridY - unit.gridY);
+            if (!closest || dist < closest.distance) {
+                return { unit: unit, distance: dist };
             }
-            return false;
-        }, typeFilter);
-
-        if (highestAttackUnit) {
-            console.log(`[TargetingManager] Highest Attack unit (${typeFilter || 'any'}): ${highestAttackUnit.name} (${highestAttackUnit.baseStats.attack} Attack).`);
-        } else {
-            console.log(`[TargetingManager] No highest Attack unit found for type '${typeFilter || 'any'}'.`);
-        }
-        return highestAttackUnit;
-    }
-
-    /**
-     * 특정 타입의 유닛 중 기본 마법 공격력이 가장 높은 유닛을 찾습니다.
-     * @param {string | null} [typeFilter=null] - 필터링할 유닛 타입
-     * @returns {object | null} 마법 공격력이 가장 높은 유닛 또는 찾을 수 없는 경우 null
-     */
-    getHighestMagicUnit(typeFilter = null) {
-        let highestMagicUnit = null;
-        let maxMagic = -1;
-
-        this.getUnitsByCondition(unit => {
-            const magicStat = unit.baseStats ? unit.baseStats.magic || 0 : 0;
-            if (magicStat > maxMagic) {
-                maxMagic = magicStat;
-                highestMagicUnit = unit;
-            }
-            return false;
-        }, typeFilter);
-
-        if (highestMagicUnit) {
-            console.log(`[TargetingManager] Highest Magic unit (${typeFilter || 'any'}): ${highestMagicUnit.name} (${highestMagicUnit.baseStats.magic} Magic).`);
-        } else {
-            console.log(`[TargetingManager] No highest Magic unit found for type '${typeFilter || 'any'}'.`);
-        }
-        return highestMagicUnit;
+            return closest;
+        }, null)?.unit; // 결과 객체에서 unit만 추출
     }
 }
-

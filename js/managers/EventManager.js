@@ -1,7 +1,7 @@
 // js/managers/EventManager.js
 
 // ✨ 상수 파일 임포트
-import { GAME_EVENTS, ATTACK_TYPES } from '../constants.js';
+import { GAME_EVENTS, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 
 export class EventManager {
     constructor() {
@@ -24,7 +24,7 @@ export class EventManager {
             });
         };
 
-        console.log("[EventManager] Initialized with Web Worker.");
+        if (GAME_DEBUG_MODE) console.log("[EventManager] Initialized with Web Worker.");
     }
 
     /**
@@ -39,14 +39,14 @@ export class EventManager {
             this.dispatch(eventName, data);
         } else if (type === 'SKILL_TRIGGERED') {
             // Worker의 '작은 엔진'이 스킬 발동을 요청함
-            console.log(`[EventManager] Worker requested skill: ${skillName}`);
+            if (GAME_DEBUG_MODE) console.log(`[EventManager] Worker requested skill: ${skillName}`);
             // TODO: 실제 게임에서는 이 요청을 CombatEngine이나 StatSystem 등으로 전달하여
             // 해당 스킬의 효과를 적용해야 합니다.
             // 임시로 콘솔에 출력
             if (skillName === '흡혈') {
-                console.log(`[EventManager] Unit ${targetUnitId} 흡혈 ${amount} 만큼 발동!`);
+                if (GAME_DEBUG_MODE) console.log(`[EventManager] Unit ${targetUnitId} 흡혈 ${amount} 만큼 발동!`);
             } else if (skillName === '광역 공포') {
-                console.log(`[EventManager] ${sourceUnitId} 사망으로 인한 광역 공포(${radius} 범위) 발동!`);
+                if (GAME_DEBUG_MODE) console.log(`[EventManager] ${sourceUnitId} 사망으로 인한 광역 공포(${radius} 범위) 발동!`);
             }
             // 이 시점에서 다시 이벤트를 발생시킬 수도 있습니다.
             this.emit(GAME_EVENTS.SKILL_EXECUTED, { skillName, targetUnitId, amount, sourceUnitId, radius }); // ✨ 상수 사용
@@ -74,7 +74,7 @@ export class EventManager {
             this.subscribers.set(eventName, []);
         }
         this.subscribers.get(eventName).push(callback);
-        console.log(`[EventManager] Subscribed to event: ${eventName}`);
+        if (GAME_DEBUG_MODE) console.log(`[EventManager] Subscribed to event: ${eventName}`);
     }
 
     /**
@@ -94,7 +94,7 @@ export class EventManager {
     terminateWorker() {
         if (this.worker) {
             this.worker.terminate();
-            console.log("[EventManager] Web Worker terminated.");
+            if (GAME_DEBUG_MODE) console.log("[EventManager] Web Worker terminated.");
         }
     }
 
