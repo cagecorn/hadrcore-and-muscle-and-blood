@@ -48,10 +48,18 @@ export class BasicAIManager {
         );
         if (pathToTarget && pathToTarget.length > 1) {
             // 이동 가능한 최대 거리 내에서 적에게 가장 근접한 위치를 찾음
-            const maxReachableIndex = Math.min(pathToTarget.length - 2, moveRange);
-            const moveDestination = pathToTarget[maxReachableIndex];
+            const maxReachableIndex = Math.min(moveRange, pathToTarget.length - 1);
 
-            if (moveDestination && !this.positionManager.battleSimulationManager.isTileOccupied(moveDestination.x, moveDestination.y, unit.id)) {
+            let moveDestination = null;
+            for (let i = maxReachableIndex; i > 0; i--) {
+                const candidate = pathToTarget[i];
+                if (!this.positionManager.battleSimulationManager.isTileOccupied(candidate.x, candidate.y, unit.id)) {
+                    moveDestination = candidate;
+                    break;
+                }
+            }
+
+            if (moveDestination) {
                 if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving towards ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
                 return { actionType: 'move', moveTargetX: moveDestination.x, moveTargetY: moveDestination.y };
             }
