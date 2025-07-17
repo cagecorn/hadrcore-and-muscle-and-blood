@@ -125,6 +125,49 @@ export class WarriorSkillsAI {
     }
 
     /**
+     * '더블 스트라이크' 스킬을 실행합니다. 대상에게 연속으로 두 번의 기본 공격을 시도합니다.
+     * @param {object} userUnit - 스킬 시전자
+     * @param {object} targetUnit - 공격 대상
+     * @param {object} skillData - 스킬 데이터 (WARRIOR_SKILLS.DOUBLE_STRIKE)
+     */
+    async doubleStrike(userUnit, targetUnit, skillData) {
+        if (!userUnit || !targetUnit || userUnit.currentHp <= 0) {
+            if (GAME_DEBUG_MODE) console.warn("[WarriorSkillsAI] Double Strike failed: Invalid unit.");
+            return;
+        }
+
+        if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${userUnit.name} uses ${skillData.name} on ${targetUnit.name}!`);
+
+        this.managers.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
+            unitId: userUnit.id,
+            skillName: skillData.name
+        });
+        await this.managers.delayEngine.waitFor(300);
+
+        if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Double Strike: First attack.`);
+        this.managers.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
+            attackerId: userUnit.id,
+            targetId: targetUnit.id,
+            attackType: ATTACK_TYPES.MELEE,
+            skillId: null
+        });
+        await this.managers.delayEngine.waitFor(800);
+
+        if (targetUnit.currentHp > 0) {
+            if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Double Strike: Second attack.`);
+            this.managers.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
+                attackerId: userUnit.id,
+                targetId: targetUnit.id,
+                attackType: ATTACK_TYPES.MELEE,
+                skillId: null
+            });
+            await this.managers.delayEngine.waitFor(800);
+        } else if (GAME_DEBUG_MODE) {
+            console.log(`[WarriorSkillsAI] Target ${targetUnit.name} defeated. Second strike cancelled.`);
+        }
+    }
+
+    /**
      * '반격' 스킬의 AI 및 효과를 실행합니다. (리액션 스킬)
      * @param {object} userUnit - 스킬을 사용하는 유닛 객체 (공격받은 유닛)
      * @param {object} attackerUnit - 공격한 유닛 객체 (반격 대상)

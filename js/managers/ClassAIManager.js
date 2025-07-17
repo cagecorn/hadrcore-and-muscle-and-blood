@@ -1,6 +1,7 @@
 // js/managers/ClassAIManager.js
 
 import { GAME_DEBUG_MODE, ATTACK_TYPES } from '../constants.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class ClassAIManager {
     constructor(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine, monsterAI, rangeManager) {
@@ -22,14 +23,52 @@ export class ClassAIManager {
             return this.monsterAI.getMeleeAIAction(unit, allUnits);
         }
 
+        if (unit.classId === 'class_warrior') {
+            return this.getWarriorAction(unit, allUnits);
+        }
+
         const skillToUse = await this.decideSkillToUse(unit);
         if (skillToUse) {
             if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${skillToUse.name}`);
-            await this.executeSkillAI(unit, skillToUse);
-            return { actionType: 'skill', skillId: skillToUse.id }; // 스킬 사용을 명시적으로 반환
+            return {
+                actionType: 'skill',
+                skillId: skillToUse.id,
+                execute: () => this.executeSkillAI(unit, skillToUse)
+            };
         }
 
         if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] No skill was chosen for ${unit.name}, proceeding with basic AI.`);
+        const defaultMoveRange = unit.baseStats.moveRange || 1;
+        const defaultAttackRange = unit.baseStats.attackRange || 1;
+        return this.basicAIManager.determineMoveAndTarget(unit, allUnits, defaultMoveRange, defaultAttackRange);
+    }
+
+    async getWarriorAction(unit, allUnits) {
+        const skillToUse = await this.decideSkillToUse(unit);
+        if (skillToUse) {
+            if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${skillToUse.name}`);
+            return {
+                actionType: 'skill',
+                skillId: skillToUse.id,
+                execute: () => this.executeSkillAI(unit, skillToUse)
+            };
+        }
+
+        const doubleStrikeData = WARRIOR_SKILLS.DOUBLE_STRIKE;
+        const targetForDoubleStrike = this.targetingManager.findBestTarget('enemy', 'closest', unit);
+        if (targetForDoubleStrike &&
+            this.diceEngine.getRandomFloat() < doubleStrikeData.ai.usageChance &&
+            doubleStrikeData.ai.condition(unit, targetForDoubleStrike)) {
+            if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${doubleStrikeData.name}`);
+            return {
+                actionType: 'skill',
+                skillId: doubleStrikeData.id,
+                targetId: targetForDoubleStrike.id,
+                execute: () => this.warriorSkillsAI.doubleStrike(unit, targetForDoubleStrike, doubleStrikeData)
+            };
+        }
+
+        if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] No warrior skill chosen for ${unit.name}, using basic AI.`);
         const defaultMoveRange = unit.baseStats.moveRange || 1;
         const defaultAttackRange = unit.baseStats.attackRange || 1;
         return this.basicAIManager.determineMoveAndTarget(unit, allUnits, defaultMoveRange, defaultAttackRange);
