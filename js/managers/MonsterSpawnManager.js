@@ -48,7 +48,10 @@ export class MonsterSpawnManager {
                     spriteId: 'sprite_zombie_default',
                     gridX: pos.x,
                     gridY: pos.y,
-                    baseStats: { ...(zombieClassData.baseStats || {}) },
+                    baseStats: {
+                        ...(zombieClassData.baseStats || {}),
+                        moveRange: zombieClassData.moveRange || 1
+                    },
                     currentHp: zombieClassData.baseStats.hp,
                     skillSlots: [...(zombieClassData.skills || [])]
                 };
