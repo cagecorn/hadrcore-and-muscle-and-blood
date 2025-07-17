@@ -42,7 +42,7 @@ export class StatusEffectManager {
     }
 
     applyStatusEffect(unitId, statusEffectId) {
-        const effectData = STATUS_EFFECTS[statusEffectId.toUpperCase()];
+        const effectData = Object.values(STATUS_EFFECTS).find(effect => effect.id === statusEffectId);
         if (effectData) {
             this.turnCountManager.addEffect(unitId, effectData);
             this.eventManager.emit(GAME_EVENTS.STATUS_EFFECT_APPLIED, { unitId, statusEffectId, effectData }); // ✨ 상수 사용
