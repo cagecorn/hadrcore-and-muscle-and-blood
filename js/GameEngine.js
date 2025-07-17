@@ -50,6 +50,7 @@ import { TurnCountManager } from './managers/TurnCountManager.js';
 import { StatusEffectManager } from './managers/StatusEffectManager.js';
 import { WorkflowManager } from './managers/WorkflowManager.js';
 import { HeroEngine } from "./managers/HeroEngine.js"; // HeroEngine 추가
+import { MicrocosmHeroEngine } from './managers/MicrocosmHeroEngine.js'; // ✨ microcosm hero engine
 import { HeroManager } from './managers/HeroManager.js'; // ✨ HeroManager import
 import { SynergyEngine } from './managers/SynergyEngine.js'; // ✨ SynergyEngine 추가
 import { STATUS_EFFECTS } from '../data/statusEffects.js';
@@ -286,12 +287,16 @@ export class GameEngine {
         // ------------------------------------------------------------------
         // 9. Game Content & Feature Engines
         // ------------------------------------------------------------------
+        // ✨ 9-1. Microcosm Hero Engine
+        this.microcosmHeroEngine = new MicrocosmHeroEngine(this.idManager);
+
         // HeroEngine 초기화
         this.heroEngine = new HeroEngine(
             this.idManager,
             this.assetLoaderManager,
             this.diceEngine,
-            this.diceBotEngine
+            this.diceBotEngine,
+            this.microcosmHeroEngine
         );
 
         // ✨ SynergyEngine 초기화
@@ -397,7 +402,7 @@ export class GameEngine {
             this.eventManager,
             this.battleSimulationManager,
             this.turnOrderManager,
-            this.classAIManager,
+            this.microcosmHeroEngine,
             this.delayEngine,
             this.timingEngine,
             this.animationManager,
@@ -761,6 +766,7 @@ export class GameEngine {
     getDiceEngine() { return this.diceEngine; }
     getDiceRollManager() { return this.diceRollManager; }
     getHeroEngine() { return this.heroEngine; }
+    getMicrocosmHeroEngine() { return this.microcosmHeroEngine; }
     // ✨ HeroManager getter 추가
     getHeroManager() { return this.heroManager; }
     // ✨ SynergyEngine getter 추가

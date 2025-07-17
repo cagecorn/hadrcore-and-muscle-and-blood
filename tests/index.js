@@ -72,7 +72,8 @@ export function runEngineTests(
     assetLoaderManager = null,
     diceEngine = null,
     diceBotEngine = null,
-    eventManager = null
+    eventManager = null,
+    microcosmHeroEngine = null
 ) {
     runRendererTests(renderer);
     runGameLoopTests(gameLoop);
@@ -82,7 +83,7 @@ export function runEngineTests(
     if (battleSimulationManager) {
         runTargetingManagerUnitTests(battleSimulationManager);
     }
-    runHeroEngineUnitTests(idManager, assetLoaderManager, diceEngine, diceBotEngine);
+    runHeroEngineUnitTests(idManager, assetLoaderManager, diceEngine, diceBotEngine, microcosmHeroEngine);
     if (idManager && eventManager) {
         runSynergyEngineUnitTests(idManager, eventManager);
     }
