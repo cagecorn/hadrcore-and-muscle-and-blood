@@ -79,6 +79,20 @@ export class AIEngine {
     }
 
     /**
+     * 각 프레임마다 호출되어 새로 등장한 유닛을 등록합니다.
+     * 기존 컨트롤러가 없는 유닛만 등록하며, 행동 실행은 다른 시스템에서
+     * runUnitAI를 통해 이루어집니다.
+     * @param {object[]} allUnits - 현재 전장에 존재하는 모든 유닛
+     */
+    update(allUnits = []) {
+        for (const unit of allUnits) {
+            if (!this.unitControllers.has(unit.id)) {
+                this.registerUnit(unit, allUnits);
+            }
+        }
+    }
+
+    /**
      * 전투 중 사망하거나 더 이상 필요하지 않은 유닛의 컨트롤러를 제거합니다.
      * @param {string} unitId
      */
