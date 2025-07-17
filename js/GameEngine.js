@@ -188,13 +188,7 @@ export class GameEngine {
             console.log(`%c[System Health] GameEngine is drawing...`, 'color: #888;');
         }
 
-        const drawableServices = this.injector.getAllDrawable();
         this.renderEngine.draw();
-        for (const service of drawableServices) {
-            if (service !== this.renderEngine) {
-                service.draw && service.draw();
-            }
-        }
     }
 
     start() {
