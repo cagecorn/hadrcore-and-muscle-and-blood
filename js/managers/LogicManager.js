@@ -2,9 +2,21 @@
 
 export class LogicManager {
     constructor(measureManager, sceneManager) {
-        console.log("\ud0d1\uc815 \ub85c\uc9c1 \ub9c8\ub2c8\uc800 \ucd08\uae30\ud654\ub428. \uc0c1\uc2e4\uc744 \uac15\uc81c\ud560 \uc900\ube44 \ub41c\ub2e4. \ud83d\udd75\ufe0f");
+        console.log("\ud0d1\uc815 \ub85c\uc9c1 \ub9c8\ub2c8\uc800 \ucd08\uae30\ud654\ub428. \uc0c1\uc2e4\uc744 \uac15\uc81c\ud560 \uc900\ube44 \ub41c\ub2c4. \ud83d\udd75\ufe0f");
         this.measureManager = measureManager;
         this.sceneManager = sceneManager;
+
+        // \ud558\ub098\uc758 \uc2fc\uc774 \ub450 \ubc88 \uc774\uc0c1 \ubc1c\uc0dd\ud558\ub294
+        // \uc54c \uc218 \uc5c6\ub294 scene \uc774\ub984\uc5d0 \ub300\ud574\uc11c\ub294
+        // \d65c\uc131\ud654\ub41c \ub9c1 \ud2b8\ub9ac\uc7a5\uc744 \ud558\ub098\ub9cc \uc804\ub2ec\ud558\uace0
+        // \ub2e4\uc74c\ubd80\ud130\ub294 \ubc29\uc1a1\ud558\uc9c0 \uc54a\uae30 \uc704\ud574
+        // Set \ud615\ud0dc\uc758 \uc624\ub958 \ud45c\uc2dc \uae30\ub2a5\uc744 \ucd94\uac00\ud569\ub2c8\ub2e4.
+        this.warnedUnknownScenes = new Set();
+
+        // \ub3d9\uc77c\ud55c scene\uc5d0\uc11c \ub2e4\uc74c\ubd80\ud130\ub294 \ub9c1\uacfc \uc8fc\uae30\ub97c
+        // \ubc1c\uc0dd\ud558\uc9c0 \uc54a\uac8c \ud558\uae30 \uc704\ud574 \ucc28\uc774 \ubc29\uc0b0\uc744
+        // \ud5a5\ud574 \ucd94\uac00\ud569\ub2c8\ub2e4.
+        this.lastDebugSceneName = null;
     }
 
     /**
@@ -18,6 +30,7 @@ export class LogicManager {
         const currentSceneName = this.sceneManager.getCurrentSceneName();
 
         let contentWidth, contentHeight;
+
         if (currentSceneName === 'territoryScene') {
             // 영지 씬은 캔버스와 동일한 크기를 사용
             contentWidth = canvasWidth;
@@ -29,12 +42,20 @@ export class LogicManager {
             contentWidth = canvasWidth;
             contentHeight = canvasHeight;
         } else {
-            console.warn(`[LogicManager] Unknown scene name '${currentSceneName}'. Returning main game canvas dimensions as content dimensions.`);
+            if (!this.warnedUnknownScenes.has(currentSceneName)) {
+                console.warn(`[LogicManager] Unknown scene name '${currentSceneName}'. Returning main game canvas dimensions as content dimensions.`);
+                this.warnedUnknownScenes.add(currentSceneName);
+            }
             contentWidth = canvasWidth;
             contentHeight = canvasHeight;
         }
-        // ✨ 추가: 계산된 콘텐츠 크기 확인
-        console.log(`[LogicManager Debug] Scene: ${currentSceneName}, Content Dimensions: ${contentWidth}x${contentHeight}`);
+
+        // ✨ 추가: 계산된 콘텐츠 크기 확인 (같은 씬에서는 한 번만 출력)
+        if (this.lastDebugSceneName !== currentSceneName) {
+            console.log(`[LogicManager Debug] Scene: ${currentSceneName}, Content Dimensions: ${contentWidth}x${contentHeight}`);
+            this.lastDebugSceneName = currentSceneName;
+        }
+
         return { width: contentWidth, height: contentHeight };
     }
 
