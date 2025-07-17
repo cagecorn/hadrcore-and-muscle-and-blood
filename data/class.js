@@ -47,6 +47,20 @@ export const CLASSES = {
         moveRange: 2,
         tags: ['근접', '언데드', '적_클래스']
     },
+    // ✨ 전사 상위 클래스 추가
+    WARRIOR_VALIANT: {
+        id: 'class_warrior_valiant',
+        name: '용맹 기사',
+        role: CLASS_ROLES.TANK,
+        description: '전사의 전투 경험을 극대화한 고급 병종으로, 방어와 리더십이 뛰어납니다.',
+        skills: [
+            WARRIOR_SKILLS.CHARGE.id,
+            WARRIOR_SKILLS.BATTLE_CRY.id,
+            WARRIOR_SKILLS.IRON_WILL.id
+        ],
+        moveRange: 3,
+        tags: ['근접', '방어', '용병_클래스', '고급']
+    },
     // 다른 클래스들이 여기에 추가됩니다.
     // MAGE: { id: 'class_mage', ... }
     // ARCHER: { id: 'class_archer', ... }
