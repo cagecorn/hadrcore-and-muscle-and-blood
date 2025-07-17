@@ -8,6 +8,7 @@ export const GAME_EVENTS = {
     UNIT_TURN_START: 'unitTurnStart',
     UNIT_TURN_END: 'unitTurnEnd',
     UNIT_ATTACK_ATTEMPT: 'unitAttackAttempt',
+    BASIC_ATTACK_LANDED: 'basicAttackLanded', // AttackManager에서 사용
     UNIT_MOVED: 'unitMoved', // ✨ 추가
     TURN_PHASE: 'turnPhase',
     DAMAGE_CALCULATED: 'DAMAGE_CALCULATED',
