@@ -21,13 +21,11 @@ export class PositionManager {
         const positions = [];
         for (let dx = -attackRange; dx <= attackRange; dx++) {
             for (let dy = -attackRange; dy <= attackRange; dy++) {
-                // 맨해튼 거리(직선 이동) 기반으로 사거리 계산
                 if (Math.abs(dx) + Math.abs(dy) > attackRange) continue;
-                
+
                 const x = targetUnit.gridX + dx;
                 const y = targetUnit.gridY + dy;
 
-                // 자기 자신 위치는 공격 위치가 아님
                 if (x === targetUnit.gridX && y === targetUnit.gridY) continue;
 
                 if (this.isInsideMap(x, y) && !this.battleSimulationManager.isTileOccupied(x, y)) {
@@ -39,40 +37,99 @@ export class PositionManager {
     }
 
     /**
-     * 시작점에서 도착점까지의 최단 경로를 찾습니다. (A* 알고리즘의 간소화 버전)
+     * A* 알고리즘을 사용하여 시작점에서 도착점까지의 최단 경로를 찾습니다.
      * @param {{x: number, y: number}} startPos - 시작 좌표
      * @param {{x: number, y: number}} endPos - 도착 좌표
-     * @param {number} maxMoveRange - 최대 이동 가능 거리
-     * @returns {Array<{x: number, y: number}> | null} 경로 배열 또는 null
+     * @returns {Array<{x: number, y: number}> | null} 경로 노드 배열 또는 null
      */
-    findPath(startPos, endPos, maxMoveRange = Infinity) {
-        const maxRange = (maxMoveRange === undefined || maxMoveRange === null) ? Infinity : maxMoveRange;
-        const queue = [{ x: startPos.x, y: startPos.y, path: [{ x: startPos.x, y: startPos.y }], dist: 0 }];
-        const visited = new Set([`${startPos.x},${startPos.y}`]);
-        const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]; // 4방향 이동
+    findPath(startPos, endPos) {
+        const openSet = new Set([`${startPos.x},${startPos.y}`]);
+        const cameFrom = new Map();
 
-        while (queue.length > 0) {
-            const current = queue.shift();
+        const gScore = new Map();
+        gScore.set(`${startPos.x},${startPos.y}`, 0);
 
-            if (current.dist >= maxRange) continue;
+        const fScore = new Map();
+        fScore.set(`${startPos.x},${startPos.y}`, this.heuristic(startPos, endPos));
+
+        const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]];
+
+        while (openSet.size > 0) {
+            let currentKey = null;
+            let lowestFScore = Infinity;
+            for (const key of openSet) {
+                if ((fScore.get(key) || Infinity) < lowestFScore) {
+                    lowestFScore = fScore.get(key);
+                    currentKey = key;
+                }
+            }
+
+            const [currentX, currentY] = currentKey.split(',').map(Number);
+
+            if (currentX === endPos.x && currentY === endPos.y) {
+                return this.reconstructPath(cameFrom, currentKey);
+            }
+
+            openSet.delete(currentKey);
 
             for (const [dx, dy] of directions) {
-                const nextX = current.x + dx;
-                const nextY = current.y + dy;
-                const key = `${nextX},${nextY}`;
+                const neighborX = currentX + dx;
+                const neighborY = currentY + dy;
+                const neighborKey = `${neighborX},${neighborY}`;
 
-                if (nextX === endPos.x && nextY === endPos.y) {
-                    return current.path.concat({ x: nextX, y: nextY });
-                }
+                if (!this.isInsideMap(neighborX, neighborY)) continue;
 
-                if (this.isInsideMap(nextX, nextY) && !visited.has(key) && !this.battleSimulationManager.isTileOccupied(nextX, nextY)) {
-                    visited.add(key);
-                    const newPath = current.path.concat({ x: nextX, y: nextY });
-                    queue.push({ x: nextX, y: nextY, path: newPath, dist: current.dist + 1 });
+                // 도착지점이거나 비어있는 타일만 통과 가능
+                const isWalkable = (neighborX === endPos.x && neighborY === endPos.y) || !this.battleSimulationManager.isTileOccupied(neighborX, neighborY);
+
+                if (!isWalkable) continue;
+
+                const tentativeGScore = (gScore.get(currentKey) || 0) + 1; // 이동 비용은 1로 고정
+
+                if (tentativeGScore < (gScore.get(neighborKey) || Infinity)) {
+                    cameFrom.set(neighborKey, currentKey);
+                    gScore.set(neighborKey, tentativeGScore);
+                    fScore.set(neighborKey, tentativeGScore + this.heuristic({ x: neighborX, y: neighborY }, endPos));
+                    if (!openSet.has(neighborKey)) {
+                        openSet.add(neighborKey);
+                    }
                 }
             }
         }
+
         return null; // 경로를 찾지 못함
+    }
+
+    /**
+     * Rekindles the path using the cameFrom map.
+     * @private
+     * @param {Map<string, string>} cameFrom - Map of navigated nodes.
+     * @param {string} currentKey - Key of the last node in the path.
+     * @returns {Array<{x: number, y: number}>} Reconstructed path from start to end.
+     */
+    reconstructPath(cameFrom, currentKey) {
+        const totalPath = [
+            { x: parseInt(currentKey.split(',')[0], 10), y: parseInt(currentKey.split(',')[1], 10) }
+        ];
+        while (cameFrom.has(currentKey)) {
+            currentKey = cameFrom.get(currentKey);
+            totalPath.unshift({
+                x: parseInt(currentKey.split(',')[0], 10),
+                y: parseInt(currentKey.split(',')[1], 10)
+            });
+        }
+        return totalPath;
+    }
+
+    /**
+     * Manhattan-distance heuristic used by A*.
+     * @private
+     * @param {{x: number, y: number}} posA
+     * @param {{x: number, y: number}} posB
+     * @returns {number} Estimated distance between two points.
+     */
+    heuristic(posA, posB) {
+        return Math.abs(posA.x - posB.x) + Math.abs(posA.y - posB.y);
     }
 
     /**
