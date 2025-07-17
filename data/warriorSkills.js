@@ -93,6 +93,7 @@ export const WARRIOR_SKILLS = {
         id: 'skill_warrior_iron_will',
         name: '강철 의지',
         type: SKILL_TYPES.PASSIVE,
+        icon: 'assets/icons/skills/iron_will.png',
         description: '잃은 체력에 비례하여 받는 피해량이 최대 30%까지 감소합니다.',
         requiredUserTags: ['방어'],
         effect: {
