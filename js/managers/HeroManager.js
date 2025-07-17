@@ -55,7 +55,10 @@ export class HeroManager {
                 spriteId: UNITS.WARRIOR.spriteId,
                 gridX: 0,
                 gridY: 0,
-                baseStats: { ...UNITS.WARRIOR.baseStats },
+                baseStats: {
+                    ...UNITS.WARRIOR.baseStats,
+                    moveRange: warriorClassData.moveRange || 1
+                },
                 currentHp: UNITS.WARRIOR.baseStats.hp,
                 skillSlots: [...randomSkills],
                 tags: [...CLASSES.WARRIOR.tags]
