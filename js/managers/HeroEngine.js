@@ -34,7 +34,7 @@ export class HeroEngine {
         await this.assetLoaderManager.loadImage('hero_default_healer_image', 'assets/images/healer.png');
 
         // 예시로 영웅 몇 명을 미리 생성 (실제는 가챠 시스템이 호출)
-        const warriorHero = await this.generateHero({
+        await this.generateHero({
             heroId: 'hero_warrior_001',
             name: '강철 주먹 라이언',
             classId: 'class_warrior',
@@ -42,7 +42,7 @@ export class HeroEngine {
             rarity: 'rare'
         });
 
-        const archerHero = await this.generateHero({
+        await this.generateHero({
             heroId: 'hero_archer_001',
             name: '매의 눈 레오나',
             classId: 'class_archer',
@@ -50,10 +50,25 @@ export class HeroEngine {
             rarity: 'uncommon'
         });
 
-        if (warriorHero) this.heroes.set(warriorHero.id, warriorHero);
-        if (archerHero) this.heroes.set(archerHero.id, archerHero);
-
         console.log(`[HeroEngine] Loaded ${this.heroes.size} basic heroes.`);
+    }
+
+    /**
+     * HeroManager 등 외부에서 생성된 영웅 데이터를 받아 등록합니다.
+     * @param {object} heroData - 등록할 영웅의 전체 데이터
+     */
+    async addHero(heroData) {
+        if (!heroData || !heroData.id) {
+            console.error('[HeroEngine] Cannot add hero. Invalid heroData provided.');
+            return;
+        }
+        if (this.heroes.has(heroData.id)) {
+            console.warn(`[HeroEngine] Hero with ID '${heroData.id}' already exists. Overwriting.`);
+        }
+
+        await this.microcosmHeroEngine.createHeroMicrocosm(heroData);
+        this.heroes.set(heroData.id, heroData);
+        console.log(`[HeroEngine] Registered existing hero: ${heroData.name} (${heroData.id})`);
     }
 
 
@@ -138,9 +153,8 @@ export class HeroEngine {
             maxBarrier: 0
         };
 
-        await this.microcosmHeroEngine.createHeroMicrocosm(newHero);
+        await this.addHero(newHero);
 
-        this.heroes.set(heroId, newHero);
         console.log(`[HeroEngine] Generated new hero: ${newHero.name} (${newHero.id})`);
         return newHero;
     }
