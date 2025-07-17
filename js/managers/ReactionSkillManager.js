@@ -48,6 +48,12 @@ export class ReactionSkillManager {
         if (this.diceEngine.getRandomFloat() < skillData.effect.probability) {
             if (GAME_DEBUG_MODE) console.log(`[ReactionSkillManager] ${defender.name}'s Retaliate triggered against ${attackerId}!`);
 
+            // 스킬 이름 표시 이벤트 발생
+            this.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
+                unitId: defenderId,
+                skillName: skillData.name
+            });
+
             await this.delayEngine.waitFor(250);
 
             this.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {

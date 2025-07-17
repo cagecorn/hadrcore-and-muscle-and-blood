@@ -1,6 +1,7 @@
 export const GAME_EVENTS = {
     UNIT_DEATH: 'unitDeath',
     SKILL_EXECUTED: 'skillExecuted',
+    DISPLAY_SKILL_NAME: 'displaySkillName', // 스킬 이름 표시 요청 이벤트
     BATTLE_START: 'battleStart',
     BATTLE_END: 'battleEnd',
     TURN_START: 'turnStart',
