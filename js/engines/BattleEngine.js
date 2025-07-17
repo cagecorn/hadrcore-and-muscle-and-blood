@@ -36,6 +36,7 @@ export class BattleEngine {
         const measureManager = injector.get('MeasureManager');
         const assetEngine = injector.get('AssetEngine');
         const renderEngine = injector.get('RenderEngine');
+        const logicManager = injector.get('LogicManager');
 
         const idManager = assetEngine.getIdManager();
         const assetLoaderManager = assetEngine.getAssetLoaderManager();
@@ -54,7 +55,7 @@ export class BattleEngine {
             measureManager,
             assetLoaderManager,
             idManager,
-            null,
+            logicManager,
             animationManager,
             this.valorEngine,
             this.aiEngine
