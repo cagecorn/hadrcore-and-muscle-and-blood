@@ -33,7 +33,8 @@ export class MicrocosmHeroEngine {
         const heroAIWorker = new Worker('./js/workers/heroWorker.js');
 
         // 2. 영웅의 고유한 상태와 데이터를 IndexedDB에 저장합니다.
-        await this.idManager.addOrUpdateId(heroData.id, heroData);
+        const { illustration, ...serializableData } = heroData;
+        await this.idManager.addOrUpdateId(heroData.id, serializableData);
 
         const instance = {
             id: heroData.id,

@@ -68,8 +68,9 @@ export class HeroEngine {
         const classId = options.classId || 'class_warrior'; // 기본 전사 클래스
 
         // 1. 일러스트 로드 (AssetLoaderManager 활용)
-        const illustrationImage = options.spriteId ?
-            this.assetLoaderManager.getImage(options.spriteId) || await this.assetLoaderManager.loadImage(options.spriteId, `assets/images/${options.spriteId.replace('hero_default_', '')}.png`) :
+        const spriteId = options.spriteId || null;
+        const illustrationImage = spriteId ?
+            this.assetLoaderManager.getImage(spriteId) || await this.assetLoaderManager.loadImage(spriteId, `assets/images/${spriteId.replace('hero_default_', '')}.png`) :
             null;
 
         // 2. 랜덤 스탯 생성 (DiceBotEngine 활용)
@@ -118,6 +119,7 @@ export class HeroEngine {
             id: heroId,
             name: heroName,
             classId: classId,
+            spriteId: spriteId,
             rarity: options.rarity || 'common',
             illustration: illustrationImage,
             baseStats: baseStats,
