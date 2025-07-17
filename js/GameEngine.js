@@ -20,6 +20,7 @@ import { BattleGridManager } from './managers/BattleGridManager.js';
 import { BattleLogManager } from './managers/BattleLogManager.js';
 import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js';
 import { CompatibilityManager } from './managers/CompatibilityManager.js';
+import { HeroManager } from './managers/HeroManager.js';
 
 export class GameEngine {
     constructor(canvasId) {
@@ -60,6 +61,24 @@ export class GameEngine {
         const battleSim = this.battleEngine.getBattleSimulationManager();
         this.mercenaryPanelManager = new MercenaryPanelManager(this.measureManager, battleSim, this.logicManager, this.eventManager);
         injector.register(this.mercenaryPanelManager);
+
+        // HeroManager setup
+        this.heroManager = new HeroManager(
+            this.assetEngine.getIdManager(),
+            this.battleEngine.diceEngine,
+            this.assetEngine.getAssetLoaderManager(),
+            battleSim,
+            this.assetEngine.getUnitSpriteEngine()
+        );
+        injector.register(this.heroManager);
+
+        const heroPanelCanvas = document.getElementById('heroPanelCanvas');
+        this.renderEngine.injectDependencies({
+            battleSim,
+            heroManager: this.heroManager,
+            mercenaryPanelManager: this.mercenaryPanelManager,
+            heroPanelCanvas
+        });
 
         const combatLogCanvas = document.getElementById('combatLogCanvas');
         this.battleLogManager = new BattleLogManager(combatLogCanvas, this.eventManager, this.measureManager);

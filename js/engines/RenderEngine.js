@@ -35,7 +35,7 @@ export class RenderEngine {
 
         this.buttonEngine = new ButtonEngine();
         // heroManager 역시 나중에 주입됩니다.
-        this.uiEngine = new UIEngine(this.renderer, measureManager, eventManager, this.buttonEngine, null);
+        this.uiEngine = new UIEngine(this.renderer, measureManager, eventManager, this.buttonEngine, null, null, null);
         this.inputManager = new InputManager(this.renderer, this.cameraEngine, this.uiEngine, this.buttonEngine, eventManager);
         // UIEngine 인스턴스를 ButtonEngine에 전달하여 버튼 클릭 시 UI 상호작용이 가능하도록 함
         this.inputManager.buttonEngine.uiEngine = this.uiEngine;
@@ -43,13 +43,19 @@ export class RenderEngine {
 
     // 주입받는 인자를 객체 형태로 받아 유연성 확보
     injectDependencies(dependencies) {
-        const { battleSim, heroManager } = dependencies;
+        const { battleSim, heroManager, mercenaryPanelManager, heroPanelCanvas } = dependencies;
 
         this.particleEngine.battleSimulationManager = battleSim;
         this.animationManager.battleSimulationManager = battleSim;
 
         if (this.uiEngine) {
             this.uiEngine.heroManager = heroManager;
+            this.uiEngine.mercenaryPanelManager = mercenaryPanelManager;
+            this.uiEngine.heroPanelCanvas = heroPanelCanvas;
+            if (heroPanelCanvas) {
+                this.uiEngine.heroPanelCtx = heroPanelCanvas.getContext('2d');
+                this.uiEngine.recalculateUIDimensions();
+            }
         }
 
         if (battleSim) {

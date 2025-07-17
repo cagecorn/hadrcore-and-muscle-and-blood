@@ -3,14 +3,20 @@
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS } from '../constants.js';
 
 export class UIEngine {
-    constructor(renderer, measureManager, eventManager, buttonEngine, heroManager) {
+    constructor(renderer, measureManager, eventManager, buttonEngine, heroManager, mercenaryPanelManager = null, heroPanelCanvas = null) {
         console.log("\ud83c\udf9b UIEngine initialized. Ready to draw interfaces. \ud83c\udf9b");
         this.renderer = renderer;
         this.measureManager = measureManager;
         this.eventManager = eventManager;
         this.buttonEngine = buttonEngine;
         this.heroManager = heroManager;
-        // 영웅 패널은 별도 매니저가 그리므로 여기서는 참조하지 않습니다.
+        this.mercenaryPanelManager = mercenaryPanelManager;
+        this.heroPanelCanvas = heroPanelCanvas;
+        this.heroPanelCtx = heroPanelCanvas ? heroPanelCanvas.getContext('2d') : null;
+        this.pixelRatio = window.devicePixelRatio || 1;
+        if (this.heroPanelCanvas) {
+            this.heroPanelCanvas.style.display = 'none';
+        }
 
         this.canvas = renderer.canvas;
         this.ctx = renderer.ctx;
@@ -64,6 +70,19 @@ export class UIEngine {
             hireButtonHeight
         );
 
+        if (this.heroPanelCanvas) {
+            const panelHeight = logicalCanvasHeight * this.measureManager.get('mercenaryPanel.heightRatio');
+            this.heroPanelCanvas.style.width = `${logicalCanvasWidth}px`;
+            this.heroPanelCanvas.style.height = `${panelHeight}px`;
+            if (this.heroPanelCanvas.width !== logicalCanvasWidth * this.pixelRatio ||
+                this.heroPanelCanvas.height !== panelHeight * this.pixelRatio) {
+                this.heroPanelCanvas.width = logicalCanvasWidth * this.pixelRatio;
+                this.heroPanelCanvas.height = panelHeight * this.pixelRatio;
+                this.heroPanelCtx = this.heroPanelCanvas.getContext('2d');
+                this.heroPanelCtx.scale(this.pixelRatio, this.pixelRatio);
+            }
+        }
+
         console.log(`[UIEngine Debug] Canvas Logical Dimensions: ${logicalCanvasWidth}x${logicalCanvasHeight}`);
     }
 
@@ -80,6 +99,9 @@ export class UIEngine {
     toggleHeroPanel() {
         this.heroPanelVisible = !this.heroPanelVisible;
         console.log(`[UIEngine] Hero Panel Visibility: ${this.heroPanelVisible ? 'Visible' : 'Hidden'}`);
+        if (this.heroPanelCanvas) {
+            this.heroPanelCanvas.style.display = this.heroPanelVisible ? 'block' : 'none';
+        }
         // 필요에 따라 UI 상태를 변경할 수 있지만, 오버레이는 현재 UI 상태와 별개로 표시될 수 있습니다.
     }
 
@@ -108,9 +130,12 @@ export class UIEngine {
             // 전투 화면에서는 현재 별도의 상단 텍스트를 표시하지 않습니다.
         }
 
-        // mercenaryPanelManager 의존성을 제거하면서 영웅 패널은 외부에서 그리도록 합니다.
-        // 필요 시 heroPanelVisible 플래그만 제공하여 다른 컴포넌트가 오버레이를 그릴 수 있습니다.
-        // 이 메서드에서는 영웅 패널을 직접 그리지 않습니다.
+        if (this.heroPanelVisible && this.heroPanelCtx && this.mercenaryPanelManager) {
+            const displayWidth = this.heroPanelCanvas.width / this.pixelRatio;
+            const displayHeight = this.heroPanelCanvas.height / this.pixelRatio;
+            this.heroPanelCtx.clearRect(0, 0, displayWidth, displayHeight);
+            this.mercenaryPanelManager.draw(this.heroPanelCtx, 0, 0, displayWidth, displayHeight);
+        }
     }
 
     /**
