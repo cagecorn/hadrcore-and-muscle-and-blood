@@ -13,6 +13,7 @@ export const GAME_EVENTS = {
     DAMAGE_CALCULATED: 'DAMAGE_CALCULATED',
     DISPLAY_DAMAGE: 'displayDamage',
     STATUS_EFFECT_APPLIED: 'statusEffectApplied',
+    APPLY_STATUS_EFFECT: 'applyStatusEffect',
     STATUS_EFFECT_REMOVED: 'statusEffectRemoved',
     LOG_MESSAGE: 'logMessage',
     WEAPON_DROPPED: 'weaponDropped',
