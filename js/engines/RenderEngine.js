@@ -13,9 +13,16 @@ import { ButtonEngine } from '../managers/ButtonEngine.js';
  * 렌더링과 시각 효과를 담당하는 엔진입니다.
  */
 export class RenderEngine {
-    // GameEngine에서 캔버스 요소를 직접 전달받도록 수정
-    constructor(canvasElement, eventManager, measureManager, logicManager, sceneManager) {
+    // GameEngine에서 캔버스 요소와 injector를 전달받아 필요한 매니저를 가져옵니다.
+    constructor(canvasElement, injector) {
         console.log("🎨 RenderEngine initialized.");
+        this.injector = injector;
+
+        const eventManager = injector.get('EventManager');
+        const measureManager = injector.get('MeasureManager');
+        const logicManager = injector.get('LogicManager');
+        const sceneManager = injector.get('SceneEngine');
+
         // canvasId 대신 실제 DOM 요소를 받아 Renderer에 ID를 전달합니다.
         this.renderer = new Renderer(canvasElement.id);
         // 생성 시점에 logicManager와 sceneManager를 주입하여 CameraEngine을 초기화합니다.

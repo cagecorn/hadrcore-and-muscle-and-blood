@@ -4,7 +4,8 @@
 import { GAME_EVENTS, ATTACK_TYPES } from '../constants.js';
 
 export class EventManager {
-    constructor() {
+    constructor(injector = null) {
+        this.injector = injector;
         // Web Worker 인스턴스 생성
         // '../workers/eventWorker.js' 경로는 이 파일(EventManager.js) 기준으로 workers 폴더 안의 eventWorker.js를 의미합니다.
         this.worker = new Worker('./js/workers/eventWorker.js'); // main.js에서 EventManager를 불러올 때의 상대 경로

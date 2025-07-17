@@ -1,10 +1,11 @@
 // js/managers/LogicManager.js
 
 export class LogicManager {
-    constructor(measureManager, sceneManager) {
-        console.log("\ud0d1\uc815 \ub85c\uc9c1 \ub9c8\ub2c8\uc800 \ucd08\uae30\ud654\ub428. \uc0c1\uc2e4\uc744 \uac15\uc81c\ud560 \uc900\ube44 \ub41c\ub2e4. \ud83d\udd75\ufe0f");
-        this.measureManager = measureManager;
-        this.sceneManager = sceneManager;
+    // 새로운 의존성 주입 시스템을 사용하도록 생성자 시그니처를 변경합니다.
+    constructor(injector) {
+        console.log("\ud83d\udd0d LogicManager initialized. Enforcing sanity.");
+        this.injector = injector;
+        // 필요한 다른 매니저는 메서드에서 injector.get()을 통해 가져옵니다.
     }
 
     /**
@@ -13,9 +14,12 @@ export class LogicManager {
      * @returns {{width: number, height: number}} \ud604\uc7ac \uc2fc \ucf58\ud150\uce20\uc758 \ub5a8\uae30 \ubc0f \ub192\uc774
      */
     getCurrentSceneContentDimensions() {
-        const canvasWidth = this.measureManager.get('gameResolution.width');
-        const canvasHeight = this.measureManager.get('gameResolution.height');
-        const currentSceneName = this.sceneManager.getCurrentSceneName();
+        const measureManager = this.injector.get('MeasureManager');
+        const sceneManager = this.injector.get('SceneEngine');
+
+        const canvasWidth = measureManager.get('gameResolution.width');
+        const canvasHeight = measureManager.get('gameResolution.height');
+        const currentSceneName = sceneManager.getCurrentSceneName();
 
         let contentWidth, contentHeight;
         if (currentSceneName === 'territoryScene') {
@@ -44,8 +48,9 @@ export class LogicManager {
      * @returns {{minZoom: number, maxZoom: number}} \uc90c \ubc94\uc704
      */
     getZoomLimits() {
-        const canvasWidth = this.measureManager.get('gameResolution.width');
-        const canvasHeight = this.measureManager.get('gameResolution.height');
+        const measureManager = this.injector.get('MeasureManager');
+        const canvasWidth = measureManager.get('gameResolution.width');
+        const canvasHeight = measureManager.get('gameResolution.height');
         const contentDimensions = this.getCurrentSceneContentDimensions();
 
         // ✨ canvasWidth 또는 canvasHeight가 유효하지 않은 경우 처리
@@ -86,8 +91,9 @@ export class LogicManager {
      * @returns {{x: number, y: number}} \uc870\uc815\ub41c \uce74\uba54\ub77c \uc704\uce58
      */
     applyPanConstraints(currentX, currentY, currentZoom) {
-        const canvasWidth = this.measureManager.get('gameResolution.width');
-        const canvasHeight = this.measureManager.get('gameResolution.height');
+        const measureManager = this.injector.get('MeasureManager');
+        const canvasWidth = measureManager.get('gameResolution.width');
+        const canvasHeight = measureManager.get('gameResolution.height');
         const contentDimensions = this.getCurrentSceneContentDimensions();
 
         const effectiveContentWidth = contentDimensions.width * currentZoom;

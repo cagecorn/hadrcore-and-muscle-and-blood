@@ -1,7 +1,8 @@
 // js/managers/RuleManager.js
 
 export class RuleManager {
-    constructor() {
+    constructor(injector = null) {
+        this.injector = injector;
         console.log("\uD83D\uDCD6 RuleManager initialized. Enforcing game rules. \uD83D\uDCD6");
         this.rules = new Map();
         this._loadBasicRules();
