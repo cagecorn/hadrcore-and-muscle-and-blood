@@ -27,7 +27,8 @@ export function runVFXManagerUnitTests() {
         {},
         mockLogicManager,
         mockAnimationManager,
-        {}
+        {},
+        null
     );
     mockAnimationManager.battleSimulationManager = mockBattleSimulationManager;
 

@@ -13,6 +13,7 @@ import { CoordinateManager } from '../managers/CoordinateManager.js';
 import { TurnOrderManager } from '../managers/TurnOrderManager.js';
 import { BasicAIManager } from '../managers/BasicAIManager.js';
 import { ClassAIManager } from '../managers/ClassAIManager.js';
+import { AIEngine } from '../managers/AIEngine.js';
 import { TargetingManager } from '../managers/TargetingManager.js';
 import { TurnEngine } from '../managers/TurnEngine.js';
 import { ConditionalManager } from '../managers/ConditionalManager.js';
@@ -47,13 +48,16 @@ export class BattleEngine {
         this.diceEngine = new DiceEngine();
         this.diceBotManager = new DiceBotManager(this.diceEngine);
 
+        this.aiEngine = new AIEngine();
+
         this.battleSimulationManager = new BattleSimulationManager(
             measureManager,
             assetLoaderManager,
             idManager,
             null,
             animationManager,
-            this.valorEngine
+            this.valorEngine,
+            this.aiEngine
         );
         assetEngine.getUnitSpriteEngine().battleSimulationManager = this.battleSimulationManager;
 
@@ -114,8 +118,10 @@ export class BattleEngine {
 
     update(deltaTime) {
         this.conditionalManager.update();
+        this.aiEngine.update(this.battleSimulationManager.unitsOnGrid);
         this.turnEngine.update();
     }
 
     getBattleSimulationManager() { return this.battleSimulationManager; }
+    getAIEngine() { return this.aiEngine; }
 }

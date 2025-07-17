@@ -10,6 +10,7 @@ export class EventManager {
         // '../workers/eventWorker.js' 경로는 이 파일(EventManager.js) 기준으로 workers 폴더 안의 eventWorker.js를 의미합니다.
         this.worker = new Worker('./js/workers/eventWorker.js'); // main.js에서 EventManager를 불러올 때의 상대 경로
         this.subscribers = new Map(); // 메인 스레드에서 이벤트 구독자를 관리할 Map
+        this.eventQueue = []; // 이벤트 큐 추가
         this._isGameRunning = false; // ✨ 게임 실행 상태 플래그 추가
 
         // Web Worker로부터 메시지를 받을 때 실행될 콜백 설정
@@ -60,8 +61,24 @@ export class EventManager {
      * @param {object} data - 이벤트와 함께 전달할 데이터
      */
     emit(eventName, data) {
-        // Worker에게 이벤트를 처리하도록 요청
-        this.worker.postMessage({ type: 'EMIT_EVENT', eventName, data });
+        // 이벤트를 큐에 저장하고 이후 프레임에서 처리
+        this.eventQueue.push({ eventName, data });
+    }
+
+    // 큐에 저장된 이벤트를 실제로 전파합니다.
+    processQueue() {
+        if (this.eventQueue.length === 0) return;
+
+        const eventsToProcess = this.eventQueue.slice();
+        this.eventQueue = [];
+
+        for (const event of eventsToProcess) {
+            this.worker.postMessage({ type: 'EMIT_EVENT', eventName: event.eventName, data: event.data });
+        }
+    }
+
+    update() {
+        this.processQueue();
     }
 
     /**

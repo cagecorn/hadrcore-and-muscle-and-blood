@@ -15,7 +15,7 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
     // 테스트 1: 초기화 확인
     testCount++;
     try {
-        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager, null, null, null);
         if (bsm.unitsOnGrid instanceof Array && bsm.unitsOnGrid.length === 0) {
             console.log("BattleSimulationManager: Initialized correctly. [PASS]");
             passCount++;
@@ -29,7 +29,7 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
     // 테스트 2: addUnit 메서드
     testCount++;
     try {
-        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager, null, null, null);
         const mockImage = new Image();
         bsm.addUnit(mockUnit1, mockImage, mockUnit1.gridX, mockUnit1.gridY);
         if (bsm.unitsOnGrid.length === 1 && bsm.unitsOnGrid[0].id === 'u1' && bsm.unitsOnGrid[0].image === mockImage) {
@@ -45,7 +45,7 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
     // 테스트 3: moveUnit 메서드 - 성공
     testCount++;
     try {
-        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager, null, null, null);
         const mockImage = new Image();
         bsm.addUnit(mockUnit1, mockImage, 0, 0);
         const moved = bsm.moveUnit('u1', 2, 3);
@@ -62,7 +62,7 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
     // 테스트 4: moveUnit 메서드 - 충돌
     testCount++;
     try {
-        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager, null, null, null);
         const mockImage = new Image();
         bsm.addUnit(mockUnit1, mockImage, 0, 0);
         bsm.addUnit(mockUnit2, mockImage, 1, 0);
@@ -82,7 +82,7 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
     // 테스트 5: isTileOccupied - 점유된 타일
     testCount++;
     try {
-        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager, null, null, null);
         const mockImage = new Image();
         bsm.addUnit(mockUnit1, mockImage, 5, 5);
         const occupied = bsm.isTileOccupied(5, 5);
@@ -99,7 +99,7 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
     // 테스트 6: isTileOccupied - 빈 타일
     testCount++;
     try {
-        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager, null, null, null);
         bsm.unitsOnGrid = [];
         const occupied = bsm.isTileOccupied(5, 5);
         if (!occupied) {
@@ -115,7 +115,7 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
     // 테스트 7: isTileOccupied - 제외 유닛 ID
     testCount++;
     try {
-        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager, null, null, null);
         const mockImage = new Image();
         bsm.addUnit(mockUnit1, mockImage, 5, 5);
         const occupied = bsm.isTileOccupied(5, 5, 'u1');
@@ -132,7 +132,7 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
     // 테스트 8: isTileOccupied - 죽은 유닛은 점유로 간주하지 않음
     testCount++;
     try {
-        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager, null, null, null);
         const mockImage = new Image();
         bsm.addUnit(mockUnit3, mockImage, 2, 2);
         const occupied = bsm.isTileOccupied(2, 2);

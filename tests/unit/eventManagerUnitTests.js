@@ -25,6 +25,7 @@ export function runEventManagerTests(eventManager) {
     });
 
     eventManager.emit(testEventName, testData);
+    eventManager.processQueue();
 
     setTimeout(() => {
         if (subscribedEventReceived) {
@@ -37,6 +38,7 @@ export function runEventManagerTests(eventManager) {
         testCount++;
         console.log("EventManager: Emitting 'unitAttack' for worker's small engine test. Check console for '흡혈' skill message.");
         eventManager.emit('unitAttack', { attackerId: 'TestHero', targetId: 'TestMob', damageDealt: 20 });
+        eventManager.processQueue();
 
         setTimeout(() => {
             console.log("EventManager: 'unitAttack' event processed by worker's small engine. Visually check console for '흡혈' skill trigger messages. [INFO]");

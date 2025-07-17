@@ -1,7 +1,7 @@
 // js/managers/BattleSimulationManager.js
 
 export class BattleSimulationManager {
-    constructor(measureManager, assetLoaderManager, idManager, logicManager, animationManager, valorEngine) {
+    constructor(measureManager, assetLoaderManager, idManager, logicManager, animationManager, valorEngine, aiEngine = null) {
         console.log("\u2694\ufe0f BattleSimulationManager initialized. Preparing units for battle. \u2694\ufe0f");
         this.measureManager = measureManager;
         this.assetLoaderManager = assetLoaderManager;
@@ -9,6 +9,7 @@ export class BattleSimulationManager {
         this.logicManager = logicManager;
         this.animationManager = animationManager;
         this.valorEngine = valorEngine;
+        this.aiEngine = aiEngine;
         this.unitsOnGrid = [];
         this.gridRows = 9;  // 16:9 비율에 맞춘 행 수
         this.gridCols = 16; // 16:9 비율에 맞춘 열 수
@@ -66,6 +67,9 @@ export class BattleSimulationManager {
             maxBarrier: initialBarrier
         };
         this.unitsOnGrid.push(unitInstance);
+        if (this.aiEngine) {
+            this.aiEngine.registerUnit(unitInstance);
+        }
         console.log(`[BattleSimulationManager] Created entity ${entityId} for unit ${fullUnitData.name}`);
         return entityId;
     }
