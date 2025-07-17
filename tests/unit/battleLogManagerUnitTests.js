@@ -99,5 +99,24 @@ export function runBattleLogManagerUnitTests(eventManager, measureManager) {
         console.error("BattleLogManager: Error during draw. [FAIL]", e);
     }
 
+    // 테스트 5: 출력 방향 설정 기능 확인
+    testCount++;
+    try {
+        const logManager = new BattleLogManager(mockCanvas, eventManager, measureManager);
+        if (logManager.orientation === 'top') {
+            logManager.setOrientation('bottom');
+            if (logManager.orientation === 'bottom') {
+                console.log('BattleLogManager: Orientation change succeeded. [PASS]');
+                passCount++;
+            } else {
+                console.error('BattleLogManager: Orientation not updated. [FAIL]');
+            }
+        } else {
+            console.error('BattleLogManager: Default orientation incorrect. [FAIL]');
+        }
+    } catch (e) {
+        console.error('BattleLogManager: Error changing orientation. [FAIL]', e);
+    }
+
     console.log(`--- BattleLogManager Unit Test End: ${passCount}/${testCount} tests passed ---`);
 }
