@@ -35,7 +35,7 @@ export class RenderEngine {
 
         this.buttonEngine = new ButtonEngine();
         // heroManager 역시 나중에 주입됩니다.
-        this.uiEngine = new UIEngine(this.renderer, measureManager, eventManager, null, this.buttonEngine, null);
+        this.uiEngine = new UIEngine(this.renderer, measureManager, eventManager, this.buttonEngine, null);
         this.inputManager = new InputManager(this.renderer, this.cameraEngine, this.uiEngine, this.buttonEngine, eventManager);
         // UIEngine 인스턴스를 ButtonEngine에 전달하여 버튼 클릭 시 UI 상호작용이 가능하도록 함
         this.inputManager.buttonEngine.uiEngine = this.uiEngine;

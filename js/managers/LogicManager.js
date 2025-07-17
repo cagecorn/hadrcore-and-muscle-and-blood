@@ -1,9 +1,10 @@
 // js/managers/LogicManager.js
+import { GAME_DEBUG_MODE } from '../constants.js';
 
 export class LogicManager {
     // 새로운 의존성 주입 시스템을 사용하도록 생성자 시그니처를 변경합니다.
     constructor(injector) {
-        console.log("\ud83d\udd0d LogicManager initialized. Enforcing sanity.");
+        if (GAME_DEBUG_MODE) console.log("\ud83d\udd0d LogicManager initialized. Enforcing sanity.");
         this.injector = injector;
         // 필요한 다른 매니저는 메서드에서 injector.get()을 통해 가져옵니다.
     }
@@ -38,7 +39,9 @@ export class LogicManager {
             contentHeight = canvasHeight;
         }
         // ✨ 추가: 계산된 콘텐츠 크기 확인
-        console.log(`[LogicManager Debug] Scene: ${currentSceneName}, Content Dimensions: ${contentWidth}x${contentHeight}`);
+        if (GAME_DEBUG_MODE) {
+            console.log(`[LogicManager Debug] Scene: ${currentSceneName}, Content Dimensions: ${contentWidth}x${contentHeight}`);
+        }
         return { width: contentWidth, height: contentHeight };
     }
 
@@ -77,7 +80,9 @@ export class LogicManager {
         const maxZoom = 10.0; // 최대 줌 값 (필요에 따라 MeasureManager에서 가져올 수 있음)
 
         // ✨ 추가: 줌 리미트 계산 값 확인
-        console.log(`[LogicManager Debug] Canvas: ${canvasWidth}x${canvasHeight}, Content: ${contentDimensions.width}x${contentDimensions.height}, minZoomX: ${minZoomX.toFixed(2)}, minZoomY: ${minZoomY.toFixed(2)}, Final minZoom: ${minZoom.toFixed(2)}`);
+        if (GAME_DEBUG_MODE) {
+            console.log(`[LogicManager Debug] Canvas: ${canvasWidth}x${canvasHeight}, Content: ${contentDimensions.width}x${contentDimensions.height}, minZoomX: ${minZoomX.toFixed(2)}, minZoomY: ${minZoomY.toFixed(2)}, Final minZoom: ${minZoom.toFixed(2)}`);
+        }
 
         return { minZoom: minZoom, maxZoom: maxZoom };
     }

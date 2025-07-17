@@ -6,12 +6,10 @@ export class TerritoryManager {
     }
 
     draw(ctx) {
-        // 경로의 css 크기를 기본으로 그림을 진행
-        // Renderer 에서 pixelRatio 를 적용하면서 canvas.width/그 포로는 무리적 크기를 반환하고 있으므로
-        // draw 방법에서는 css 크기를 사용하는 것이 맞다.
-        const pixelRatio = window.devicePixelRatio || 1;
-        const logicalWidth = ctx.canvas.width / pixelRatio;
-        const logicalHeight = ctx.canvas.height / pixelRatio;
+        // Renderer에서 전달된 컨텍스트의 캔버스 크기를 그대로 사용하여 그립니다.
+        // 별도의 Renderer 의존성을 두지 않고 독립적으로 동작하도록 수정했습니다.
+        const logicalWidth = ctx.canvas.width;
+        const logicalHeight = ctx.canvas.height;
 
         ctx.fillStyle = '#4CAF50';
         ctx.fillRect(0, 0, logicalWidth, logicalHeight);

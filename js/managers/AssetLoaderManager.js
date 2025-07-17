@@ -8,6 +8,7 @@ export class AssetLoaderManager {
         this.totalAssetsToLoad = 0;
         this.assetsLoadedCount = 0;
         this.eventManager = null;
+        this.loadQueue = [];
     }
 
     // ✨ EventManager를 설정하는 메서드 추가
@@ -20,6 +21,31 @@ export class AssetLoaderManager {
         this.totalAssetsToLoad = count;
         this.assetsLoadedCount = 0;
         if (GAME_DEBUG_MODE) console.log(`[AssetLoaderManager] Expected to load ${this.totalAssetsToLoad} assets.`);
+    }
+
+    // 큐에 로드할 에셋을 등록
+    queueAsset(assetId, url, type = 'image') {
+        this.loadQueue.push({ assetId, url, type });
+    }
+
+    // 큐에 쌓인 에셋을 모두 비동기로 로드
+    async loadAllQueuedAssets() {
+        this.totalAssetsToLoad = this.loadQueue.length;
+        this.assetsLoadedCount = 0;
+
+        if (this.totalAssetsToLoad === 0) {
+            if (this.eventManager) this.eventManager.emit(GAME_EVENTS.ASSETS_LOADED, {});
+            return;
+        }
+
+        const promises = this.loadQueue.map(asset => {
+            if (asset.type === 'image') {
+                return this.loadImage(asset.assetId, asset.url);
+            }
+        });
+
+        this.loadQueue = [];
+        await Promise.all(promises);
     }
 
     /**
@@ -41,13 +67,14 @@ export class AssetLoaderManager {
                 this.assetsLoadedCount++;
                 if (GAME_DEBUG_MODE) console.log(`[AssetLoaderManager] Image '${assetId}' loaded from ${url} (${this.assetsLoadedCount}/${this.totalAssetsToLoad}).`);
 
-                // ✨ 진행 상황 이벤트 발행
+                // 진행 상황 이벤트 발행
                 if (this.eventManager) {
                     this.eventManager.emit(GAME_EVENTS.ASSET_LOAD_PROGRESS, {
                         loaded: this.assetsLoadedCount,
                         total: this.totalAssetsToLoad
                     });
-                    if (this.assetsLoadedCount >= this.totalAssetsToLoad) {
+
+                    if (this.assetsLoadedCount === this.totalAssetsToLoad) {
                         this.eventManager.emit(GAME_EVENTS.ASSETS_LOADED, {});
                         if (GAME_DEBUG_MODE) console.log("[AssetLoaderManager] All expected assets loaded!");
                     }

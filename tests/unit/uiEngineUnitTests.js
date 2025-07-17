@@ -3,6 +3,7 @@
 import { UIEngine } from '../../js/managers/UIEngine.js';
 import { MeasureManager } from '../../js/managers/MeasureManager.js';
 import { EventManager } from '../../js/managers/EventManager.js';
+import { ButtonEngine } from '../../js/managers/ButtonEngine.js';
 
 export function runUIEngineUnitTests() {
     console.log("--- UIEngine Unit Test Start ---");
@@ -22,12 +23,12 @@ export function runUIEngineUnitTests() {
     };
     const mockMeasureManager = new MeasureManager();
     const mockEventManager = new EventManager();
-    const mockMercenaryPanelManager = { draw: () => {} };
+    const mockButtonEngine = new ButtonEngine();
 
     // 테스트 1: 초기화 확인
     testCount++;
     try {
-        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockMercenaryPanelManager);
+        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockButtonEngine, null);
         if (uiEngine.renderer === mockRenderer && uiEngine.getUIState() === 'mapScreen') {
             console.log("UIEngine: Initialized correctly. [PASS]");
             passCount++;
@@ -41,7 +42,7 @@ export function runUIEngineUnitTests() {
     // 테스트 2: recalculateUIDimensions 호출 후 UI 폰트 크기 계산 확인
     testCount++;
     try {
-        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockMercenaryPanelManager);
+        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockButtonEngine, null);
         uiEngine.recalculateUIDimensions();
 
         const expectedFontSize = Math.floor(mockRenderer.canvas.height * mockMeasureManager.get('ui.fontSizeRatio'));
@@ -59,7 +60,7 @@ export function runUIEngineUnitTests() {
     // 테스트 3: setUIState 및 getUIState
     testCount++;
     try {
-        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockMercenaryPanelManager);
+        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockButtonEngine, null);
         uiEngine.setUIState('combatScreen');
         if (uiEngine.getUIState() === 'combatScreen') {
             console.log("UIEngine: UI state set and retrieved correctly. [PASS]");
@@ -75,7 +76,7 @@ export function runUIEngineUnitTests() {
     // 테스트 6: handleBattleStartClick - 이벤트 발생 확인 (간접)
     testCount++;
     try {
-        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockMercenaryPanelManager);
+        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockButtonEngine, null);
         let eventEmitted = false;
         mockEventManager.subscribe('battleStart', () => { eventEmitted = true; });
 
@@ -94,7 +95,7 @@ export function runUIEngineUnitTests() {
     // 테스트 7: draw 메서드 (mapScreen)
     testCount++;
     try {
-        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockMercenaryPanelManager);
+        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockButtonEngine, null);
         uiEngine.setUIState('mapScreen');
         mockRenderer.ctx.fillRectCalled = false;
         mockRenderer.ctx.fillTextCalled = false;
@@ -114,7 +115,7 @@ export function runUIEngineUnitTests() {
     // 테스트 8: draw 메서드 (combatScreen)
     testCount++;
     try {
-        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockMercenaryPanelManager);
+        const uiEngine = new UIEngine(mockRenderer, mockMeasureManager, mockEventManager, mockButtonEngine, null);
         uiEngine.setUIState('combatScreen');
         mockRenderer.ctx.fillRectCalled = false;
         mockRenderer.ctx.fillTextCalled = false;
