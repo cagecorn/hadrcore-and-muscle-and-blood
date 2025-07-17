@@ -18,6 +18,8 @@ import { TerritoryManager } from './managers/TerritoryManager.js';
 import { BattleStageManager } from './managers/BattleStageManager.js';
 import { BattleGridManager } from './managers/BattleGridManager.js';
 import { BattleLogManager } from './managers/BattleLogManager.js';
+import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js';
+import { CompatibilityManager } from './managers/CompatibilityManager.js';
 
 export class GameEngine {
     constructor(canvasId) {
@@ -34,18 +36,45 @@ export class GameEngine {
         injector.register(new SceneEngine(injector));
         injector.register(new LogicManager(injector));
 
+        // 주요 매니저 참조 저장
+        this.eventManager = injector.get('EventManager');
+        this.measureManager = injector.get('MeasureManager');
+        this.ruleManager = injector.get('RuleManager');
+        this.sceneEngine = injector.get('SceneEngine');
+        this.logicManager = injector.get('LogicManager');
+
         const mainCanvas = document.getElementById(canvasId);
         injector.register(new AssetEngine(injector));
         injector.register(new RenderEngine(mainCanvas, injector));
         injector.register(new BattleEngine(injector));
 
+        this.assetEngine = injector.get('AssetEngine');
+        this.renderEngine = injector.get('RenderEngine');
+        this.battleEngine = injector.get('BattleEngine');
+
         // 장면 구성에 필요한 추가 매니저들 등록
         injector.register(new TerritoryManager());
-        injector.register(new BattleStageManager(injector.get('AssetEngine').getAssetLoaderManager()));
-        injector.register(new BattleGridManager(injector.get('MeasureManager'), injector.get('LogicManager')));
+        injector.register(new BattleStageManager(this.assetEngine.getAssetLoaderManager()));
+        injector.register(new BattleGridManager(this.measureManager, this.logicManager));
+
+        const battleSim = this.battleEngine.getBattleSimulationManager();
+        this.mercenaryPanelManager = new MercenaryPanelManager(this.measureManager, battleSim, this.logicManager, this.eventManager);
+        injector.register(this.mercenaryPanelManager);
 
         const combatLogCanvas = document.getElementById('combatLogCanvas');
-        injector.register(new BattleLogManager(combatLogCanvas, injector.get('EventManager'), injector.get('MeasureManager')));
+        this.battleLogManager = new BattleLogManager(combatLogCanvas, this.eventManager, this.measureManager);
+        injector.register(this.battleLogManager);
+
+        this.compatibilityManager = new CompatibilityManager(
+            this.measureManager,
+            this.renderEngine.renderer,
+            this.getUIEngine(),
+            null,
+            this.logicManager,
+            this.mercenaryPanelManager,
+            this.battleLogManager
+        );
+        injector.register(this.compatibilityManager);
 
         // --- 3. 게임 루프 설정 ---
         this.gameLoop = new GameLoop(this._update.bind(this), this._draw.bind(this));
@@ -56,8 +85,8 @@ export class GameEngine {
 
     // ◀◀◀ 추가된 내용: 장면과 렌더링 레이어를 설정하는 메서드
     _registerScenesAndLayers() {
-        const battleSim = this.injector.get('BattleEngine').getBattleSimulationManager();
-        const sceneEngine = this.injector.get('SceneEngine');
+        const battleSim = this.battleEngine.getBattleSimulationManager();
+        const sceneEngine = this.sceneEngine;
 
         sceneEngine.registerScene('territoryScene', [this.injector.get('TerritoryManager')]);
         sceneEngine.registerScene('battleScene', [
@@ -66,10 +95,10 @@ export class GameEngine {
             battleSim,
         ]);
 
-        const layerEngine = this.injector.get('RenderEngine').getLayerEngine();
+        const layerEngine = this.renderEngine.getLayerEngine();
         layerEngine.registerLayer('sceneLayer', (ctx) => sceneEngine.draw(ctx), 10);
-        layerEngine.registerLayer('battleLogLayer', (ctx) => this.injector.get('BattleLogManager').draw(ctx), 50);
-        layerEngine.registerLayer('uiLayer', (ctx) => this.injector.get('RenderEngine').uiEngine.draw(ctx), 100);
+        layerEngine.registerLayer('battleLogLayer', (ctx) => this.battleLogManager.draw(ctx), 50);
+        layerEngine.registerLayer('uiLayer', (ctx) => this.getUIEngine().draw(ctx), 100);
     }
 
     /**
@@ -80,27 +109,50 @@ export class GameEngine {
         try {
             console.log("--- Game Initialization Start ---");
 
-            const idManager = this.injector.get('AssetEngine').getIdManager();
+            const idManager = this.assetEngine.getIdManager();
+            const assetLoaderManager = this.assetEngine.getAssetLoaderManager();
+
+            console.log("Initialization Step 1: Preloading essential assets...");
+            const assetsToLoad = {
+                'sprite_battle_stage_forest': 'assets/images/battle-stage-forest.png',
+                'sprite_warrior_default': 'assets/images/warrior.png',
+                'sprite_zombie_default': 'assets/images/zombie.png'
+            };
+            const assetPromises = [];
+            for (const [id, path] of Object.entries(assetsToLoad)) {
+                assetPromises.push(assetLoaderManager.loadImage(id, path));
+            }
+            await Promise.all(assetPromises);
+            console.log("✅ Essential assets preloaded.");
+
+
+            console.log("Initialization Step 2: Initializing IdManager (DB)...");
             await idManager.initialize();
             await idManager.clearAllData();
+            console.log("✅ IdManager Initialized.");
 
+            console.log("Initialization Step 3: Registering base game data...");
             await GameDataManager.registerBaseClasses(idManager);
+            console.log("✅ Base game data registered.");
 
-            await this.injector.get('BattleEngine').setupBattle();
+            console.log("Initialization Step 4: Setting up battle units...");
+            await this.battleEngine.setupBattle();
+            console.log("✅ Battle setup complete.");
 
-            this.injector.get('BattleLogManager')._setupEventListeners();
-
+            console.log("Initialization Step 5: Registering scenes and layers...");
             this._registerScenesAndLayers();
 
-            const eventManager = this.injector.get('EventManager');
-            const sceneEngine = this.injector.get('SceneEngine');
-            const renderEngine = this.injector.get('RenderEngine');
+            this.battleLogManager._setupEventListeners();
+
+            const eventManager = this.eventManager;
+            const sceneEngine = this.sceneEngine;
+            const renderEngine = this.renderEngine;
 
             eventManager.subscribe(GAME_EVENTS.BATTLE_START, () => {
                 console.log("Battle Start event received by GameEngine. Changing scene...");
                 sceneEngine.setCurrentScene('battleScene');
                 renderEngine.uiEngine.setUIState(UI_STATES.COMBAT_SCREEN);
-                this.injector.get('BattleEngine').startBattle();
+                this.battleEngine.startBattle();
             });
 
             sceneEngine.setCurrentScene('territoryScene');
@@ -123,9 +175,9 @@ export class GameEngine {
 
     _draw() {
         const drawableServices = this.injector.getAllDrawable();
-        this.injector.get('RenderEngine').draw();
+        this.renderEngine.draw();
         for (const service of drawableServices) {
-            if (service !== this.injector.get('RenderEngine')) {
+            if (service !== this.renderEngine) {
                 service.draw && service.draw();
             }
         }
@@ -137,28 +189,29 @@ export class GameEngine {
     }
 
     // --- Getter helpers using the injector ---
-    getEventManager() { return this.injector.get('EventManager'); }
-    getMeasureManager() { return this.injector.get('MeasureManager'); }
-    getRuleManager() { return this.injector.get('RuleManager'); }
-    getSceneEngine() { return this.injector.get('SceneEngine'); }
-    getLogicManager() { return this.injector.get('LogicManager'); }
-    getAssetEngine() { return this.injector.get('AssetEngine'); }
-    getRenderEngine() { return this.injector.get('RenderEngine'); }
-    getBattleEngine() { return this.injector.get('BattleEngine'); }
+    getEventManager() { return this.eventManager; }
+    getMeasureManager() { return this.measureManager; }
+    getRuleManager() { return this.ruleManager; }
+    getSceneEngine() { return this.sceneEngine; }
+    getLogicManager() { return this.logicManager; }
+    getAssetEngine() { return this.assetEngine; }
+    getRenderEngine() { return this.renderEngine; }
+    getBattleEngine() { return this.battleEngine; }
     getTerritoryManager() { return this.injector.get('TerritoryManager'); }
     getBattleStageManager() { return this.injector.get('BattleStageManager'); }
     getBattleGridManager() { return this.injector.get('BattleGridManager'); }
-    getBattleLogManager() { return this.injector.get('BattleLogManager'); }
+    getBattleLogManager() { return this.battleLogManager; }
+    getCompatibilityManager() { return this.compatibilityManager; }
 
     getInjector() { return this.injector; }
 
     // ◀◀◀ 추가된 내용: UIEngine에 직접 접근할 수 있는 getter
     getUIEngine() {
-        return this.injector.get('RenderEngine').uiEngine;
+        return this.renderEngine.uiEngine;
     }
 
     // ◀◀◀ 추가된 내용: BattleSimulationManager에 쉽게 접근하기 위한 getter
     getBattleSimulationManager() {
-        return this.injector.get('BattleEngine').getBattleSimulationManager();
+        return this.battleEngine.getBattleSimulationManager();
     }
 }

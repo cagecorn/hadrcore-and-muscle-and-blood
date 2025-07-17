@@ -106,10 +106,10 @@ export class BattleEngine {
     }
 
     async setupBattle() {
-        await this.assetLoaderManager.loadImage('sprite_warrior_default', 'assets/images/warrior.png');
-        await this.assetLoaderManager.loadImage('sprite_zombie_default', 'assets/images/zombie.png');
-
         // 초기 전투 설정 시에는 영웅을 자동 생성하지 않습니다. 필요 시 UI에서 고용하도록 합니다.
+        if (this.monsterSpawnManager) {
+            await this.monsterSpawnManager.spawnMonstersForStage('stage1');
+        }
     }
 
     async startBattle() {
