@@ -171,6 +171,11 @@ export class TurnEngine {
                         }
                     } else if (action.actionType === 'skill') {
                         if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attempts to use skill.`);
+                        if (typeof action.execute === 'function') {
+                            await action.execute();
+                        } else {
+                            if (GAME_DEBUG_MODE) console.error(`[TurnEngine] Skill action for ${unit.name} is missing the 'execute' function.`);
+                        }
                         await this.delayEngine.waitFor(800);
                     }
                 }, 10, `${unit.name}'s Primary Action`);

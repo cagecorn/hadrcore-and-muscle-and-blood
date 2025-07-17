@@ -51,6 +51,24 @@ export const WARRIOR_SKILLS = {
             tags: ['일반공격'] // 이 공격이 평타 판정임을 명시
         }
     },
+    // 액티브 스킬: 빠르게 두 번 공격
+    DOUBLE_STRIKE: {
+        id: 'skill_warrior_double_strike',
+        name: '더블 스트라이크',
+        description: '한 대상에게 빠르게 일반 공격을 2회 가합니다.',
+        type: SKILL_TYPES.ACTIVE,
+        cost: 25,
+        range: 1,
+        cooldown: 2,
+        effect: {
+            tags: ['공격', '단일대상']
+            // 이 스킬로 발생한 두 번의 공격은 평타 판정을 받습니다.
+        },
+        ai: {
+            usageChance: 0.4,
+            condition: (user, target) => target && user.getDistanceTo && user.getDistanceTo(target) <= 1
+        }
+    },
     // 패시브 스킬 (상시 발동 예시)
     IRON_WILL: {
         id: 'skill_warrior_iron_will',
