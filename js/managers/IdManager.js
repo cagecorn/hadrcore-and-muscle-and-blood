@@ -14,6 +14,30 @@ export class IdManager {
     }
 
     /**
+     * Recursively clone data while removing function values so that the result
+     * is serializable with the structured clone algorithm.
+     * @private
+     * @param {any} obj
+     * @returns {any}
+     */
+    _sanitizeData(obj) {
+        if (obj === null || typeof obj !== 'object') {
+            return obj;
+        }
+
+        if (Array.isArray(obj)) {
+            return obj.map(item => this._sanitizeData(item));
+        }
+
+        const sanitized = {};
+        for (const [key, value] of Object.entries(obj)) {
+            if (typeof value === 'function') continue; // functions cannot be cloned
+            sanitized[key] = this._sanitizeData(value);
+        }
+        return sanitized;
+    }
+
+    /**
      * Initialize IdManager by opening IndexedDB and Cache API.
      * @returns {Promise<void>}
      */
@@ -85,10 +109,12 @@ export class IdManager {
             throw new Error("IndexedDB not initialized.");
         }
 
+        const sanitizedData = this._sanitizeData(data);
+
         return new Promise((resolve, reject) => {
             const transaction = this.db.transaction([STORE_NAME], 'readwrite');
             const store = transaction.objectStore(STORE_NAME);
-            const request = store.put({ id, data });
+            const request = store.put({ id, data: sanitizedData });
 
             request.onsuccess = () => {
                 this.idMap.set(id, data);
