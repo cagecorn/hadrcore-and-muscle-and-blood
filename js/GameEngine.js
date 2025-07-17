@@ -21,6 +21,8 @@ import { BattleLogManager } from './managers/BattleLogManager.js';
 import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js';
 import { CompatibilityManager } from './managers/CompatibilityManager.js';
 import { HeroManager } from './managers/HeroManager.js';
+import { StageDataManager } from './managers/StageDataManager.js';
+import { MonsterSpawnManager } from './managers/MonsterSpawnManager.js';
 
 export class GameEngine {
     constructor(canvasId) {
@@ -36,6 +38,7 @@ export class GameEngine {
         injector.register(new RuleManager(injector));
         injector.register(new SceneEngine(injector));
         injector.register(new LogicManager(injector));
+        injector.register(new StageDataManager());
 
         // 주요 매니저 참조 저장
         this.eventManager = injector.get('EventManager');
@@ -52,6 +55,17 @@ export class GameEngine {
         this.assetEngine = injector.get('AssetEngine');
         this.renderEngine = injector.get('RenderEngine');
         this.battleEngine = injector.get('BattleEngine');
+
+        const stageDataManager = injector.get('StageDataManager');
+        this.stageDataManager = stageDataManager;
+        this.monsterSpawnManager = new MonsterSpawnManager(
+            this.assetEngine.getIdManager(),
+            this.assetEngine.getAssetLoaderManager(),
+            this.battleEngine.getBattleSimulationManager(),
+            stageDataManager
+        );
+        injector.register(this.monsterSpawnManager);
+        this.battleEngine.setMonsterSpawnManager(this.monsterSpawnManager);
 
         // 장면 구성에 필요한 추가 매니저들 등록
         injector.register(new TerritoryManager());
