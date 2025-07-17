@@ -45,15 +45,16 @@ export class PositionManager {
      * @param {number} maxMoveRange - 최대 이동 가능 거리
      * @returns {Array<{x: number, y: number}> | null} 경로 배열 또는 null
      */
-    findPath(startPos, endPos, maxMoveRange) {
-        const queue = [{ x: startPos.x, y: startPos.y, path: [{x: startPos.x, y: startPos.y}], dist: 0 }];
+    findPath(startPos, endPos, maxMoveRange = Infinity) {
+        const maxRange = (maxMoveRange === undefined || maxMoveRange === null) ? Infinity : maxMoveRange;
+        const queue = [{ x: startPos.x, y: startPos.y, path: [{ x: startPos.x, y: startPos.y }], dist: 0 }];
         const visited = new Set([`${startPos.x},${startPos.y}`]);
         const directions = [[0, 1], [0, -1], [1, 0], [-1, 0]]; // 4방향 이동
 
         while (queue.length > 0) {
             const current = queue.shift();
 
-            if (current.dist >= maxMoveRange) continue;
+            if (current.dist >= maxRange) continue;
 
             for (const [dx, dy] of directions) {
                 const nextX = current.x + dx;
