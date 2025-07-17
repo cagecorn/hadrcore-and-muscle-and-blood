@@ -38,6 +38,7 @@ import { TurnOrderManager } from './managers/TurnOrderManager.js'; // ✨ 새롭
 import { ClassAIManager } from './managers/ClassAIManager.js';   // ✨ 새롭게 추가
 import { BasicAIManager } from './managers/BasicAIManager.js'; // ✨ 새롭게 추가
 import { TargetingManager } from './managers/TargetingManager.js'; // ✨ TargetingManager 추가
+import { SoundEngine } from './managers/SoundEngine.js'; // SoundEngine 임포트 추가
 import { PositionManager } from './managers/PositionManager.js'; // ✨ PositionManager 추가
 import { JudgementManager } from './managers/JudgementManager.js'; // JudgementManager 임포트
 import { ValorEngine } from './managers/ValorEngine.js';   // ✨ ValorEngine 추가
@@ -108,6 +109,7 @@ export class GameEngine {
         this.guardianManager = new GuardianManager();
         this.measureManager = new MeasureManager();
         this.ruleManager = new RuleManager();
+        this.soundEngine = new SoundEngine(); // <-- SoundEngine 인스턴스 생성
 
         // ------------------------------------------------------------------
         // 2. Scene & Logic Managers
@@ -862,4 +864,5 @@ export class GameEngine {
     getRangeManager() { return this.rangeManager; }
     getMonsterEngine() { return this.monsterEngine; }
     getMonsterAI() { return this.monsterAI; }
+    getSoundEngine() { return this.soundEngine; }
 }
