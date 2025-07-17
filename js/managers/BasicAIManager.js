@@ -47,12 +47,12 @@ export class BasicAIManager {
             { x: target.gridX, y: target.gridY }
         );
         if (pathToTarget && pathToTarget.length > 1) {
-            // 경로의 마지막은 적 유닛이므로, 그 바로 앞(-2)까지 이동 가능한 최대 지점으로 이동
-            const maxReachableIndex = Math.min(pathToTarget.length - 2, moveRange - 1);
-            const moveDestination = pathToTarget[maxReachableIndex + 1];
+            // 이동 가능한 최대 거리 내에서 적에게 가장 근접한 위치를 찾음
+            const maxReachableIndex = Math.min(pathToTarget.length - 2, moveRange);
+            const moveDestination = pathToTarget[maxReachableIndex];
 
             if (moveDestination && !this.positionManager.battleSimulationManager.isTileOccupied(moveDestination.x, moveDestination.y, unit.id)) {
-                if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving adjacent to ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
+                if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving towards ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
                 return { actionType: 'move', moveTargetX: moveDestination.x, moveTargetY: moveDestination.y };
             }
         }
