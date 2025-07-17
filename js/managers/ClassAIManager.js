@@ -29,7 +29,7 @@ export class ClassAIManager {
         }
 
         // 1. 결정된 스킬이 있는지 먼저 확인
-        const skillToUse = this.decideSkillToUse(unit);
+        const skillToUse = await this.decideSkillToUse(unit);
         if (skillToUse) {
             if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${skillToUse.name}`);
             await this.executeSkillAI(unit, skillToUse);
@@ -47,7 +47,7 @@ export class ClassAIManager {
         }
     }
 
-    decideSkillToUse(unit) {
+    async decideSkillToUse(unit) {
         if (!unit.skillSlots || unit.skillSlots.length === 0) {
             return null;
         }
@@ -56,9 +56,9 @@ export class ClassAIManager {
         let cumulativeProbability = 0;
 
         for (const skillId of unit.skillSlots) {
-            const skillData = Object.values(WARRIOR_SKILLS).find(s => s.id === skillId);
+            const skillData = await this.idManager.get(skillId);
             if (skillData && (skillData.type === 'active' || skillData.type === 'buff')) {
-                cumulativeProbability += skillData.probability;
+                cumulativeProbability += skillData.probability || 0;
                 if (roll < cumulativeProbability) {
                     return skillData;
                 }
