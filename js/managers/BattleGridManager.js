@@ -41,7 +41,7 @@ export class BattleGridManager {
         const gridOffsetY = (canvasHeight - totalGridHeight) / 2;
 
         if (GAME_DEBUG_MODE) {
-            console.log(`[BattleGridManager Debug] Drawing Grid Parameters (in draw()): \n            Canvas (Logical): ${canvasWidth}x${canvasHeight}\nScene Content (Logical): ${sceneContentDimensions.width}x${sceneContentDimensions.height}\n            Effective Tile Size: ${effectiveTileSize.toFixed(2)}\n            Grid Offset (X, Y): ${gridOffsetX.toFixed(2)}, ${gridOffsetY.toFixed(2)}\n            Total Grid Render Size (Logical): ${totalGridWidth.toFixed(2)}x${totalGridHeight.toFixed(2)}`);
+            // console.log(`[BattleGridManager Debug] Drawing Grid Parameters (in draw()): \n            Canvas (Logical): ${canvasWidth}x${canvasHeight}\nScene Content (Logical): ${sceneContentDimensions.width}x${sceneContentDimensions.height}\n            Effective Tile Size: ${effectiveTileSize.toFixed(2)}\n            Grid Offset (X, Y): ${gridOffsetX.toFixed(2)}, ${gridOffsetY.toFixed(2)}\n            Total Grid Render Size (Logical): ${totalGridWidth.toFixed(2)}x${totalGridHeight.toFixed(2)}`);
         }
 
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.5)';
@@ -50,7 +50,7 @@ export class BattleGridManager {
         // 세로선 그리기
         for (let i = 0; i <= this.gridCols; i++) {
             const lineX = gridOffsetX + i * effectiveTileSize;
-            if (GAME_DEBUG_MODE) console.log(`[BattleGridManager Debug] Vertical Line ${i}: X=${lineX.toFixed(2)} from Y=${gridOffsetY.toFixed(2)} to Y=${(gridOffsetY + totalGridHeight).toFixed(2)}`);
+            // if (GAME_DEBUG_MODE) console.log(`[BattleGridManager Debug] Vertical Line ${i}: X=${lineX.toFixed(2)} from Y=${gridOffsetY.toFixed(2)} to Y=${(gridOffsetY + totalGridHeight).toFixed(2)}`);
             ctx.beginPath();
             ctx.moveTo(lineX, gridOffsetY);
             ctx.lineTo(lineX, gridOffsetY + totalGridHeight);
@@ -60,7 +60,7 @@ export class BattleGridManager {
         // 가로선 그리기
         for (let i = 0; i <= this.gridRows; i++) {
             const lineY = gridOffsetY + i * effectiveTileSize;
-            if (GAME_DEBUG_MODE) console.log(`[BattleGridManager Debug] Horizontal Line ${i}: Y=${lineY.toFixed(2)} from X=${gridOffsetX.toFixed(2)} to X=${(gridOffsetX + totalGridWidth).toFixed(2)}`);
+            // if (GAME_DEBUG_MODE) console.log(`[BattleGridManager Debug] Horizontal Line ${i}: Y=${lineY.toFixed(2)} from X=${gridOffsetX.toFixed(2)} to X=${(gridOffsetX + totalGridWidth).toFixed(2)}`);
             ctx.beginPath();
             ctx.moveTo(gridOffsetX, lineY);
             ctx.lineTo(gridOffsetX + totalGridWidth, lineY);
@@ -68,7 +68,7 @@ export class BattleGridManager {
         }
 
         // 그리드 영역 테두리 (확인용)
-        if (GAME_DEBUG_MODE) console.log(`[BattleGridManager Debug] Border Rect: X=${gridOffsetX.toFixed(2)}, Y=${gridOffsetY.toFixed(2)}, W=${totalGridWidth.toFixed(2)}, H=${totalGridHeight.toFixed(2)}`);
+        // if (GAME_DEBUG_MODE) console.log(`[BattleGridManager Debug] Border Rect: X=${gridOffsetX.toFixed(2)}, Y=${gridOffsetY.toFixed(2)}, W=${totalGridWidth.toFixed(2)}, H=${totalGridHeight.toFixed(2)}`);
         ctx.strokeStyle = 'rgba(255, 255, 255, 0.8)';
         ctx.lineWidth = 2;
         ctx.strokeRect(gridOffsetX, gridOffsetY, totalGridWidth, totalGridHeight);
