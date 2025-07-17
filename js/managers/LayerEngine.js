@@ -1,4 +1,5 @@
 // js/managers/LayerEngine.js
+import { GAME_DEBUG_MODE } from '../constants.js';
 
 export class LayerEngine {
     constructor(renderer, cameraEngine) {
@@ -25,6 +26,10 @@ export class LayerEngine {
         this.renderer.drawBackground();
 
         for (const layer of this.layers) {
+            if (GAME_DEBUG_MODE && this.renderer.gameLoop && this.renderer.gameLoop.frameCount % 300 === 0) {
+                console.log(`  [RenderFlow] Drawing layer: ${layer.name} (z-index: ${layer.zIndex})`);
+            }
+
             this.renderer.ctx.save();
 
             if (layer.name === 'sceneLayer' && this.cameraEngine) {

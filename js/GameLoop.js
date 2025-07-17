@@ -7,6 +7,7 @@ export class GameLoop {
         this.lastTime = 0;    // 마지막 프레임이 그려진 시간
         this.deltaTime = 0;   // 프레임 간의 시간 (밀리초)
         this.isRunning = false; // 게임 루프 실행 여부
+        this.frameCount = 0;  // 디버그용 프레임 카운터
 
         // `loop` 메서드의 `this` 컨텍스트를 현재 인스턴스로 바인딩
         // 이렇게 해야 `requestAnimationFrame` 내에서 `this.update` 등을 제대로 호출할 수 있습니다.
@@ -52,6 +53,8 @@ export class GameLoop {
 
         // 화면 그리기
         this.draw();
+
+        this.frameCount++;
 
         // 다음 프레임 요청
         requestAnimationFrame(this.loop);
