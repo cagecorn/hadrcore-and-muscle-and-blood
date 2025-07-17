@@ -44,6 +44,7 @@ export class HeroManager {
             const randomName = this.diceBotEngine.pickUniqueItems(this.heroNameList, 1)[0];
 
             const randomSkills = this.diceBotEngine.pickUniqueItems(allWarriorSkillIds, 3);
+            if (GAME_DEBUG_MODE) console.log(`[HeroManager Debug] Warrior ${i+1} (${randomName}) skills:`, randomSkills.join(", "));
 
             const heroUnitData = {
                 id: unitId,
