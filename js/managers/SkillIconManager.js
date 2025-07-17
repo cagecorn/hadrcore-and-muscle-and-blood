@@ -1,6 +1,8 @@
 // js/managers/SkillIconManager.js
 
-import { GAME_DEBUG_MODE } from '../constants.js'; // 디버그 모드 상수 임포트
+import { GAME_DEBUG_MODE } from '../constants.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
+import { STATUS_EFFECTS } from '../../data/statusEffects.js';
 
 export class SkillIconManager {
     /**
@@ -26,47 +28,44 @@ export class SkillIconManager {
         // 투명한 1x1 png 데이터
         this.placeholderIcon.src =
             'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/5+hHgAHggJ/p14WAAAAAElFTkSuQmCC';
-
-        this._loadDefaultSkillIcons(); // 초기 스킬 아이콘 로드
     }
 
     /**
-     * 기본 스킬 아이콘들을 미리 로드합니다.
-     * 이 메서드는 게임 시작 시 호출되어야 합니다.
+     * 모든 스킬 및 상태 효과 데이터에서 아이콘을 찾아 미리 로드합니다.
+     * 이 메서드는 GameEngine의 초기화 과정에서 호출되어야 합니다.
      * @private
      */
-    async _loadDefaultSkillIcons() {
-        if (GAME_DEBUG_MODE) console.log("[SkillIconManager] Loading default skill icons...");
-        const skillIconPaths = {
-            'skill_warrior_battle_cry': 'assets/icons/skills/battle_cry.png',
-            'skill_warrior_rending_strike': 'assets/icons/skills/rending_strike.png',
-            'skill_warrior_retaliate': 'assets/icons/skills/retaliate.png',
-            'skill_warrior_iron_will': 'assets/icons/skills/iron_will.png', // ✨ 아이언 윌 스킬 아이콘
-            'status_poison': 'assets/icons/status_effects/poison.png',
-            'status_stun': 'assets/icons/status_effects/stun.png',
-            'status_bleed': 'assets/icons/status_effects/bleed.png', // ✨ 출혈 아이콘 경로 추가
-            'status_berserk': 'assets/icons/status_effects/berserk.png',
-            'status_battle_cry': 'assets/icons/skills/battle_cry.png', // ✨ 버프 아이콘 등록
-            'status_disarmed': 'assets/icons/status_effects/disarmed.png'
+    async _loadAllIcons() {
+        if (GAME_DEBUG_MODE) console.log("[SkillIconManager] Loading all defined skill and status icons...");
+        const allSkillsAndEffects = {
+            ...WARRIOR_SKILLS,
+            ...STATUS_EFFECTS
+            // 나중에 다른 직업 스킬도 여기에 추가: ...MAGE_SKILLS
         };
 
         const loadPromises = [];
-        for (const skillId in skillIconPaths) {
-            const url = skillIconPaths[skillId];
-            loadPromises.push(
-                this.assetLoaderManager.loadImage(`icon_${skillId}`, url)
+
+        for (const key in allSkillsAndEffects) {
+            const item = allSkillsAndEffects[key];
+            if (item.icon && !this.skillIcons.has(item.id)) {
+                const url = item.icon;
+                const assetId = `icon_${item.id}`;
+
+                const promise = this.assetLoaderManager.loadImage(assetId, url)
                     .then(img => {
-                        this.skillIcons.set(skillId, img);
-                        if (GAME_DEBUG_MODE) console.log(`[SkillIconManager] Loaded icon for ${skillId}.`);
+                        this.skillIcons.set(item.id, img);
+                        if (GAME_DEBUG_MODE) console.log(`[SkillIconManager] Loaded icon for ${item.id}.`);
                     })
                     .catch(error => {
-                        console.error(`[SkillIconManager] Failed to load icon for ${skillId} from ${url}:`, error);
-                        this.skillIcons.set(skillId, this.placeholderIcon);
-                    })
-            );
+                        console.error(`[SkillIconManager] Failed to load icon for ${item.id} from ${url}:`, error);
+                        this.skillIcons.set(item.id, this.placeholderIcon);
+                    });
+                loadPromises.push(promise);
+            }
         }
+
         await Promise.all(loadPromises);
-        if (GAME_DEBUG_MODE) console.log("[SkillIconManager] Default skill icon loading complete.");
+        if (GAME_DEBUG_MODE) console.log("[SkillIconManager] All defined icons loading process complete.");
     }
 
     /**

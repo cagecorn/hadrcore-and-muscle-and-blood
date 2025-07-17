@@ -635,8 +635,8 @@ export class GameEngine {
         }
         if (GAME_DEBUG_MODE) console.log(`[GameEngine] Registered ${Object.keys(WARRIOR_SKILLS).length} warrior skills.`);
 
-        // ✨ SkillIconManager의 기본 아이콘 로드를 시작
-        await this.skillIconManager._loadDefaultSkillIcons();
+        // ✨ SkillIconManager의 아이콘 로드를 시작합니다.
+        await this.skillIconManager._loadAllIcons();
         if (GAME_DEBUG_MODE) console.log("[GameEngine] All initial icons have been queued for loading by SkillIconManager.");
 
         // 2. AssetLoaderManager로 전사 스프라이트 로드
