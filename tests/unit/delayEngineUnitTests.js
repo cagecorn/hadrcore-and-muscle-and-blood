@@ -2,7 +2,7 @@
 
 import { DelayEngine } from '../../js/managers/DelayEngine.js';
 
-export function runDelayEngineUnitTests() {
+export async function runDelayEngineUnitTests() {
     console.log("--- DelayEngine Unit Test Start ---");
 
     let testCount = 0;

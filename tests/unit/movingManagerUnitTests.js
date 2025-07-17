@@ -3,7 +3,7 @@
 import { MovingManager } from '../../js/managers/MovingManager.js';
 import { GAME_DEBUG_MODE } from '../../js/constants.js'; // 디버그 모드 상수 임포트
 
-export function runMovingManagerUnitTests() {
+export async function runMovingManagerUnitTests() {
     if (GAME_DEBUG_MODE) console.log("--- MovingManager Unit Test Start ---");
 
     let testCount = 0;

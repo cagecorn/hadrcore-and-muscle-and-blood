@@ -1,6 +1,6 @@
 import { TagManager } from '../../js/managers/TagManager.js';
 
-export function runTagManagerUnitTests(idManager) {
+export async function runTagManagerUnitTests(idManager) {
     console.log("--- TagManager Unit Test Start ---");
 
     let testCount = 0;

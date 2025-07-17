@@ -8,7 +8,7 @@ import { HeroEngine } from '../../js/managers/HeroEngine.js'; // HeroEngine 임�
 import { IdManager } from '../../js/managers/IdManager.js'; // IdManager 임포트
 import { AnimationManager } from '../../js/managers/AnimationManager.js'; // AnimationManager도 필요
 
-export function runDetailInfoManagerUnitTests() {
+export async function runDetailInfoManagerUnitTests() {
     console.log("--- DetailInfoManager Unit Test Start ---");
 
     let testCount = 0;

@@ -3,7 +3,7 @@
 import { SkillIconManager } from '../../js/managers/SkillIconManager.js';
 import { GAME_DEBUG_MODE } from '../../js/constants.js';
 
-export function runSkillIconManagerUnitTests(assetLoaderManager, idManager) {
+export async function runSkillIconManagerUnitTests(assetLoaderManager, idManager) {
     console.log("--- SkillIconManager Unit Test Start ---");
 
     let testCount = 0;
