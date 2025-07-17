@@ -39,24 +39,24 @@ export function runSkillIconManagerUnitTests(assetLoaderManager, idManager) {
     testCount++;
     try {
         const sim = new SkillIconManager(mockAssetLoaderManager, mockIdManager);
-        await sim._loadDefaultSkillIcons();
-        const expectedIconCount = 5 + 5;
-        if (sim.skillIcons.size === expectedIconCount && sim.skillIcons.has('skill_warrior_battle_cry')) {
-            console.log("SkillIconManager: _loadDefaultSkillIcons loaded icons correctly. [PASS]");
+        await sim._loadAllIcons();
+        const expectedIconCount = 1; // 현재 아이콘이 정의된 스킬 수
+        if (sim.skillIcons.size === expectedIconCount && sim.skillIcons.has('skill_warrior_double_strike')) {
+            console.log("SkillIconManager: _loadAllIcons loaded icons correctly. [PASS]");
             passCount++;
         } else {
-            console.error(`SkillIconManager: _loadDefaultSkillIcons failed. Expected ${expectedIconCount} icons, got ${sim.skillIcons.size}. [FAIL]`);
+            console.error(`SkillIconManager: _loadAllIcons failed. Expected ${expectedIconCount} icons, got ${sim.skillIcons.size}. [FAIL]`);
         }
     } catch (e) {
-        console.error("SkillIconManager: Error during _loadDefaultSkillIcons test. [FAIL]", e);
+        console.error("SkillIconManager: Error during _loadAllIcons test. [FAIL]", e);
     }
 
     testCount++;
     try {
         const sim = new SkillIconManager(mockAssetLoaderManager, mockIdManager);
-        await sim._loadDefaultSkillIcons();
-        const icon = sim.getSkillIcon('skill_warrior_battle_cry');
-        if (icon && icon.src && icon.src.includes('battle_cry.png')) {
+        await sim._loadAllIcons();
+        const icon = sim.getSkillIcon('skill_warrior_double_strike');
+        if (icon && icon.src && icon.src.includes('double-strike-icon.png')) {
             console.log("SkillIconManager: getSkillIcon returned correct icon. [PASS]");
             passCount++;
         } else {
@@ -69,7 +69,7 @@ export function runSkillIconManagerUnitTests(assetLoaderManager, idManager) {
     testCount++;
     try {
         const sim = new SkillIconManager(mockAssetLoaderManager, mockIdManager);
-        await sim._loadDefaultSkillIcons();
+        await sim._loadAllIcons();
         const icon = sim.getSkillIcon('non_existent_skill_icon');
         if (icon && icon.src && icon.src.startsWith('data:image')) {
             console.log("SkillIconManager: getSkillIcon returned placeholder for non-existent icon. [PASS]");

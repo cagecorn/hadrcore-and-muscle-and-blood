@@ -57,6 +57,7 @@ export const WARRIOR_SKILLS = {
         name: '더블 스트라이크',
         description: '한 대상에게 빠르게 일반 공격을 2회 가합니다.',
         type: SKILL_TYPES.ACTIVE,
+        icon: 'assets/icons/skills/double-strike-icon.png',
         cost: 25,
         range: 1,
         cooldown: 2,
