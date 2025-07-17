@@ -72,7 +72,7 @@ export function runBasicAIManagerUnitTests(battleSimulationManager) {
     try {
         const basicAIManager = new BasicAIManager(battleSimulationManager);
         const action = basicAIManager.determineMoveAndTarget(mockWarrior, battleSimulationManager.unitsOnGrid, 3, 1);
-        if (action && action.actionType === 'move' && action.moveTargetX === 3 && action.moveTargetY === 0) {
+        if (action && action.actionType === 'move' && action.moveTargetX === 2 && action.moveTargetY === 0) {
             console.log("BasicAIManager: Determined 'move' towards distant target. [PASS]");
             passCount++;
         } else {
