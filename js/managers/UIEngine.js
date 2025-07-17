@@ -1,7 +1,5 @@
 // js/managers/UIEngine.js
 
-// ... (기존 임포트 유지)
-// ✨ 상수 파일 임포트
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS } from '../constants.js';
 
 export class UIEngine {
@@ -22,7 +20,7 @@ export class UIEngine {
 
         this.recalculateUIDimensions();
 
-        // ✨ '전사 고용' 버튼 등록
+        // '전사 고용' 버튼을 초기 위치에 등록
         const hireButtonWidth = 150;
         const hireButtonHeight = 50;
         this.buttonEngine.registerButton(
@@ -53,10 +51,18 @@ export class UIEngine {
         this.mapPanelWidth = logicalCanvasWidth * this.measureManager.get('ui.mapPanelWidthRatio');
         this.mapPanelHeight = logicalCanvasHeight * this.measureManager.get('ui.mapPanelHeightRatio');
 
-        // ✨ '전투 시작' 버튼은 HTML에서 관리하므로 여기서는 UI 폰트 크기만 계산합니다.
         this.uiFontSize = Math.floor(logicalCanvasHeight * this.measureManager.get('ui.fontSizeRatio'));
 
-        // ButtonEngine에 등록된 다른 버튼이 있다면 이곳에서 위치 정보를 업데이트할 수 있습니다.
+        // 화면 크기가 변할 때 버튼 위치도 업데이트합니다.
+        const hireButtonWidth = 150;
+        const hireButtonHeight = 50;
+        this.buttonEngine.updateButtonRect(
+            BUTTON_IDS.HIRE_WARRIOR,
+            logicalCanvasWidth - hireButtonWidth - 20,
+            20,
+            hireButtonWidth,
+            hireButtonHeight
+        );
 
         console.log(`[UIEngine Debug] Canvas Logical Dimensions: ${logicalCanvasWidth}x${logicalCanvasHeight}`);
     }
