@@ -96,7 +96,7 @@
         <button id="runButtonEngineUnitTestsBtn">ButtonEngine 유닛 테스트</button>
         <button id="runDiceEngineUnitTestsBtn">DiceEngine 유닛 테스트</button>
         <button id="runDiceRollManagerUnitTestsBtn">DiceRollManager 유닛 테스트</button>
-        <button id="runDiceBotManagerUnitTestsBtn">DiceBotManager 유닛 테스트</button>
+        <button id="runDiceBotEngineUnitTestsBtn">DiceBotEngine 유닛 테스트</button>
 
         <button id="runTurnCountManagerUnitTestsBtn">TurnCountManager 유닛 테스트</button>
         <button id="runStatusEffectManagerUnitTestsBtn">StatusEffectManager 유닛 테스트</button>
@@ -186,7 +186,7 @@
             runButtonEngineUnitTests,
             runDiceEngineUnitTests,
             runDiceRollManagerUnitTests,
-            runDiceBotManagerUnitTests,
+            runDiceBotEngineUnitTests,
             runTurnCountManagerUnitTests,
             runStatusEffectManagerUnitTests,
             runWorkflowManagerUnitTests,
@@ -243,7 +243,7 @@
             // ✨ 다이스 관련 매니저 가져오기
             const diceEngine = gameEngine.getDiceEngine();
             const diceRollManager = gameEngine.getDiceRollManager();
-            const diceBotManager = gameEngine.getDiceBotManager();
+            const diceBotEngine = gameEngine.getDiceBotEngine();
 
 
             // 테스트용 EventManager 구독 (debug.html에서만 필요)
@@ -293,7 +293,7 @@
                 runRuleManagerUnitTests();
                 runTurnOrderManagerUnitTests(eventManager, battleSimulationManager);
                 runBasicAIManagerUnitTests(battleSimulationManager);
-                runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager);
+                runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine);
                 runBattleSimulationManagerUnitTests(measureManager, gameEngine.getAssetLoaderManager(), idManager, logicManager);
                 runAnimationManagerUnitTests();
                 runValorEngineUnitTests();
@@ -307,7 +307,7 @@
                 runButtonEngineUnitTests();
                 runDiceEngineUnitTests();
                 runDiceRollManagerUnitTests();
-                runDiceBotManagerUnitTests();
+                runDiceBotEngineUnitTests();
                 runTurnCountManagerUnitTests();
                 runStatusEffectManagerUnitTests(eventManager, idManager, turnCountManager, battleCalculationManager);
                 runWorkflowManagerUnitTests(eventManager, statusEffectManager, battleSimulationManager);
@@ -376,8 +376,8 @@
             document.getElementById('runDiceRollManagerUnitTestsBtn').addEventListener('click', () => {
                 runDiceRollManagerUnitTests();
             });
-            document.getElementById('runDiceBotManagerUnitTestsBtn').addEventListener('click', () => {
-                runDiceBotManagerUnitTests();
+            document.getElementById('runDiceBotEngineUnitTestsBtn').addEventListener('click', () => {
+                runDiceBotEngineUnitTests();
             });
             document.getElementById('runTurnCountManagerUnitTestsBtn').addEventListener('click', () => {
                 runTurnCountManagerUnitTests();
@@ -615,7 +615,7 @@
             runRuleManagerUnitTests();
             runTurnOrderManagerUnitTests(eventManager, battleSimulationManager);
             runBasicAIManagerUnitTests(battleSimulationManager);
-            runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager);
+            runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine);
             runBattleSimulationManagerUnitTests(measureManager, gameEngine.getAssetLoaderManager(), idManager, logicManager);
             runAnimationManagerUnitTests();
             runValorEngineUnitTests();
@@ -628,7 +628,7 @@
             runUIEngineUnitTests();
             runDiceEngineUnitTests();
             runDiceRollManagerUnitTests();
-            runDiceBotManagerUnitTests();
+            runDiceBotEngineUnitTests();
             runTurnCountManagerUnitTests();
             runStatusEffectManagerUnitTests(eventManager, idManager, turnCountManager, battleCalculationManager);
             runWorkflowManagerUnitTests(eventManager, statusEffectManager, battleSimulationManager);

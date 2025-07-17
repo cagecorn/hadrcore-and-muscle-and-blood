@@ -5,14 +5,14 @@ export class HeroEngine {
      * HeroEngine을 초기화합니다.
      * @param {IdManager} idManager - ID 관리 및 데이터 조회를 위한 IdManager 인스턴스
      * @param {AssetLoaderManager} assetLoaderManager - 이미지 에셋 로드를 위한 AssetLoaderManager 인스턴스
-     * @param {DiceBotManager} diceBotManager - 무작위 값 생성을 위한 DiceBotManager 인스턴스
+     * @param {DiceBotEngine} diceBotEngine - 무작위 값 생성을 위한 DiceBotEngine 인스턴스
      */
-    constructor(idManager, assetLoaderManager, diceEngine, diceBotManager) {
+    constructor(idManager, assetLoaderManager, diceEngine, diceBotEngine) {
         console.log("\u2728 HeroEngine initialized. The foundation for all heroes begins here! \u2728");
         this.idManager = idManager;
         this.assetLoaderManager = assetLoaderManager;
         this.diceEngine = diceEngine;
-        this.diceBotManager = diceBotManager;
+        this.diceBotEngine = diceBotEngine;
 
         this.heroes = new Map(); // key: heroId, value: heroData (생성된 영웅 인스턴스 저장)
         this._loadBasicHeroData(); // 예시 영웅 데이터 로드 (실제는 가챠 등으로 생성)
@@ -71,7 +71,7 @@ export class HeroEngine {
             this.assetLoaderManager.getImage(options.spriteId) || await this.assetLoaderManager.loadImage(options.spriteId, `assets/images/${options.spriteId.replace('hero_default_', '')}.png`) :
             null;
 
-        // 2. 랜덤 스탯 생성 (DiceBotManager 활용)
+        // 2. 랜덤 스탯 생성 (DiceBotEngine 활용)
         // 각 스탯에 대해 대략적인 범위 설정
         const baseStats = {
             hp: this.diceEngine.getRandomInt(70, 120),
