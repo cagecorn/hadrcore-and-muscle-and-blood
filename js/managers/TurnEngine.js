@@ -4,12 +4,13 @@
 import { GAME_EVENTS, UI_STATES, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 
 export class TurnEngine {
-    constructor(eventManager, battleSimulationManager, turnOrderManager, microcosmHeroEngine, delayEngine, timingEngine, animationManager, battleCalculationManager, statusEffectManager) {
+    constructor(eventManager, battleSimulationManager, turnOrderManager, microcosmHeroEngine, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager, statusEffectManager) {
         if (GAME_DEBUG_MODE) console.log("\uD83D\uDD01 TurnEngine initialized. Ready to manage game turns. \uD83D\uDD01");
         this.eventManager = eventManager;
         this.battleSimulationManager = battleSimulationManager;
         this.turnOrderManager = turnOrderManager;
         this.microcosmHeroEngine = microcosmHeroEngine;
+        this.classAIManager = classAIManager;
         this.delayEngine = delayEngine;
         this.timingEngine = timingEngine;
         this.animationManager = animationManager;
@@ -111,7 +112,16 @@ export class TurnEngine {
                     enemies: this.battleSimulationManager.unitsOnGrid.filter(u => u.type !== unit.type),
                     allies: this.battleSimulationManager.unitsOnGrid.filter(u => u.type === unit.type)
                 };
-                action = await this.microcosmHeroEngine.determineHeroAction(unit.id, battleState);
+                if (this.microcosmHeroEngine.hasHeroMicrocosm(unit.id)) {
+                    try {
+                        action = await this.microcosmHeroEngine.determineHeroAction(unit.id, battleState);
+                    } catch (e) {
+                        if (GAME_DEBUG_MODE) console.warn(`[TurnEngine] Microcosm action failed for ${unit.name}:`, e);
+                    }
+                }
+                if (!action) {
+                    action = await this.classAIManager.getBasicClassAction(unit, this.battleSimulationManager.unitsOnGrid);
+                }
             }
 
             // JudgementManager가 AI 결정을 감시할 수 있도록 알림

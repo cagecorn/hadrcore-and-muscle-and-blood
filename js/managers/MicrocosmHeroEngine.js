@@ -13,6 +13,10 @@ export class MicrocosmHeroEngine {
         this.heroInstances = new Map(); // key: heroId, value: { worker, state, ... }
     }
 
+    hasHeroMicrocosm(heroId) {
+        return this.heroInstances.has(heroId);
+    }
+
     /**
      * 새로운 영웅의 '미시세계'를 생성하고 초기화합니다.
      * HeroEngine에서 영웅 생성 시 호출됩니다.
@@ -53,7 +57,9 @@ export class MicrocosmHeroEngine {
         return new Promise((resolve, reject) => {
             const instance = this.heroInstances.get(heroId);
             if (!instance) {
-                return reject(new Error(`No microcosm instance found for hero ${heroId}`));
+                if (GAME_DEBUG_MODE) console.warn(`[MicrocosmHeroEngine] No microcosm instance for hero ${heroId}.`);
+                resolve(null);
+                return;
             }
 
             instance.worker.postMessage({

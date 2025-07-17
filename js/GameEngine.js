@@ -404,6 +404,7 @@ export class GameEngine {
             this.battleSimulationManager,
             this.turnOrderManager,
             this.microcosmHeroEngine,
+            this.classAIManager,
             this.delayEngine,
             this.timingEngine,
             this.animationManager,
