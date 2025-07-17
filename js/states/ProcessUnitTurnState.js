@@ -23,28 +23,10 @@ export class ProcessUnitTurnState extends TurnState {
                 }
             }
 
-            let aiResult = null;
             if (!canUnitAct) {
                 await this.turnEngine.delayEngine.waitFor(500);
             } else {
-                aiResult = await this.turnEngine.classAIManager.getBasicClassAction(unit, bsm.unitsOnGrid);
-            }
-
-            const commands = [];
-            if (Array.isArray(aiResult)) {
-                commands.push(...aiResult);
-            } else if (aiResult && typeof aiResult.execute === 'function') {
-                commands.push(aiResult);
-            }
-
-            for (const cmd of commands) {
-                await cmd.execute({
-                    battleSimulationManager: bsm,
-                    animationManager: this.turnEngine.animationManager,
-                    battleCalculationManager: this.turnEngine.battleCalculationManager,
-                    eventManager: this.turnEngine.eventManager,
-                    delayEngine: this.turnEngine.delayEngine
-                });
+                await this.turnEngine.aiEngine.runUnitAI(unit.id);
             }
 
             this.turnEngine.eventManager.emit('turnPhase', { phase: 'unitActions', unitId: unit.id, turn: this.turnEngine.currentTurn });
