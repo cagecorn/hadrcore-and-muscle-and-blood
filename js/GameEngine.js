@@ -564,8 +564,16 @@ export class GameEngine {
             this.eventManager.subscribe(GAME_EVENTS.UNIT_DEATH, (data) => {
                 if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Unit ${data.unitId} (${data.unitName}) has died.`);
             });
-            this.eventManager.subscribe(GAME_EVENTS.SKILL_EXECUTED, (data) => {
-                if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${data.skillName}' was executed.`);
+            this.eventManager.subscribe(GAME_EVENTS.SKILL_EXECUTED, async (data) => {
+                // data.skillName이 있으면 바로 사용, 없으면 data.skillId를 기반으로 경고
+                if (data.skillName) {
+                    if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${data.skillName}' was executed by ${data.userId}.`);
+                } else {
+                    if (GAME_DEBUG_MODE) console.warn(`[GameEngine] Notification: Skill with ID '${data.skillId}' was executed, but skillName was not provided in the event data.`);
+                    const skillData = await this.idManager.get(data.skillId);
+                    const resolvedName = skillData ? skillData.name : 'Unknown Skill';
+                    if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${resolvedName}' was executed by ${data.userId}.`);
+                }
             });
             this.eventManager.subscribe(GAME_EVENTS.BATTLE_START, async (data) => {
                 if (GAME_DEBUG_MODE) console.log(`[GameEngine] Battle started for map: ${data.mapId}, difficulty: ${data.difficulty}`);

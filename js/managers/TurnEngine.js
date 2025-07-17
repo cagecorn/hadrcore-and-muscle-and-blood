@@ -139,6 +139,8 @@ export class TurnEngine {
 
                         const moved = this.battleSimulationManager.moveUnit(unit.id, action.moveTargetX, action.moveTargetY);
                         if (moved) {
+                            // ✨ 이동 성공 시 이벤트 발생
+                            this.eventManager.emit(GAME_EVENTS.UNIT_MOVED, { unitId: unit.id, from: { x: startGridX, y: startGridY }, to: { x: action.moveTargetX, y: action.moveTargetY } });
                             await this.animationManager.queueMoveAnimation(
                                 unit.id,
                                 startGridX,
