@@ -44,7 +44,19 @@ export class TargetingManager {
      * @returns {object | null}
      */
     getLowestHpUnit(unitList) {
-        return unitList.reduce((lowest, unit) => {
+        let list = unitList;
+
+        // Allow passing a unit type string for convenience
+        if (typeof unitList === 'string') {
+            list = this.battleSimulationManager.unitsOnGrid
+                .filter(u => u.type === unitList && u.currentHp > 0);
+        }
+
+        if (!Array.isArray(list) || list.length === 0) {
+            return null;
+        }
+
+        return list.reduce((lowest, unit) => {
             if (!lowest || unit.currentHp < lowest.currentHp) {
                 return unit;
             }
