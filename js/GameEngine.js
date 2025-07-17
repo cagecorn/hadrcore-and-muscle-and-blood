@@ -118,11 +118,10 @@ export class GameEngine {
                 'sprite_warrior_default': 'assets/images/warrior.png',
                 'sprite_zombie_default': 'assets/images/zombie.png'
             };
-            const assetPromises = [];
             for (const [id, path] of Object.entries(assetsToLoad)) {
-                assetPromises.push(assetLoaderManager.loadImage(id, path));
+                assetLoaderManager.queueAsset(id, path);
             }
-            await Promise.all(assetPromises);
+            await assetLoaderManager.loadAllQueuedAssets();
             console.log("✅ Essential assets preloaded.");
 
 

@@ -3,22 +3,20 @@
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS } from '../constants.js';
 
 export class UIEngine {
-    constructor(renderer, measureManager, eventManager, mercenaryPanelManager, buttonEngine, heroManager) {
+    constructor(renderer, measureManager, eventManager, buttonEngine, heroManager) {
         console.log("\ud83c\udf9b UIEngine initialized. Ready to draw interfaces. \ud83c\udf9b");
         this.renderer = renderer;
         this.measureManager = measureManager;
         this.eventManager = eventManager;
-        this.mercenaryPanelManager = mercenaryPanelManager;
         this.buttonEngine = buttonEngine;
         this.heroManager = heroManager;
+        // 영웅 패널은 별도 매니저가 그리므로 여기서는 참조하지 않습니다.
 
         this.canvas = renderer.canvas;
         this.ctx = renderer.ctx;
 
         this._currentUIState = UI_STATES.MAP_SCREEN;
         this.heroPanelVisible = false;
-
-        this.recalculateUIDimensions();
 
         // '전사 고용' 버튼을 초기 위치에 등록
         const hireButtonWidth = 150;
@@ -36,6 +34,8 @@ export class UIEngine {
                 }
             }
         );
+
+        this.recalculateUIDimensions(); // 버튼 등록 후에 UI 크기 계산
 
         // ✨ '전투 시작' 버튼은 이제 HTML에서 관리하므로 ButtonEngine에 등록하지 않습니다.
 
@@ -108,21 +108,9 @@ export class UIEngine {
             // 전투 화면에서는 현재 별도의 상단 텍스트를 표시하지 않습니다.
         }
 
-        // 영웅 패널이 활성화되어 있으면 오버레이로 그립니다.
-        if (this.heroPanelVisible && this.mercenaryPanelManager) {
-            // 오버레이 배경 (반투명)
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.fillRect(0, 0, this.canvas.width / (window.devicePixelRatio || 1), this.canvas.height / (window.devicePixelRatio || 1));
-
-            // 영웅 패널이 그려질 중앙 영역 계산
-            const panelWidth = this.measureManager.get('gameResolution.width') * 0.8; // 캔버스 너비의 80%
-            const panelHeight = this.measureManager.get('gameResolution.height') * 0.7; // 캔버스 높이의 70%
-            const panelX = (this.measureManager.get('gameResolution.width') - panelWidth) / 2;
-            const panelY = (this.measureManager.get('gameResolution.height') - panelHeight) / 2;
-
-            // MercenaryPanelManager의 draw 메서드를 호출하여 메인 캔버스에 그립니다.
-            this.mercenaryPanelManager.draw(ctx, panelX, panelY, panelWidth, panelHeight);
-        }
+        // mercenaryPanelManager 의존성을 제거하면서 영웅 패널은 외부에서 그리도록 합니다.
+        // 필요 시 heroPanelVisible 플래그만 제공하여 다른 컴포넌트가 오버레이를 그릴 수 있습니다.
+        // 이 메서드에서는 영웅 패널을 직접 그리지 않습니다.
     }
 
     /**
