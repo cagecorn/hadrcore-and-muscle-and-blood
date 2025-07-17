@@ -39,7 +39,8 @@ export class BattleSimulationManager {
             fullUnitData: fullUnitData,
             currentHp: fullUnitData.currentHp !== undefined ? fullUnitData.currentHp : fullUnitData.baseStats.hp,
             currentBarrier: initialBarrier, // ✨ 현재 배리어 설정
-            maxBarrier: initialBarrier // ✨ 최대 배리어는 초기 배리어와 동일
+            maxBarrier: initialBarrier, // ✨ 최대 배리어는 초기 배리어와 동일
+            skillSlots: fullUnitData.skillSlots || []
         };
         this.unitsOnGrid.push(unitInstance);
         console.log(`[BattleSimulationManager] Added unit '${unitInstance.id}' at (${gridX}, ${gridY}) with initial barrier ${initialBarrier}.`);
