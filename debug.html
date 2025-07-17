@@ -110,6 +110,7 @@
         <button id="runWarriorSkillsAIUnitTestsBtn">WarriorSkillsAI 유닛 테스트</button>
         <button id="runShadowEngineUnitTestsBtn">ShadowEngine 유닛 테스트</button>
         <button id="runMicrocosmHeroEngineUnitTestsBtn">MicrocosmHeroEngine 유닛 테스트</button>
+        <button id="runSoundEngineUnitTestsBtn">SoundEngine 유닛 테스트</button>
 
         <h4>엔진 결함 주입 테스트</h4>
         <button id="injectRendererFaultBtn" class="fault-btn">렌더러 결함 주입</button>
@@ -200,7 +201,8 @@
             runSkillIconManagerUnitTests,
             runStatusIconManagerUnitTests,
             runShadowEngineUnitTests,
-            runMicrocosmHeroEngineUnitTests
+            runMicrocosmHeroEngineUnitTests,
+            runSoundEngineUnitTests
     } from './tests/index.js';
     import { STATUS_EFFECTS } from './data/statusEffects.js';
     // ✨ 상수 파일 임포트
@@ -454,6 +456,9 @@
             });
             document.getElementById('runMicrocosmHeroEngineUnitTestsBtn').addEventListener('click', () => {
                 runMicrocosmHeroEngineUnitTests();
+            });
+            document.getElementById('runSoundEngineUnitTestsBtn').addEventListener('click', () => {
+                runSoundEngineUnitTests();
             });
             document.getElementById('injectRendererFaultBtn').addEventListener('click', () => {
                 injectRendererFault(renderer);
