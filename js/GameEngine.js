@@ -479,7 +479,8 @@ export class GameEngine {
             this.battleSimulationManager,
             this.unitSpriteEngine,
             this.diceBotEngine,
-            this.birthReportManager
+            this.birthReportManager,
+            this.heroEngine
         );
 
         this.battleFormationManager = new BattleFormationManager(this.battleSimulationManager);
