@@ -15,20 +15,33 @@ export class VFXManager {
         this.particleEngine = particleEngine; // ✨ ParticleEngine 저장
 
         this.activeDamageNumbers = [];
+        this.activeSkillNames = []; // 스킬 이름 효과 배열
 
-        // ✨ 무기 드롭 애니메이션 관리
-        this.eventManager.subscribe(GAME_EVENTS.WEAPON_DROPPED, this._onWeaponDropped.bind(this));
         this.activeWeaponDrops = new Map(); // unitId => animation data
+
+        // 이벤트 리스너 설정
+        this._setupEventListeners();
+    }
+
+    /**
+     * VFXManager가 수신할 이벤트를 설정합니다.
+     * @private
+     */
+    _setupEventListeners() {
+        this.eventManager.subscribe(GAME_EVENTS.WEAPON_DROPPED, this._onWeaponDropped.bind(this));
         if (GAME_DEBUG_MODE) console.log("[VFXManager] Subscribed to 'weaponDropped' event.");
 
-        // ✨ subscribe to damage display events
         this.eventManager.subscribe(GAME_EVENTS.DISPLAY_DAMAGE, (data) => {
             this.addDamageNumber(data.unitId, data.damage, data.color);
-            // 피해를 입었을 때 파티클 생성
             if (this.particleEngine && data.damage > 0) {
-                this.particleEngine.addParticles(data.unitId, 'red'); // 붉은색 파티클
+                this.particleEngine.addParticles(data.unitId, 'red');
             }
         });
+
+        this.eventManager.subscribe(GAME_EVENTS.DISPLAY_SKILL_NAME, (data) => {
+            this.addSkillName(data.unitId, data.skillName);
+        });
+        if (GAME_DEBUG_MODE) console.log("[VFXManager] Subscribed to 'displaySkillName' event.");
     }
 
     /**
@@ -53,6 +66,29 @@ export class VFXManager {
             color: color
         });
         if (GAME_DEBUG_MODE) console.log(`[VFXManager] Added damage number: ${damageAmount} (${color}) for ${unit.name}`);
+    }
+
+    /**
+     * 특정 유닛 위에 스킬 이름을 표시하도록 큐에 추가합니다.
+     * @param {string} unitId - 스킬을 사용한 유닛의 ID
+     * @param {string} skillName - 표시할 스킬 이름
+     */
+    addSkillName(unitId, skillName) {
+        const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);
+        if (!unit) {
+            if (GAME_DEBUG_MODE) console.warn(`[VFXManager] Cannot show skill name for unknown unit: ${unitId}`);
+            return;
+        }
+
+        this.activeSkillNames.push({
+            unitId,
+            text: skillName,
+            startTime: performance.now(),
+            duration: 1500,
+            floatSpeed: 0.04,
+            color: '#FFD700'
+        });
+        if (GAME_DEBUG_MODE) console.log(`[VFXManager] Added skill name: '${skillName}' for ${unit.name}`);
     }
 
     /**
@@ -135,6 +171,14 @@ export class VFXManager {
             const dmgNum = this.activeDamageNumbers[i];
             if (currentTime - dmgNum.startTime >= dmgNum.duration) {
                 this.activeDamageNumbers.splice(i, 1);
+            }
+        }
+
+        let j = this.activeSkillNames.length;
+        while (j--) {
+            const effect = this.activeSkillNames[j];
+            if (currentTime - effect.startTime >= effect.duration) {
+                this.activeSkillNames.splice(j, 1);
             }
         }
 
@@ -307,6 +351,38 @@ export class VFXManager {
                 dmgNum.damage.toString(),
                 drawX + effectiveTileSize / 2,
                 drawY - currentYOffset - this.measureManager.get('vfx.damageNumberVerticalOffset')
+            );
+            ctx.restore();
+        }
+
+        for (const effect of this.activeSkillNames) {
+            const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === effect.unitId);
+            if (!unit) continue;
+
+            const { drawX, drawY } = this.animationManager.getRenderPosition(
+                unit.id,
+                unit.gridX,
+                unit.gridY,
+                effectiveTileSize,
+                gridOffsetX,
+                gridOffsetY
+            );
+
+            const elapsed = currentTime - effect.startTime;
+            const progress = elapsed / effect.duration;
+            const currentYOffset = effect.floatSpeed * elapsed;
+            const alpha = Math.max(0, 1 - progress);
+
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = effect.color;
+            ctx.font = `bold ${effectiveTileSize * 0.25}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(
+                effect.text,
+                drawX + effectiveTileSize / 2,
+                drawY - currentYOffset - (effectiveTileSize * 0.2)
             );
             ctx.restore();
         }
