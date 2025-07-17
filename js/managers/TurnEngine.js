@@ -112,9 +112,8 @@ export class TurnEngine {
         const allUnits = this.battleSimulationManager.unitsOnGrid;
         this.aiEngine.cleanup();
         allUnits.forEach(unit => {
-            if (unit.type === ATTACK_TYPES.ENEMY) {
-                this.aiEngine.registerUnit(unit, allUnits);
-            }
+            // 적 유닛만 등록하던 기존 로직을 모든 유닛 등록으로 확장합니다.
+            this.aiEngine.registerUnit(unit, allUnits);
         });
 
         this.statusEffectManager.turnCountManager.clearAllEffects();
