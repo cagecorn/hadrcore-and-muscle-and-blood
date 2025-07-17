@@ -6,7 +6,7 @@ import { CLASSES } from '../../data/class.js';
 import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class HeroManager {
-    constructor(idManager, diceEngine, assetLoaderManager, battleSimulationManager, unitSpriteEngine, diceBotEngine) {
+    constructor(idManager, diceEngine, assetLoaderManager, battleSimulationManager, unitSpriteEngine, diceBotEngine, birthReportManager) {
         if (GAME_DEBUG_MODE) console.log("\u2728 HeroManager initialized. Ready to create legendary heroes. \u2728");
         this.idManager = idManager;
         this.diceEngine = diceEngine;
@@ -14,6 +14,7 @@ export class HeroManager {
         this.battleSimulationManager = battleSimulationManager;
         this.unitSpriteEngine = unitSpriteEngine;
         this.diceBotEngine = diceBotEngine;
+        this.birthReportManager = birthReportManager;
         this.heroNameList = [
             '레오닉', '아서스', '가로쉬', '스랄', '제이나', '안두인',
             '바리안', '실바나스', '그롬마쉬', '렉사르', '알렉스트라자', '이렐리아'
@@ -68,6 +69,10 @@ export class HeroManager {
                 finish: 'assets/images/warrior-finish.png',
                 status: 'assets/images/warrior-status-effects.png'
             });
+
+            if (this.birthReportManager) {
+                this.birthReportManager.report(heroUnitData);
+            }
 
             createdHeroes.push(heroUnitData);
             if (GAME_DEBUG_MODE) console.log(`[HeroManager] Created data for warrior: ${heroUnitData.name}`);
