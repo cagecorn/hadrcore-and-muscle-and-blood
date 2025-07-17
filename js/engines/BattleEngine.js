@@ -31,6 +31,7 @@ export class BattleEngine {
     constructor(injector) {
         console.log("⚔️ BattleEngine initialized.");
         this.injector = injector;
+        this.monsterSpawnManager = null;
 
         const eventManager = injector.get('EventManager');
         const measureManager = injector.get('MeasureManager');
@@ -127,4 +128,8 @@ export class BattleEngine {
 
     getBattleSimulationManager() { return this.battleSimulationManager; }
     getAIEngine() { return this.aiEngine; }
+
+    setMonsterSpawnManager(manager) {
+        this.monsterSpawnManager = manager;
+    }
 }
