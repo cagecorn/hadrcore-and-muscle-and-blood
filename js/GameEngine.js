@@ -71,6 +71,7 @@ import { PassiveSkillManager } from './managers/PassiveSkillManager.js';
 import { ReactionSkillManager } from './managers/ReactionSkillManager.js'; // ✨ ReactionSkillManager import
 import { ConditionalManager } from './managers/ConditionalManager.js';
 import { PassiveIconManager } from './managers/PassiveIconManager.js';
+import { AttackManager } from './managers/AttackManager.js'; // <-- AttackManager 임포트
 import { BattleFormationManager } from './managers/BattleFormationManager.js';
 import { MonsterSpawnManager } from './managers/MonsterSpawnManager.js';
 import { UnitStatManager } from './managers/UnitStatManager.js';
@@ -495,6 +496,7 @@ export class GameEngine {
         // 13. Conditional & Passive Visual Managers
         // ------------------------------------------------------------------
         this.passiveIconManager = new PassiveIconManager(this.battleSimulationManager, this.idManager, this.skillIconManager);
+        this.attackManager = new AttackManager(this.eventManager, this.idManager); // AttackManager 인스턴스 생성
 
         // ------------------------------------------------------------------
         // 13. Scene Registrations & Layer Engine Setup
@@ -859,6 +861,7 @@ export class GameEngine {
     getReactionSkillManager() { return this.reactionSkillManager; }
     getConditionalManager() { return this.conditionalManager; }
     getPassiveIconManager() { return this.passiveIconManager; }
+    getAttackManager() { return this.attackManager; }
     getUnitStatManager() { return this.unitStatManager; }
     getStageDataManager() { return this.stageDataManager; }
     getRangeManager() { return this.rangeManager; }

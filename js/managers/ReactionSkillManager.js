@@ -60,7 +60,8 @@ export class ReactionSkillManager {
                 attackerId: defenderId,
                 targetId: attackerId,
                 attackType: ATTACK_TYPES.MELEE,
-                isReaction: true
+                isReaction: true,
+                skillId: skillData.id // 반격 스킬 ID 전달
             });
 
             const retaliateAttackData = {
