@@ -40,7 +40,7 @@ export class VFXManager {
     addDamageNumber(unitId, damageAmount, color = 'red') {
         const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);
         if (!unit) {
-            console.warn(`[VFXManager] Cannot show damage for unknown unit: ${unitId}`);
+            if (GAME_DEBUG_MODE) console.warn(`[VFXManager] Cannot show damage for unknown unit: ${unitId}`);
             return;
         }
 
@@ -62,13 +62,13 @@ export class VFXManager {
     _onWeaponDropped(data) {
         const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === data.unitId);
         if (!unit) {
-            console.warn(`[VFXManager] Cannot find unit '${data.unitId}' for weapon drop animation.`);
+            if (GAME_DEBUG_MODE) console.warn(`[VFXManager] Cannot find unit '${data.unitId}' for weapon drop animation.`);
             return;
         }
 
         const weaponImage = this.battleSimulationManager.assetLoaderManager.getImage(data.weaponSpriteId);
         if (!weaponImage) {
-            console.warn(`[VFXManager] Weapon sprite '${data.weaponSpriteId}' not loaded.`);
+            if (GAME_DEBUG_MODE) console.warn(`[VFXManager] Weapon sprite '${data.weaponSpriteId}' not loaded.`);
             return;
         }
 
@@ -171,7 +171,7 @@ export class VFXManager {
      */
     drawHpBar(ctx, unit, effectiveTileSize, actualDrawX, actualDrawY) {
         if (!unit || !unit.baseStats) {
-            console.warn("[VFXManager] Cannot draw HP bar: unit data is missing.", unit);
+            if (GAME_DEBUG_MODE) console.warn("[VFXManager] Cannot draw HP bar: unit data is missing.", unit);
             return;
         }
 

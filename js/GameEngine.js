@@ -38,6 +38,8 @@ import { TurnOrderManager } from './managers/TurnOrderManager.js'; // ✨ 새롭
 import { ClassAIManager } from './managers/ClassAIManager.js';   // ✨ 새롭게 추가
 import { BasicAIManager } from './managers/BasicAIManager.js'; // ✨ 새롭게 추가
 import { TargetingManager } from './managers/TargetingManager.js'; // ✨ TargetingManager 추가
+import { PositionManager } from './managers/PositionManager.js'; // ✨ PositionManager 추가
+import { JudgementManager } from './managers/JudgementManager.js'; // JudgementManager 임포트
 import { ValorEngine } from './managers/ValorEngine.js';   // ✨ ValorEngine 추가
 import { WeightEngine } from './managers/WeightEngine.js'; // ✨ WeightEngine 추가
 import { StatManager } from './managers/StatManager.js'; // ✨ StatManager 추가
@@ -94,6 +96,8 @@ export class GameEngine {
         this.eventManager = new EventManager();
         // ✨ CRITICAL_ERROR 이벤트 구독
         this.eventManager.subscribe(GAME_EVENTS.CRITICAL_ERROR, this._handleCriticalError.bind(this));
+        // JudgementManager는 EventManager 이후 초기화
+        this.judgementManager = new JudgementManager(this.eventManager);
 
         this.guardianManager = new GuardianManager();
         this.measureManager = new MeasureManager();
@@ -363,8 +367,12 @@ export class GameEngine {
             this.measureManager
         );
 
-        // ✨ BasicAIManager 초기화
-        this.basicAIManager = new BasicAIManager(this.battleSimulationManager);
+        // ✨ 신규 매니저들 초기화 (BattleSimulationManager 이후에)
+        this.targetingManager = new TargetingManager(this.battleSimulationManager);
+        this.positionManager = new PositionManager(this.battleSimulationManager);
+
+        // ✨ BasicAIManager에 신규 매니저들 주입
+        this.basicAIManager = new BasicAIManager(this.targetingManager, this.positionManager);
 
         // AI 와 턴 진행 관련 매니저들
         this.turnOrderManager = new TurnOrderManager(
@@ -372,8 +380,6 @@ export class GameEngine {
             this.battleSimulationManager,
             this.weightEngine // ✨ weightEngine 추가
         );
-        // 먼저 TargetingManager를 초기화
-        this.targetingManager = new TargetingManager(this.battleSimulationManager);
         // ClassAIManager에 추가 매니저 전달
         this.classAIManager = new ClassAIManager(
             this.idManager,
@@ -382,7 +388,7 @@ export class GameEngine {
             this.basicAIManager,
             this.warriorSkillsAI,
             this.diceEngine,
-            this.targetingManager,
+            this.targetingManager, // 이미 주입되고 있었는지 확인
             this.diceBotEngine
         );
 

@@ -2,159 +2,74 @@
 
 import { GAME_DEBUG_MODE } from '../constants.js';
 
+/**
+ * 다른 매니저(Targeting, Position)로부터 정보를 받아 기본적인 AI 행동을 결정합니다.
+ */
 export class BasicAIManager {
-    constructor(battleSimulationManager) {
-        if (GAME_DEBUG_MODE) console.log("\uD83E\uDD16 BasicAIManager initialized. Providing fundamental AI logic. \uD83E\uDD16");
-        this.battleSimulationManager = battleSimulationManager;
+    constructor(targetingManager, positionManager) {
+        if (GAME_DEBUG_MODE) console.log("🤖 BasicAIManager initialized. Ready to command. 🤖");
+        this.targetingManager = targetingManager;
+        this.positionManager = positionManager;
     }
 
     /**
-     * Determine the unit's action.
-     * @param {object} unit
-     * @param {object[]} allUnits
-     * @param {number} moveRange
-     * @param {number} attackRange
-     * @returns {{actionType:string,targetId?:string,moveTargetX?:number,moveTargetY?:number}|null}
+     * 유닛의 이동 및 공격 행동을 결정합니다.
+     * @param {object} unit - 행동할 유닛
+     * @param {number} moveRange - 유닛의 이동 범위
+     * @param {number} attackRange - 유닛의 공격 범위
+     * @returns {{actionType: string, targetId?: string, moveTargetX?: number, moveTargetY?: number} | null}
      */
-    determineMoveAndTarget(unit, allUnits, moveRange, attackRange) {
-        const enemies = allUnits.filter(u => u.type !== unit.type && u.currentHp > 0);
-        if (enemies.length === 0) return null;
+    determineMoveAndTarget(unit, moveRange, attackRange) {
+        // 1. 색적: 가장 좋은 목표를 찾는다.
+        const target = this.targetingManager.findBestTarget('enemy', 'lowestHp', unit);
+        if (!target) {
+            if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} found no targets.`);
+            return null; // 공격할 대상이 없으면 행동 종료
+        }
+        if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} selected target: ${target.name}`);
 
-        // 1. 이번 턴에 공격할 수 있는 최적의 위치를 찾습니다.
-        const bestAttack = this._findBestAttackPosition(unit, enemies, moveRange, attackRange);
-        if (bestAttack) {
-            // 경로 길이가 1 이하라면 이미 공격 위치에 있다는 의미입니다.
-            if (bestAttack.path.length <= 1) {
-                return { actionType: 'attack', targetId: bestAttack.target.id };
+        // 2. 좌표 계산: 목표를 공격할 수 있는 위치들을 찾는다.
+        const attackPositions = this.positionManager.getAttackablePositions(target, attackRange);
+
+        // 3. 경로 탐색: 현재 위치에서 공격 위치까지 갈 수 있는지 확인한다.
+        // 가장 가까운 공격 위치를 찾는다.
+        let bestPath = null;
+        for (const pos of attackPositions) {
+            const path = this.positionManager.findPath({ x: unit.gridX, y: unit.gridY }, pos, moveRange);
+            if (path && (!bestPath || path.length < bestPath.length)) {
+                bestPath = path;
             }
-            // 이동 후 공격합니다.
-            const dest = bestAttack.path[bestAttack.path.length - 1];
+        }
+
+        // 4. 행동 결정
+        // 이미 공격 범위 내에 있는 경우
+        if (this.positionManager.getAttackablePositions(unit, attackRange).some(p => p.x === target.gridX && p.y === target.gridY)) {
+             if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} is already in attack range. Attacking ${target.name}.`);
+             return { actionType: 'attack', targetId: target.id };
+        }
+
+        // 이동 후 공격할 경로를 찾은 경우
+        if (bestPath) {
+            const destination = bestPath[bestPath.length - 1];
+            if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} will move to (${destination.x},${destination.y}) and attack ${target.name}.`);
             return {
                 actionType: 'moveAndAttack',
-                targetId: bestAttack.target.id,
-                moveTargetX: dest.x,
-                moveTargetY: dest.y
+                targetId: target.id,
+                moveTargetX: destination.x,
+                moveTargetY: destination.y
             };
         }
 
-        // 2. 공격할 수 없다면, 가장 가까운 적에게 이동합니다.
-        const bestMove = this._findBestMovePosition(unit, enemies, moveRange);
-        if (bestMove) {
-            return { actionType: 'move', moveTargetX: bestMove.x, moveTargetY: bestMove.y };
+        // 공격 위치로 이동할 수 없을 때: 그냥 적에게 다가간다.
+        const pathToTarget = this.positionManager.findPath({ x: unit.gridX, y: unit.gridY }, { x: target.gridX, y: target.gridY }, moveRange);
+        if (pathToTarget && pathToTarget.length > 1) {
+            // 경로의 마지막 지점은 적이므로, 그 바로 앞 칸으로 이동
+            const moveDestination = pathToTarget[Math.min(pathToTarget.length - 2, moveRange)];
+            if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving closer to ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
+            return { actionType: 'move', moveTargetX: moveDestination.x, moveTargetY: moveDestination.y };
         }
 
-        return null; // 이동할 곳도 없으면 행동하지 않습니다.
-    }
-
-    /**
-     * 공격할 수 없을 때, 가장 가까운 적을 향해 이동할 최적의 위치를 찾습니다.
-     * @private
-     */
-    _findBestMovePosition(unit, enemies, moveRange) {
-        let bestPath = null;
-
-        // 모든 적에 대해...
-        for (const enemy of enemies) {
-            // 적 주변의 모든 공격 가능한 빈 타일을 찾습니다.
-            const attackPositions = this._getAttackablePositions(enemy, 1); // 기본 공격 범위 1로 가정
-            for (const pos of attackPositions) {
-                // 현재 위치에서 해당 공격 위치까지의 경로를 찾습니다. (이동 범위는 무제한으로 가정)
-                const path = this._findPath(unit.gridX, unit.gridY, pos.x, pos.y, 999);
-                // 가장 짧은 경로를 찾습니다.
-                if (path && (!bestPath || path.length < bestPath.length)) {
-                    bestPath = path;
-                }
-            }
-        }
-
-        if (bestPath && bestPath.length > 1) {
-            // 가장 짧은 경로가 있다면, 이번 턴에 이동할 수 있는 최대 거리의 지점을 목적지로 설정합니다.
-            const destinationIndex = Math.min(moveRange, bestPath.length - 1);
-            return bestPath[destinationIndex];
-        }
-
-        return null;
-    }
-
-    _findBestAttackPosition(unit, enemies, moveRange, attackRange) {
-        let best = null;
-        for (const enemy of enemies) {
-            const positions = this._getAttackablePositions(enemy, attackRange);
-            for (const pos of positions) {
-                if (pos.x === unit.gridX && pos.y === unit.gridY) {
-                    const score = this._evaluateTarget(enemy);
-                    if (!best || score > best.score) {
-                        best = { target: enemy, path: [{x:unit.gridX,y:unit.gridY}], score };
-                    }
-                    continue;
-                }
-                const path = this._findPath(unit.gridX, unit.gridY, pos.x, pos.y, moveRange);
-                if (path) {
-                    const score = this._evaluateTarget(enemy);
-                    if (!best || score > best.score) {
-                        best = { target: enemy, path, score };
-                    }
-                }
-            }
-        }
-        return best;
-    }
-
-    _evaluateTarget(target) {
-        return 1000 - target.currentHp;
-    }
-
-    _findClosestUnit(unit, others) {
-        let closest = null;
-        let minDist = Infinity;
-        for (const other of others) {
-            const dist = Math.abs(unit.gridX - other.gridX) + Math.abs(unit.gridY - other.gridY);
-            if (dist < minDist) {
-                minDist = dist;
-                closest = other;
-            }
-        }
-        return closest;
-    }
-
-    _getAttackablePositions(enemy, range) {
-        const positions = [];
-        for (let dx = -range; dx <= range; dx++) {
-            for (let dy = -range; dy <= range; dy++) {
-                const x = enemy.gridX + dx;
-                const y = enemy.gridY + dy;
-                if (Math.abs(dx) + Math.abs(dy) <= range*2 && !this.battleSimulationManager.isTileOccupied(x, y) && this._isInsideMap(x, y)) {
-                    positions.push({x,y});
-                }
-            }
-        }
-        return positions;
-    }
-
-    _isInsideMap(x, y) {
-        return x >= 0 && x < this.battleSimulationManager.gridCols && y >= 0 && y < this.battleSimulationManager.gridRows;
-    }
-
-    _findPath(sx, sy, ex, ey, maxLen) {
-        if (sx === ex && sy === ey) return [{x:sx,y:sy}];
-        const queue = [{x:sx,y:sy,path:[{x:sx,y:sy}],dist:0}];
-        const visited = new Set([`${sx},${sy}`]);
-        while (queue.length > 0) {
-            const current = queue.shift();
-            if (current.dist >= maxLen) continue;
-            const dirs = [[1,0],[-1,0],[0,1],[0,-1]];
-            for (const [dx,dy] of dirs) {
-                const nx = current.x + dx;
-                const ny = current.y + dy;
-                const key = `${nx},${ny}`;
-                if (!this._isInsideMap(nx, ny) || visited.has(key)) continue;
-                if (this.battleSimulationManager.isTileOccupied(nx, ny, null)) continue;
-                const newPath = current.path.concat({x:nx,y:ny});
-                if (nx === ex && ny === ey) return newPath;
-                visited.add(key);
-                queue.push({x:nx,y:ny,path:newPath,dist:current.dist+1});
-            }
-        }
-        return null;
+        if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} has no possible action.`);
+        return null; // 아무 행동도 할 수 없음
     }
 }

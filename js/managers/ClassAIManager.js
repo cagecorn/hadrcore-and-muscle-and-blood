@@ -37,14 +37,9 @@ export class ClassAIManager {
         }
 
         if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] No skill was chosen for ${unit.name}, proceeding with basic AI.`);
-        switch (unitClass.id) {
-            case 'class_warrior':
-                return this._getWarriorAction(unit, allUnits, unitClass);
-            default:
-                const defaultMoveRange = unitClass.moveRange || 1;
-                const defaultAttackRange = unitClass.attackRange || 1;
-                return this.basicAIManager.determineMoveAndTarget(unit, allUnits, defaultMoveRange, defaultAttackRange);
-        }
+        const defaultMoveRange = unit.baseStats.moveRange || 1;
+        const defaultAttackRange = unit.baseStats.attackRange || 1;
+        return this.basicAIManager.determineMoveAndTarget(unit, defaultMoveRange, defaultAttackRange);
     }
 
     async decideSkillToUse(unit) {
@@ -67,7 +62,7 @@ export class ClassAIManager {
 
         const result = this.diceBotEngine.pickWeightedRandom(skillTable);
 
-        console.log(`[ClassAIManager Debug] DiceBot picked skill for ${unit.name}: ${result ? result.item.name : 'None'}`);
+        if (GAME_DEBUG_MODE) console.log(`[ClassAIManager Debug] DiceBot picked skill for ${unit.name}: ${result ? result.item.name : 'None'}`);
 
         return result ? result.item : null;
     }
@@ -110,12 +105,10 @@ export class ClassAIManager {
      * @param {object} warriorClassData
      * @returns {{actionType: string, targetId?: string, moveTargetX?: number, moveTargetY?: number}}
      */
-    _getWarriorAction(warriorUnit, allUnits, warriorClassData) {
+    _getWarriorAction(warriorUnit, warriorClassData) {
         const moveRange = warriorClassData.moveRange || 1;
         const attackRange = 1;
 
-        const action = this.basicAIManager.determineMoveAndTarget(warriorUnit, allUnits, moveRange, attackRange);
-
-        return action;
+        return this.basicAIManager.determineMoveAndTarget(warriorUnit, moveRange, attackRange);
     }
 }
