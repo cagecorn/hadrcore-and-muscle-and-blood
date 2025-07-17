@@ -52,6 +52,7 @@ import { WorkflowManager } from './managers/WorkflowManager.js';
 import { HeroEngine } from "./managers/HeroEngine.js"; // HeroEngine 추가
 import { MicrocosmHeroEngine } from './managers/MicrocosmHeroEngine.js'; // ✨ microcosm hero engine
 import { HeroManager } from './managers/HeroManager.js'; // ✨ HeroManager import
+import { BirthReportManager } from './managers/BirthReportManager.js';
 import { SynergyEngine } from './managers/SynergyEngine.js'; // ✨ SynergyEngine 추가
 import { STATUS_EFFECTS } from '../data/statusEffects.js';
 
@@ -456,13 +457,15 @@ export class GameEngine {
         );
 
         // HeroManager는 UnitSpriteEngine이 준비된 이후 생성한다
+        this.birthReportManager = new BirthReportManager();
         this.heroManager = new HeroManager(
             this.idManager,
             this.diceEngine,
             this.assetLoaderManager,
             this.battleSimulationManager,
             this.unitSpriteEngine,
-            this.diceBotEngine
+            this.diceBotEngine,
+            this.birthReportManager
         );
 
         this.battleFormationManager = new BattleFormationManager(this.battleSimulationManager);
@@ -574,6 +577,8 @@ export class GameEngine {
             console.error("Fatal Error: Async manager initialization failed.", error);
             alert("\uAC8C\uC784 \uC2DC\uC791 \uC911 \uCE58\uBA85\uC801\uC778 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4. \uCF58\uC194\uC744 \uD655\uC778\uD574\uC8FC\uC138\uC694.");
         });
+
+        this._setupEventListeners();
     }
 
     /**
@@ -663,8 +668,7 @@ export class GameEngine {
     }
 
     async _initBattleGrid() {
-        const heroes = await this.heroManager.createWarriors(3);
-        this.battleFormationManager.placeAllies(heroes);
+        // 영웅은 이제 자동으로 생성되지 않습니다. 필요 시 recruitNewWarrior를 통해 고용하세요.
         await this.monsterSpawnManager.spawnMonstersForStage('stage1');
     }
 
@@ -706,6 +710,33 @@ export class GameEngine {
     start() {
         if (GAME_DEBUG_MODE) console.log("\ud83d\ude80 GameEngine starting game loop... \ud83d\ude80");
         this.gameLoop.start();
+    }
+
+    _setupEventListeners() {
+        const recruitButton = document.getElementById('recruitWarriorBtn');
+        if (recruitButton) {
+            recruitButton.addEventListener('click', () => this.recruitNewWarrior());
+        }
+
+        const toggleHeroPanelBtn = document.getElementById(BUTTON_IDS.TOGGLE_HERO_PANEL);
+        if (toggleHeroPanelBtn) {
+            toggleHeroPanelBtn.addEventListener('click', () => this.uiEngine.toggleHeroPanel());
+        }
+
+        const battleStartHtmlBtn = document.getElementById(BUTTON_IDS.BATTLE_START_HTML);
+        if (battleStartHtmlBtn) {
+            battleStartHtmlBtn.addEventListener('click', () => this.uiEngine.handleBattleStartClick());
+        }
+    }
+
+    async recruitNewWarrior() {
+        if (GAME_DEBUG_MODE) console.log("[GameEngine] '전사 고용' 버튼 클릭됨. 새로운 전사를 생성합니다...");
+        const newHeroes = await this.heroManager.createWarriors(1);
+        if (newHeroes && newHeroes.length > 0) {
+            const newWarrior = newHeroes[0];
+            this.battleFormationManager.placeAllies(newHeroes);
+            console.log(`%c${newWarrior.name}이(가) 당신의 부대에 합류했습니다!`, "color: #7289DA; font-weight: bold;");
+        }
     }
 
     /**

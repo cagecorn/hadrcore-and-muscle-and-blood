@@ -14,17 +14,22 @@ export class BattleFormationManager {
         const formationPositions = [
             { x: 2, y: 3 }, { x: 2, y: 5 }, { x: 4, y: 4 },
             { x: 4, y: 2 }, { x: 4, y: 6 }, { x: 0, y: 4 }
+            // 필요하다면 더 많은 포지션 추가
         ];
 
-        allyUnits.forEach((unit, index) => {
-            if (index < formationPositions.length) {
-                const pos = formationPositions[index];
+        for (const unit of allyUnits) {
+            const placedAlliesCount = this.battleSimulationManager.unitsOnGrid.filter(u => u.type === 'mercenary').length;
+
+            if (placedAlliesCount < formationPositions.length) {
+                const pos = formationPositions[placedAlliesCount];
                 unit.gridX = pos.x;
                 unit.gridY = pos.y;
                 const unitImage = this.battleSimulationManager.assetLoaderManager.getImage(unit.spriteId);
                 this.battleSimulationManager.addUnit(unit, unitImage, pos.x, pos.y);
                 console.log(`[BattleFormationManager] Placed ${unit.name} at (${pos.x}, ${pos.y})`);
+            } else {
+                console.warn(`[BattleFormationManager] No available slots to place ${unit.name}.`);
             }
-        });
+        }
     }
 }
