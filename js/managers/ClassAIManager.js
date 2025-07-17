@@ -77,22 +77,22 @@ export class ClassAIManager {
         if (typeof aiFunction === 'function') {
             let targetUnit = null;
 
-            // ✨ 수정된 부분 시작
-            // 스킬 타입이 'active'인 경우, 일반적으로 적을 대상으로 합니다.
-            if (skillData.type === 'active') {
-                // 가장 체력이 낮은 적을 우선 타겟으로 설정합니다.
+            // 'active' 또는 'debuff' 타입의 스킬은 대상을 필요로 합니다.
+            if (skillData.type === 'active' || skillData.type === 'debuff') {
                 targetUnit = this.targetingManager.getLowestHpUnit('enemy');
 
-                // 만약 타겟을 찾지 못했다면, 스킬 사용을 취소하고 경고를 출력합니다.
                 if (!targetUnit) {
                     if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${userUnit.name} wanted to use ${skillData.name}, but no valid enemy target was found.`);
                     return;
                 }
             }
-            // 'buff' 타입의 스킬(예: 전투의 외침)은 대상이 필요 없으므로 targetUnit이 null인 상태로 진행됩니다.
-            // ✨ 수정된 부분 끝
 
-            await aiFunction.call(this.warriorSkillsAI, userUnit, targetUnit, skillData);
+            // 버프와 패시브 스킬은 대상이 필요 없으므로 userUnit과 skillData만 전달
+            if (skillData.type === 'active' || skillData.type === 'debuff') {
+                await aiFunction.call(this.warriorSkillsAI, userUnit, targetUnit, skillData);
+            } else {
+                await aiFunction.call(this.warriorSkillsAI, userUnit, skillData);
+            }
         } else {
             if (GAME_DEBUG_MODE) console.warn(`[ClassAIManager] AI function '${skillData.aiFunction}' not found in WarriorSkillsAI.`);
         }
