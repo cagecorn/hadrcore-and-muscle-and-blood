@@ -20,6 +20,6 @@ export class MonsterAI {
         const moveRange = monsterUnit.baseStats.moveRange || 1;
         const attackRange = monsterUnit.baseStats.attackRange || 1;
         if (GAME_DEBUG_MODE) console.log(`[MonsterAI] Delegating ${monsterUnit.name}`);
-        return this.basicAIManager.determineMoveAndTarget(monsterUnit, moveRange, attackRange);
+        return this.basicAIManager.determineMoveAndTarget(monsterUnit, allUnits, moveRange, attackRange);
     }
 }
