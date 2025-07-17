@@ -78,6 +78,9 @@
         <button id="runMeasureManagerIntegrationTestBtn">측량 매니저 통합 테스트</button>
         <button id="runBattleSimulationIntegrationTestBtn">전투 시뮬레이션 통합 테스트</button>
         <button id="runWarriorSkillsIntegrationTestBtn">전사 스킬 통합 테스트</button>
+        <button id="runFullCombatCycleTestBtn" style="background-color: #ff9800;">전투 전체 흐름 통합 테스트</button>
+        <button id="runStatusEffectLifecycleTestBtn">상태 이상 생명주기 통합 테스트</button>
+        <button id="runSynergySystemTestBtn">시너지 시스템 통합 테스트</button>
 
         <h4>개별 유닛 테스트</h4>
         <button id="runSceneEngineUnitTestsBtn">SceneEngine 유닛 테스트</button>
@@ -157,6 +160,9 @@
             runMeasureManagerIntegrationTest,
             runBattleSimulationIntegrationTest,
             runWarriorSkillsIntegrationTest,
+            runFullCombatCycleTest,
+            runStatusEffectLifecycleTest,
+            runSynergySystemTest,
             runSceneEngineUnitTests,
             injectSceneEngineFaults,
             runLogicManagerUnitTests,
@@ -324,6 +330,15 @@
             });
             document.getElementById('runWarriorSkillsIntegrationTestBtn').addEventListener('click', () => {
                 runWarriorSkillsIntegrationTest(gameEngine);
+            });
+            document.getElementById('runFullCombatCycleTestBtn').addEventListener('click', () => {
+                runFullCombatCycleTest(gameEngine);
+            });
+            document.getElementById('runStatusEffectLifecycleTestBtn').addEventListener('click', () => {
+                runStatusEffectLifecycleTest(gameEngine);
+            });
+            document.getElementById('runSynergySystemTestBtn').addEventListener('click', () => {
+                runSynergySystemTest(gameEngine);
             });
 
             // 개별 유닛 테스트 버튼 리스너 추가
