@@ -386,6 +386,26 @@ export class GameEngine {
             this.battleSimulationManager,
             this.weightEngine // ✨ weightEngine 추가
         );
+
+        // ✨ WarriorSkillsAI를 먼저 생성하여 ClassAIManager에 주입
+        const commonManagersForSkills = {
+            battleSimulationManager: this.battleSimulationManager,
+            battleCalculationManager: this.battleCalculationManager,
+            eventManager: this.eventManager,
+            delayEngine: this.delayEngine,
+            statusEffectManager: this.statusEffectManager,
+            coordinateManager: this.coordinateManager,
+            targetingManager: this.targetingManager,
+            vfxManager: this.vfxManager,
+            diceEngine: this.diceEngine,
+            workflowManager: this.workflowManager,
+            animationManager: this.animationManager,
+            measureManager: this.measureManager,
+            idManager: this.idManager,
+            movingManager: this.movingManager
+        };
+        this.warriorSkillsAI = new WarriorSkillsAI(commonManagersForSkills);
+
         // ClassAIManager에 추가 매니저 전달
         this.classAIManager = new ClassAIManager(
             this.idManager,
@@ -411,25 +431,6 @@ export class GameEngine {
             this.battleCalculationManager,
             this.statusEffectManager
         );
-
-        // ✨ 워리어 스킬 AI 초기화 (다른 매니저들을 주입)
-        const commonManagersForSkills = {
-            battleSimulationManager: this.battleSimulationManager,
-            battleCalculationManager: this.battleCalculationManager,
-            eventManager: this.eventManager,
-            delayEngine: this.delayEngine,
-            statusEffectManager: this.statusEffectManager,
-            coordinateManager: this.coordinateManager,
-            targetingManager: this.targetingManager,
-            vfxManager: this.vfxManager,
-            diceEngine: this.diceEngine,
-            workflowManager: this.workflowManager,
-            animationManager: this.animationManager,
-            measureManager: this.measureManager,
-            idManager: this.idManager,
-            movingManager: this.movingManager
-        };
-        this.warriorSkillsAI = new WarriorSkillsAI(commonManagersForSkills);
 
         // ------------------------------------------------------------------
         // 12. Sprite & Action Managers
@@ -494,17 +495,20 @@ export class GameEngine {
         this.sceneEngine.setCurrentScene(UI_STATES.MAP_SCREEN);
 
         this.layerEngine.registerLayer('sceneLayer', (ctx) => {
+            this.renderer.ctx.save();
+            this.cameraEngine.applyTransform(this.renderer.ctx); // 카메라 변환 적용
             this.sceneEngine.draw(ctx);
+
+            // ✨ 같은 변환을 사용하는 레이어들을 여기에 추가
+            this.statusIconManager.draw(ctx);
+            this.passiveIconManager.draw(ctx);
+
+            this.renderer.ctx.restore();
         }, 10);
 
-        // ✨ StatusIconManager의 draw 메서드를 레이어로 등록 (VFXManager 위에 표시)
-        this.layerEngine.registerLayer('statusIconLayer', (ctx) => {
-            this.statusIconManager.draw(ctx);
-        }, 15);
-
-        this.layerEngine.registerLayer('passiveIconLayer', (ctx) => {
-            this.passiveIconManager.draw(ctx);
-        }, 16); // 상태이상 아이콘 위에 그려지도록 z-index 조정
+        // 개별 레이어 등록 제거
+        // this.layerEngine.registerLayer('statusIconLayer', ...);
+        // this.layerEngine.registerLayer('passiveIconLayer', ...);
 
         this.layerEngine.registerLayer('uiLayer', (ctx) => {
             this.uiEngine.draw(ctx);

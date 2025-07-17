@@ -19,8 +19,8 @@ export class PassiveIconManager {
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
             if (unit.currentHp <= 0) continue;
 
-            const classData = await this.idManager.get(unit.classId);
-            if (classData && classData.skills && classData.skills.includes(WARRIOR_SKILLS.IRON_WILL.id)) {
+            // ✨ 수정된 부분: classData를 조회하는 대신 unit의 skillSlots을 직접 확인
+            if (unit.skillSlots && unit.skillSlots.includes(WARRIOR_SKILLS.IRON_WILL.id)) {
                 const icon = this.skillIconManager.getSkillIcon(WARRIOR_SKILLS.IRON_WILL.id);
                 if (icon) {
                     const { drawX, drawY } = this.battleSimulationManager.animationManager.getRenderPosition(
