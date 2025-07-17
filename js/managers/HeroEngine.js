@@ -1,4 +1,5 @@
 // js/managers/HeroEngine.js
+import { CLASSES } from '../../data/class.js';
 
 export class HeroEngine {
     /**
@@ -87,6 +88,10 @@ export class HeroEngine {
             weight: this.diceEngine.getRandomInt(10, 40),
             speed: this.diceEngine.getRandomInt(30, 90)
         };
+
+        const classData = Object.values(CLASSES).find(c => c.id === classId);
+        baseStats.moveRange = classData?.moveRange || 1;
+        baseStats.attackRange = classData?.attackRange || 1;
 
         // 3. 랜덤한 세 가지 스킬 부여 (임시 스킬 ID 사용)
         const skills = [

@@ -182,10 +182,10 @@ export class TurnEngine {
             for (const callback of this.turnPhaseCallbacks.unitActions) {
                 await callback(unit);
             }
-            this.eventManager.emit(GAME_EVENTS.UNIT_TURN_END, { unitId: unit.id, unitName: unit.name }); // ✨ 상수 사용
-
             await this.timingEngine.processActions();
             this.timingEngine.clearActions();
+
+            this.eventManager.emit(GAME_EVENTS.UNIT_TURN_END, { unitId: unit.id, unitName: unit.name }); // ✨ 상수 사용
         }
 
         this.eventManager.emit(GAME_EVENTS.TURN_PHASE, { phase: 'endOfTurn', turn: this.currentTurn });
