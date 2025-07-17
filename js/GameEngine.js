@@ -424,7 +424,8 @@ export class GameEngine {
             this.diceEngine,
             this.targetingManager,
             this.diceBotEngine,
-            this.monsterAI
+            this.monsterAI,
+            this.rangeManager // ✨ RangeManager 주입
         );
 
         // ✨ TurnEngine에 새로운 의존성 전달
