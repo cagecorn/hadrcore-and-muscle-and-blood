@@ -237,10 +237,11 @@ export class DetailInfoManager {
         ctx.fillText(`지혜: ${baseStats.wisdom || 0} | 운: ${baseStats.luck || 0}`, tooltipX + padding, tooltipY + currentYOffset);
         currentYOffset += lineHeight + 5;
 
-        // 스킬 정보 (HeroEngine에서 가져온 heroDetails에 스킬이 있다면)
+        // 스킬 정보 (HeroEngine에서 가져온 heroDetails에 스킬이 있다면 우선 사용)
         let skillsToList = [];
-        if (heroDetails && heroDetails.skills && heroDetails.skills.length > 0) {
-            skillsToList = heroDetails.skills;
+        // ✨ 수정된 부분: heroDetails.skillSlots을 먼저 확인하도록 변경
+        if (heroDetails && heroDetails.skillSlots && heroDetails.skillSlots.length > 0) {
+            skillsToList = heroDetails.skillSlots;
         } else if (classData && classData.skills && classData.skills.length > 0) {
             skillsToList = classData.skills;
         }

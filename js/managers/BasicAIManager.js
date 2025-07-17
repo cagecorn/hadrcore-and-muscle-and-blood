@@ -64,9 +64,15 @@ export class BasicAIManager {
         const pathToTarget = this.positionManager.findPath({ x: unit.gridX, y: unit.gridY }, { x: target.gridX, y: target.gridY }, moveRange);
         if (pathToTarget && pathToTarget.length > 1) {
             // 경로의 마지막 지점은 적이므로, 그 바로 앞 칸으로 이동
-            const moveDestination = pathToTarget[Math.min(pathToTarget.length - 2, moveRange)];
-            if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving closer to ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
-            return { actionType: 'move', moveTargetX: moveDestination.x, moveTargetY: moveDestination.y };
+            // ✨ 경로가 이동 범위보다 길 경우, 이동 가능한 최대 지점으로 이동하도록 수정
+            const moveIndex = Math.min(pathToTarget.length - 1, moveRange);
+            const moveDestination = pathToTarget[moveIndex];
+
+            // ✨ 목적지가 비어있는지 마지막으로 확인
+            if (moveDestination && !this.positionManager.battleSimulationManager.isTileOccupied(moveDestination.x, moveDestination.y, unit.id)) {
+                if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} cannot reach attack position. Moving closer to ${target.name} at (${moveDestination.x},${moveDestination.y}).`);
+                return { actionType: 'move', moveTargetX: moveDestination.x, moveTargetY: moveDestination.y };
+            }
         }
 
         if (GAME_DEBUG_MODE) console.log(`[BasicAIManager] ${unit.name} has no possible action.`);
