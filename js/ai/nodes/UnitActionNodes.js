@@ -11,7 +11,18 @@ import { GAME_DEBUG_MODE } from '../../constants.js';
 export class FindTargetNode extends Node {
     async evaluate(blackboard) {
         const unit = blackboard.getData('self');
-        const { targetingManager } = blackboard.getData('managers');
+        // managers 객체를 통해 안전하게 targetingManager를 가져옵니다.
+        const managers = blackboard.getData('managers') || {};
+        const { targetingManager } = managers;
+
+        // targetingManager가 존재하는지 확인 후 getLowestHpUnit를 호출합니다.
+        if (!targetingManager) {
+            if (GAME_DEBUG_MODE) {
+                console.error(`  [BT-FAILURE] ${unit.name}: TargetingManager를 찾을 수 없습니다.`);
+            }
+            return NodeState.FAILURE;
+        }
+
         const target = targetingManager.getLowestHpUnit('enemy');
 
         if (target) {
