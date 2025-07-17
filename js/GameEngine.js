@@ -82,6 +82,8 @@ export class GameEngine {
 
         const combatLogCanvas = document.getElementById('combatLogCanvas');
         this.battleLogManager = new BattleLogManager(combatLogCanvas, this.eventManager, this.measureManager);
+        // 전투 로그는 화면 하단에서 최신 메시지가 쌓이도록 설정
+        this.battleLogManager.setOrientation('bottom');
         injector.register(this.battleLogManager);
 
         this.compatibilityManager = new CompatibilityManager(

@@ -14,6 +14,8 @@ export class BattleLogManager {
         this.pixelRatio = window.devicePixelRatio || 1;
 
         this.logMessages = [];
+        // 로그 출력 방향 (top|bottom)
+        this.orientation = 'top';
         
         // 초기 내부 해상도 설정 후 로그 치수 재계산
         this.resizeCanvas();
@@ -92,6 +94,15 @@ export class BattleLogManager {
         console.log(`[BattleLog] ${message}`);
     }
 
+    /**
+     * 로그 출력 방향을 설정합니다. 기본값은 'top'이며 'bottom'을 주면
+     * 최신 로그가 아래쪽에서부터 표시됩니다.
+     * @param {'top'|'bottom'} orientation
+     */
+    setOrientation(orientation) {
+        this.orientation = orientation === 'bottom' ? 'bottom' : 'top';
+    }
+
     draw(ctx) {
         ctx.clearRect(0, 0, this.canvas.width / this.pixelRatio, this.canvas.height / this.pixelRatio);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
@@ -101,10 +112,19 @@ export class BattleLogManager {
         ctx.font = `${Math.floor(this.lineHeight * 0.8)}px Arial`; // ✨ 폰트 크기 동적 조정 (줄 높이의 80%)
         ctx.textBaseline = 'top';
 
-        for (let i = 0; i < this.logMessages.length; i++) {
-            const message = this.logMessages[i];
-            const y = this.padding + i * this.lineHeight;
-            ctx.fillText(message, this.padding, y);
+        if (this.orientation === 'bottom') {
+            let startY = (this.canvas.height / this.pixelRatio) - this.padding - this.lineHeight;
+            for (let i = this.logMessages.length - 1; i >= 0; i--) {
+                const message = this.logMessages[i];
+                const y = startY - (this.logMessages.length - 1 - i) * this.lineHeight;
+                ctx.fillText(message, this.padding, y);
+            }
+        } else {
+            for (let i = 0; i < this.logMessages.length; i++) {
+                const message = this.logMessages[i];
+                const y = this.padding + i * this.lineHeight;
+                ctx.fillText(message, this.padding, y);
+            }
         }
     }
 }
