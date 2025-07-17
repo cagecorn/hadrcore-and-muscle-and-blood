@@ -83,6 +83,7 @@ import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } fro
 
 import { UNITS } from '../data/unit.js';
 import { CLASSES } from '../data/class.js';
+import { MONSTER_CLASSES } from '../data/monsterClass.js';
 import { WARRIOR_SKILLS } from '../data/warriorSkills.js';
 
 export class GameEngine {
@@ -614,9 +615,9 @@ export class GameEngine {
         // 1. IdManager에 전사 유닛과 클래스 ID 등록
         await this.idManager.addOrUpdateId(UNITS.WARRIOR.id, UNITS.WARRIOR);
         await this.idManager.addOrUpdateId(CLASSES.WARRIOR.id, CLASSES.WARRIOR);
-        // ✨ 새롭게 추가된 해골 클래스도 등록
-        await this.idManager.addOrUpdateId(CLASSES.SKELETON.id, CLASSES.SKELETON);
-        await this.idManager.addOrUpdateId(CLASSES.ZOMBIE.id, CLASSES.ZOMBIE);
+        // ✨ 새롭게 추가된 몬스터 클래스 등록
+        await this.idManager.addOrUpdateId(MONSTER_CLASSES.SKELETON.id, MONSTER_CLASSES.SKELETON);
+        await this.idManager.addOrUpdateId(MONSTER_CLASSES.ZOMBIE.id, MONSTER_CLASSES.ZOMBIE);
         await this.idManager.addOrUpdateId(CLASSES.WARRIOR_VALIANT.id, CLASSES.WARRIOR_VALIANT);
 
         // ✨ IdManager에 WARRIOR_SKILLS 데이터 등록
