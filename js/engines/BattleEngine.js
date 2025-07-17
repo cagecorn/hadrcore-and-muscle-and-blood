@@ -26,8 +26,15 @@ import { CLASSES } from '../../data/class.js'; // ◀◀◀ **이 부분을 추�
  * 전투 시뮬레이션과 턴 진행을 담당하는 엔진입니다.
  */
 export class BattleEngine {
-    constructor(eventManager, measureManager, assetEngine, renderEngine) {
+    // DependencyInjector를 통해 필요한 매니저를 획득합니다.
+    constructor(injector) {
         console.log("⚔️ BattleEngine initialized.");
+        this.injector = injector;
+
+        const eventManager = injector.get('EventManager');
+        const measureManager = injector.get('MeasureManager');
+        const assetEngine = injector.get('AssetEngine');
+        const renderEngine = injector.get('RenderEngine');
 
         const idManager = assetEngine.getIdManager();
         const assetLoaderManager = assetEngine.getAssetLoaderManager();

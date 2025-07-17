@@ -1,7 +1,8 @@
 // js/managers/MeasureManager.js
 
 export class MeasureManager {
-    constructor() {
+    constructor(injector = null) {
+        this.injector = injector;
         console.log(" 측정 매니저 초기화됨. 모든 것을 측정할 준비 완료. 🎛️");
 
         // 게임의 모든 사이즈 관련 설정을 이곳에 정의

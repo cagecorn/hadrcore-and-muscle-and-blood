@@ -9,11 +9,18 @@ import { UnitSpriteEngine } from '../managers/UnitSpriteEngine.js';
  * 게임의 모든 데이터와 에셋 로딩 및 관리를 담당하는 엔진입니다.
  */
 export class AssetEngine {
-    constructor(eventManager) {
+    // DependencyInjector를 이용해 필요한 매니저를 가져옵니다.
+    constructor(injector) {
         console.log("\ud83d\udce6 AssetEngine initialized.");
+        this.injector = injector;
+
+        const eventManager = injector.get('EventManager');
+
         this.idManager = new IdManager();
         this.assetLoaderManager = new AssetLoaderManager();
-        this.assetLoaderManager.setEventManager(eventManager);
+        if (eventManager) {
+            this.assetLoaderManager.setEventManager(eventManager);
+        }
         this.skillIconManager = new SkillIconManager(this.assetLoaderManager, this.idManager);
         this.unitSpriteEngine = new UnitSpriteEngine(this.assetLoaderManager, null); // battleSim은 추후 주입
     }

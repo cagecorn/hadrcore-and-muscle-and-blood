@@ -1,7 +1,8 @@
 // js/managers/SceneEngine.js
 
 export class SceneEngine {
-    constructor() {
+    constructor(injector = null) {
+        this.injector = injector;
         console.log("\uD83C\uDFAC SceneEngine initialized. Ready to manage game scenes. \uD83C\uDFAC");
         this.scenes = new Map();
         this.currentSceneName = null;
