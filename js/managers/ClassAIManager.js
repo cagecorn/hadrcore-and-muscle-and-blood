@@ -3,7 +3,7 @@
 import { GAME_DEBUG_MODE } from '../constants.js';
 
 export class ClassAIManager {
-    constructor(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager) {
+    constructor(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine) {
         console.log("\uD83D\uDD33 ClassAIManager initialized. Ready to define class-based AI. \uD83D\uDD33");
         this.idManager = idManager;
         this.battleSimulationManager = battleSimulationManager;
@@ -12,6 +12,7 @@ export class ClassAIManager {
         this.warriorSkillsAI = warriorSkillsAI;
         this.diceEngine = diceEngine;
         this.targetingManager = targetingManager;
+        this.diceBotEngine = diceBotEngine;
     }
 
     /**
@@ -51,20 +52,24 @@ export class ClassAIManager {
             return null;
         }
 
-        const roll = this.diceEngine.getRandomFloat() * 100;
-        let cumulativeProbability = 0;
-
+        const skillTable = [];
         for (const skillId of unit.skillSlots) {
             const skillData = await this.idManager.get(skillId);
             if (skillData && (skillData.type === 'active' || skillData.type === 'buff')) {
-                cumulativeProbability += skillData.probability || 0;
-                if (roll < cumulativeProbability) {
-                    return skillData;
-                }
+                skillTable.push({
+                    item: skillData,
+                    weight: skillData.probability || 0
+                });
             }
         }
 
-        return null;
+        if (skillTable.length === 0) return null;
+
+        const result = this.diceBotEngine.pickWeightedRandom(skillTable);
+
+        console.log(`[ClassAIManager Debug] DiceBot picked skill for ${unit.name}: ${result ? result.item.name : 'None'}`);
+
+        return result ? result.item : null;
     }
 
     async executeSkillAI(userUnit, skillData) {

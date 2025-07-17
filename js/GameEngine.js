@@ -43,7 +43,7 @@ import { WeightEngine } from './managers/WeightEngine.js'; // ✨ WeightEngine �
 import { StatManager } from './managers/StatManager.js'; // ✨ StatManager 추가
 import { DiceEngine } from './managers/DiceEngine.js';
 import { DiceRollManager } from './managers/DiceRollManager.js';
-import { DiceBotManager } from './managers/DiceBotManager.js';
+import { DiceBotEngine } from './managers/DiceBotEngine.js';
 import { TurnCountManager } from './managers/TurnCountManager.js';
 import { StatusEffectManager } from './managers/StatusEffectManager.js';
 import { WorkflowManager } from './managers/WorkflowManager.js';
@@ -131,7 +131,7 @@ export class GameEngine {
         this.statManager = new StatManager(this.valorEngine, this.weightEngine);
 
         this.diceEngine = new DiceEngine();
-        this.diceBotManager = new DiceBotManager(this.diceEngine);
+        this.diceBotEngine = new DiceBotEngine(this.diceEngine);
 
         // ------------------------------------------------------------------
         // 5. Battle Simulation & Related Managers
@@ -287,7 +287,7 @@ export class GameEngine {
             this.idManager,
             this.assetLoaderManager,
             this.diceEngine,
-            this.diceBotManager
+            this.diceBotEngine
         );
 
         // ✨ SynergyEngine 초기화
@@ -382,7 +382,8 @@ export class GameEngine {
             this.basicAIManager,
             this.warriorSkillsAI,
             this.diceEngine,
-            this.targetingManager
+            this.targetingManager,
+            this.diceBotEngine
         );
 
         // ✨ TurnEngine에 새로운 의존성 전달
@@ -449,7 +450,8 @@ export class GameEngine {
             this.diceEngine,
             this.assetLoaderManager,
             this.battleSimulationManager,
-            this.unitSpriteEngine
+            this.unitSpriteEngine,
+            this.diceBotEngine
         );
 
         this.battleFormationManager = new BattleFormationManager(this.battleSimulationManager);
@@ -759,7 +761,7 @@ export class GameEngine {
     getSynergyEngine() { return this.synergyEngine; }
     // ✨ DetailInfoManager getter 추가
     getDetailInfoManager() { return this.detailInfoManager; }
-    getDiceBotManager() { return this.diceBotManager; }
+    getDiceBotEngine() { return this.diceBotEngine; }
     // ✨ CoordinateManager getter 추가
     getCoordinateManager() { return this.coordinateManager; }
     // ✨ TargetingManager getter 추가

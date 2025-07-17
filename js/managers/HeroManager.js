@@ -6,13 +6,14 @@ import { CLASSES } from '../../data/class.js';
 import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class HeroManager {
-    constructor(idManager, diceEngine, assetLoaderManager, battleSimulationManager, unitSpriteEngine) {
+    constructor(idManager, diceEngine, assetLoaderManager, battleSimulationManager, unitSpriteEngine, diceBotEngine) {
         console.log("\u2728 HeroManager initialized. Ready to create legendary heroes. \u2728");
         this.idManager = idManager;
         this.diceEngine = diceEngine;
         this.assetLoaderManager = assetLoaderManager;
         this.battleSimulationManager = battleSimulationManager;
         this.unitSpriteEngine = unitSpriteEngine;
+        this.diceBotEngine = diceBotEngine;
         this.heroNameList = [
             '레오닉', '아서스', '가로쉬', '스랄', '제이나', '안두인',
             '바리안', '실바나스', '그롬마쉬', '렉사르', '알렉스트라자', '이렐리아'
@@ -28,7 +29,8 @@ export class HeroManager {
         console.log(`[HeroManager] Creating data for ${count} new warriors...`);
         const warriorClassData = await this.idManager.get(CLASSES.WARRIOR.id);
         const warriorImage = this.assetLoaderManager.getImage(UNITS.WARRIOR.spriteId);
-        const warriorSkillKeys = Object.keys(WARRIOR_SKILLS);
+
+        const allWarriorSkillIds = Object.values(WARRIOR_SKILLS).map(skill => skill.id);
 
         if (!warriorClassData || !warriorImage) {
             console.error('[HeroManager] Warrior class data or image not found. Cannot create warriors.');
@@ -39,14 +41,9 @@ export class HeroManager {
 
         for (let i = 0; i < count; i++) {
             const unitId = `hero_warrior_${Date.now()}_${i}`;
-            const randomName = this.heroNameList[this.diceEngine.getRandomInt(0, this.heroNameList.length - 1)];
+            const randomName = this.diceBotEngine.pickUniqueItems(this.heroNameList, 1)[0];
 
-            const randomSkills = new Set();
-            while (randomSkills.size < 3) {
-                const randomIndex = this.diceEngine.getRandomInt(0, warriorSkillKeys.length - 1);
-                const randomSkillId = WARRIOR_SKILLS[warriorSkillKeys[randomIndex]].id;
-                randomSkills.add(randomSkillId);
-            }
+            const randomSkills = this.diceBotEngine.pickUniqueItems(allWarriorSkillIds, 3);
 
             const heroUnitData = {
                 id: unitId,

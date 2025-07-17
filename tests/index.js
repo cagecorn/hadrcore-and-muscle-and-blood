@@ -43,7 +43,7 @@ export { runUIEngineUnitTests as runUpdatedUIEngineUnitTests } from './unit/uiEn
 // ✨ 다이스 관련 테스트 추가
 export { runDiceEngineUnitTests } from './unit/diceEngineUnitTests.js';
 export { runDiceRollManagerUnitTests } from './unit/diceRollManagerUnitTests.js';
-export { runDiceBotManagerUnitTests } from './unit/diceBotManagerUnitTests.js';
+export { runDiceBotEngineUnitTests } from './unit/diceBotEngineUnitTests.js';
 export { runTurnCountManagerUnitTests } from './unit/turnCountManagerUnitTests.js';
 export { runStatusEffectManagerUnitTests } from './unit/statusEffectManagerUnitTests.js';
 export { runWorkflowManagerUnitTests } from './unit/workflowManagerUnitTests.js';
@@ -71,7 +71,7 @@ export function runEngineTests(
     idManager = null,
     assetLoaderManager = null,
     diceEngine = null,
-    diceBotManager = null,
+    diceBotEngine = null,
     eventManager = null
 ) {
     runRendererTests(renderer);
@@ -82,7 +82,7 @@ export function runEngineTests(
     if (battleSimulationManager) {
         runTargetingManagerUnitTests(battleSimulationManager);
     }
-    runHeroEngineUnitTests(idManager, assetLoaderManager, diceEngine, diceBotManager);
+    runHeroEngineUnitTests(idManager, assetLoaderManager, diceEngine, diceBotEngine);
     if (idManager && eventManager) {
         runSynergyEngineUnitTests(idManager, eventManager);
     }

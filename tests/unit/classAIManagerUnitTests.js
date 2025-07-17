@@ -2,7 +2,7 @@
 
 import { ClassAIManager } from '../../js/managers/ClassAIManager.js';
 
-export function runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager) {
+export function runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine) {
     console.log("--- ClassAIManager Unit Test Start ---");
 
     let testCount = 0;
@@ -45,7 +45,7 @@ export function runClassAIManagerUnitTests(idManager, battleSimulationManager, m
     // 테스트 1: 초기화 확인
     testCount++;
     try {
-        const classAIManager = new ClassAIManager(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager);
+        const classAIManager = new ClassAIManager(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine);
         if (classAIManager.basicAIManager === basicAIManager) {
             console.log("ClassAIManager: Initialized correctly with BasicAIManager. [PASS]");
             passCount++;
@@ -60,7 +60,7 @@ export function runClassAIManagerUnitTests(idManager, battleSimulationManager, m
     testCount++;
     basicAIManagerCalled = false;
     try {
-        const classAIManager = new ClassAIManager(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager);
+        const classAIManager = new ClassAIManager(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine);
         battleSimulationManager.unitsOnGrid = [mockWarriorUnit, mockEnemyUnit];
         const action = await classAIManager.getBasicClassAction(mockWarriorUnit, battleSimulationManager.unitsOnGrid);
 
@@ -78,7 +78,7 @@ export function runClassAIManagerUnitTests(idManager, battleSimulationManager, m
     testCount++;
     basicAIManagerCalled = false;
     try {
-        const classAIManager = new ClassAIManager(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager);
+        const classAIManager = new ClassAIManager(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine);
         battleSimulationManager.unitsOnGrid = [mockUnknownClassUnit, mockEnemyUnit];
         const action = await classAIManager.getBasicClassAction(mockUnknownClassUnit, battleSimulationManager.unitsOnGrid);
 
@@ -110,7 +110,7 @@ export function runClassAIManagerUnitTests(idManager, battleSimulationManager, m
     };
 
     try {
-        const classAIManager = new ClassAIManager(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager);
+        const classAIManager = new ClassAIManager(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager, diceBotEngine);
         const mockUnitNoClass = { ...mockWarriorUnit, classId: 'class_nonexistent' };
         const action = await classAIManager.getBasicClassAction(mockUnitNoClass, battleSimulationManager.unitsOnGrid);
 
