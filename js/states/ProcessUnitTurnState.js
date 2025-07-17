@@ -1,5 +1,6 @@
 import { TurnState } from './TurnState.js';
 import { EndTurnState } from './EndTurnState.js';
+import { GAME_DEBUG_MODE } from '../constants.js';
 
 export class ProcessUnitTurnState extends TurnState {
     async enter() {
@@ -7,9 +8,13 @@ export class ProcessUnitTurnState extends TurnState {
         const currentTurnUnits = this.turnEngine.turnOrderManager.getTurnOrder();
         for (let i = 0; i < currentTurnUnits.length; i++) {
             const unit = currentTurnUnits[i];
-            if (unit.currentHp <= 0) continue;
+            if (unit.currentHp <= 0) {
+                if (GAME_DEBUG_MODE) console.log(`%c[ProcessUnitTurnState] ${unit.name}의 턴을 건너뜁니다 (HP: 0).`, "color: gray;");
+                continue;
+            }
 
             this.turnEngine.activeUnitIndex = i;
+            if (GAME_DEBUG_MODE) console.log(`%c[ProcessUnitTurnState] 현재 행동 유닛: ${unit.name} (ID: ${unit.id})`, "color: lightblue;");
             this.turnEngine.eventManager.emit('unitTurnStart', { unitId: unit.id, unitName: unit.name });
 
             const activeEffects = this.turnEngine.statusEffectManager.getUnitActiveEffects(unit.id);

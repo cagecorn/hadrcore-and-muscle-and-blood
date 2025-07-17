@@ -5,19 +5,23 @@ self.onmessage = (event) => {
 
     switch (type) {
         case 'CALCULATE_DAMAGE': {
-            // ✨ payload에서 defender's damage reduction 값을 추가로 받음
             const { attackerStats, targetStats, skillData, currentTargetHp, currentTargetBarrier, maxBarrier, preCalculatedDamageRoll, damageReduction } = payload;
 
-            // 방어력 적용
+            console.log(`[Calc Worker] --------- 데미지 계산 시작 (Target: ${payload.targetUnitId}) ---------`);
+            console.log(`[Calc Worker] 1. 주사위 굴림 데미지 (사전 계산됨): ${preCalculatedDamageRoll}`);
+
             let finalDamage = preCalculatedDamageRoll - targetStats.defense;
+            console.log(`[Calc Worker] 2. 방어력(${targetStats.defense}) 적용 후: ${finalDamage}`);
             if (finalDamage < 0) finalDamage = 0;
 
-            // ✨ '강철 의지' 같은 패시브 스킬로 인한 최종 피해 감소 적용
             if (damageReduction > 0) {
-                finalDamage *= (1 - damageReduction);
+                const reductionAmount = finalDamage * damageReduction;
+                finalDamage -= reductionAmount;
+                console.log(`[Calc Worker] 3. 피해 감소(${ (damageReduction * 100).toFixed(1) }%) 적용 후: ${finalDamage} (-${reductionAmount.toFixed(1)})`);
             }
 
-            finalDamage = Math.floor(finalDamage); // 최종 데미지는 정수로
+            finalDamage = Math.floor(finalDamage);
+            console.log(`[Calc Worker] 4. 최종 데미지 (소수점 제거): ${finalDamage}`);
             let finalDamageToApply = finalDamage;
 
             let barrierDamageDealt = 0; // 배리어로 흡수된 데미지
@@ -26,19 +30,21 @@ self.onmessage = (event) => {
             let newHp = currentTargetHp;
 
             if (finalDamageToApply > 0) {
-                if (newBarrier >= finalDamageToApply) {
-                    // 배리어가 모든 데미지를 흡수
-                    barrierDamageDealt = finalDamageToApply;
-                    newBarrier -= finalDamageToApply;
-                } else {
-                    // 배리어가 일부를 흡수하고, 남은 데미지는 HP로
-                    barrierDamageDealt = newBarrier; // 배리어가 흡수한 양
-                    hpDamageDealt = finalDamageToApply - newBarrier; // HP로 들어갈 양
-                    newBarrier = 0; // 배리어 소진
+                if (newBarrier > 0) {
+                    const absorbed = Math.min(newBarrier, finalDamageToApply);
+                    barrierDamageDealt = absorbed;
+                    newBarrier -= absorbed;
+                    finalDamageToApply -= absorbed;
+                    console.log(`[Calc Worker] 5. 보호막으로 ${absorbed} 데미지 흡수. 남은 보호막: ${newBarrier}`);
+                }
+                if (finalDamageToApply > 0) {
+                    hpDamageDealt = finalDamageToApply;
                     newHp -= hpDamageDealt;
+                    console.log(`[Calc Worker] 6. 체력으로 ${hpDamageDealt} 데미지 적용. 남은 체력: ${newHp}`);
                 }
             }
-            newHp = Math.max(0, newHp); // HP는 0 미만이 될 수 없음
+            newHp = Math.max(0, newHp);
+            console.log(`[Calc Worker] ------------------ 계산 종료 ------------------`);
 
             self.postMessage({
                 type: 'DAMAGE_CALCULATED',
