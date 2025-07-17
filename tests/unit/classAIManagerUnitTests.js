@@ -2,7 +2,7 @@
 
 import { ClassAIManager } from '../../js/managers/ClassAIManager.js';
 
-export function runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager) {
+export async function runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager) {
     console.log("--- ClassAIManager Unit Test Start ---");
 
     let testCount = 0;

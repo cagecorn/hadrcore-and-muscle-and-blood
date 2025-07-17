@@ -2,7 +2,7 @@
 
 import { TurnEngine } from '../../js/managers/TurnEngine.js';
 
-export function runTurnEngineUnitTests(eventManager, battleSimulationManager, turnOrderManager, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager) {
+export async function runTurnEngineUnitTests(eventManager, battleSimulationManager, turnOrderManager, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager) {
     console.log("--- TurnEngine Unit Test Start ---");
 
     let testCount = 0;

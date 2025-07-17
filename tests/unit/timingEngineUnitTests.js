@@ -3,7 +3,7 @@
 import { TimingEngine } from '../../js/managers/TimingEngine.js';
 import { DelayEngine } from '../../js/managers/DelayEngine.js';
 
-export function runTimingEngineUnitTests() {
+export async function runTimingEngineUnitTests() {
     console.log("--- TimingEngine Unit Test Start ---");
 
     let testCount = 0;

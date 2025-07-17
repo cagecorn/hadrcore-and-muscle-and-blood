@@ -2,7 +2,7 @@
 
 import { HeroEngine } from '../../js/managers/HeroEngine.js';
 
-export function runHeroEngineUnitTests(idManager, assetLoaderManager, diceEngine, diceBotManager) {
+export async function runHeroEngineUnitTests(idManager, assetLoaderManager, diceEngine, diceBotManager) {
     console.log("--- HeroEngine Unit Test Start ---");
 
     let testCount = 0;

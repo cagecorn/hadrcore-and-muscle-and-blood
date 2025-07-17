@@ -4,7 +4,7 @@ import { WarriorSkillsAI } from '../../js/managers/warriorSkillsAI.js';
 import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 import { GAME_EVENTS, ATTACK_TYPES, GAME_DEBUG_MODE } from '../../js/constants.js'; // ✨ GAME_DEBUG_MODE 임포트
 
-export function runWarriorSkillsAIUnitTests() {
+export async function runWarriorSkillsAIUnitTests() {
     if (GAME_DEBUG_MODE) console.log("--- WarriorSkillsAI Unit Test Start ---");
 
     let testCount = 0;
