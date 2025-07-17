@@ -17,8 +17,9 @@ import { GAME_EVENTS, UI_STATES } from './constants.js'; // UI_STATES 추가
 import { TerritoryManager } from './managers/TerritoryManager.js';
 import { BattleStageManager } from './managers/BattleStageManager.js';
 import { BattleGridManager } from './managers/BattleGridManager.js';
-import { BattleLogManager } from './managers/BattleLogManager.js';
 import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js';
+import { BattleLogManager } from './managers/BattleLogManager.js';
+import { CompatibilityManager } from './managers/CompatibilityManager.js';
 import { DetailInfoManager } from './managers/DetailInfoManager.js';
 import { PassiveIconManager } from './managers/PassiveIconManager.js';
 import { ReactionSkillManager } from './managers/ReactionSkillManager.js';
@@ -41,8 +42,9 @@ export class GameEngine {
         this.logicManager = new LogicManager(this.measureManager, this.sceneEngine);
 
         // 2. 주요 엔진 생성
+        const mainCanvas = document.getElementById(canvasId); // ✨ 캔버스 요소를 가져옵니다.
         this.assetEngine = new AssetEngine(this.eventManager);
-        this.renderEngine = new RenderEngine(canvasId, this.eventManager, this.measureManager, this.logicManager, this.sceneEngine); // ✨ 의존성 주입
+        this.renderEngine = new RenderEngine(mainCanvas, this.eventManager, this.measureManager, this.logicManager, this.sceneEngine); // ✨ 의존성 주입
         this.battleEngine = new BattleEngine(this.eventManager, this.measureManager, this.assetEngine, this.renderEngine);
 
         // 3. 종속성을 가지는 나머지 매니저들 생성
@@ -54,10 +56,28 @@ export class GameEngine {
         this.battleGridManager = new BattleGridManager(this.measureManager, this.logicManager);
 
         // RenderEngine에 필요한 후반 종속성 주입
-        this.renderEngine.injectDependencies(this.battleEngine.getBattleSimulationManager(), this.battleEngine.heroManager);
+        this.renderEngine.injectDependencies(this.getBattleSimulationManager(), this.battleEngine.heroManager);
 
-        // 순환 참조 문제를 방지하기 위해 UIEngine 인스턴스를 ButtonEngine에도 전달
-        this.renderEngine.inputManager.buttonEngine.uiEngine = this.renderEngine.uiEngine;
+        // ✨ MercenaryPanelManager 생성 및 UIEngine에 주입
+        const battleSim = this.getBattleSimulationManager();
+        this.mercenaryPanelManager = new MercenaryPanelManager(this.measureManager, battleSim, this.logicManager, this.eventManager);
+        this.getUIEngine().mercenaryPanelManager = this.mercenaryPanelManager;
+
+        // ✨ BattleLogManager 생성 및 이벤트 리스너 설정
+        const combatLogCanvas = document.getElementById('combatLogCanvas');
+        this.battleLogManager = new BattleLogManager(combatLogCanvas, this.eventManager, this.measureManager);
+        this.battleLogManager._setupEventListeners();
+
+        // ✨ CompatibilityManager 생성
+        this.compatibilityManager = new CompatibilityManager(
+            this.measureManager,
+            this.renderEngine.renderer,
+            this.getUIEngine(),
+            null,
+            this.logicManager,
+            this.mercenaryPanelManager,
+            this.battleLogManager
+        );
 
         // 4. 게임 루프 설정
         this.gameLoop = new GameLoop(this._update.bind(this), this._draw.bind(this));
@@ -81,6 +101,8 @@ export class GameEngine {
         // 렌더링 레이어를 zIndex 순서대로 등록합니다.
         const layerEngine = this.renderEngine.getLayerEngine();
         layerEngine.registerLayer('sceneLayer', (ctx) => this.sceneEngine.draw(ctx), 10);
+        // ✨ 전투 로그와 UI 레이어를 추가로 등록
+        layerEngine.registerLayer('battleLogLayer', (ctx) => this.battleLogManager.draw(ctx), 50);
         layerEngine.registerLayer('uiLayer', (ctx) => this.getUIEngine().draw(ctx), 100);
     }
 
@@ -111,6 +133,15 @@ export class GameEngine {
             // ◀◀◀ 추가된 내용: 장면과 레이어를 등록하고 초기 장면을 설정합니다.
             console.log("Initialization Step 4: Registering scenes and layers...");
             this._registerScenesAndLayers();
+
+            // ✨ BATTLE_START 이벤트 리스너 등록
+            this.eventManager.subscribe(GAME_EVENTS.BATTLE_START, () => {
+                console.log("Battle Start event received by GameEngine. Changing scene...");
+                this.sceneEngine.setCurrentScene('battleScene');
+                this.getUIEngine().setUIState(UI_STATES.COMBAT_SCREEN);
+                this.battleEngine.startBattle();
+            });
+
             this.sceneEngine.setCurrentScene('territoryScene');
             this.getUIEngine().setUIState(UI_STATES.MAP_SCREEN);
             console.log("✅ Scenes and layers registered. Initial scene set to 'territoryScene'.");
