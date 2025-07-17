@@ -1,0 +1,8 @@
+{
+  "name": "muscle-and-blood",
+  "version": "1.0.0",
+  "type": "module",
+  "scripts": {
+    "test": "node --test"
+  }
+}

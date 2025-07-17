@@ -1,0 +1,640 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Muscle & Blood Debug</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            background-color: #222;
+            font-family: Arial, sans-serif;
+            color: #eee;
+        }
+        #debugInfo {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            background-color: rgba(0, 0, 0, 0.7);
+            padding: 10px;
+            border-radius: 5px;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+            gap: 5px; /* 버튼과 섹션 사이 간격 */
+        }
+        #debugInfo h4 {
+            margin: 10px 0 5px 0;
+            color: #ccc;
+        }
+        #debugInfo button {
+            background-color: #4CAF50; /* 초록색 버튼 */
+            color: white;
+            padding: 8px 12px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            transition: background-color 0.2s;
+        }
+        #debugInfo button:hover {
+            background-color: #45a049;
+        }
+        #debugInfo button.fault-btn {
+            background-color: #f44336; /* 빨간색 버튼 */
+        }
+        #debugInfo button.fault-btn:hover {
+            background-color: #d32f2f;
+        }
+        canvas {
+            border: 2px solid #fff;
+            background-color: #000;
+        }
+        #gameContainer {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        /* #mercenaryPanelCanvas 스타일은 이제 필요 없습니다. */
+        #combatLogCanvas {
+            margin-top: 10px;
+            border: 2px solid #f00;
+        }
+    </style>
+</head>
+<body>
+    <div id="debugInfo">
+        <h3>디버그 정보</h3>
+        <p>FPS: <span id="fpsCounter">--</span></p>
+        
+        <h4>엔진 기본 테스트</h4>
+        <button id="runAllEngineTestsBtn">모든 엔진 테스트 실행</button>
+        <button id="runMeasureManagerIntegrationTestBtn">측량 매니저 통합 테스트</button>
+        <button id="runBattleSimulationIntegrationTestBtn">전투 시뮬레이션 통합 테스트</button>
+        <button id="runWarriorSkillsIntegrationTestBtn">전사 스킬 통합 테스트</button>
+
+        <h4>개별 유닛 테스트</h4>
+        <button id="runSceneEngineUnitTestsBtn">SceneEngine 유닛 테스트</button>
+        <button id="runLogicManagerUnitTestsBtn">LogicManager 유닛 테스트</button>
+        <button id="runCompatibilityManagerUnitTestsBtn">CompatibilityManager 유닛 테스트</button>
+        <button id="runEventManagerUnitTestsBtn">EventManager 유닛 테스트</button>
+        <button id="runGuardianManagerUnitTestsBtn">GuardianManager 유닛 테스트</button>
+        <button id="runValorEngineUnitTestsBtn">ValorEngine 유닛 테스트</button>
+        <button id="runWeightEngineUnitTestsBtn">WeightEngine 유닛 테스트</button>
+        <button id="runStatManagerUnitTestsBtn">StatManager 유닛 테스트</button>
+        <button id="runVFXManagerUnitTestsBtn">VFXManager 유닛 테스트</button>
+        <button id="runCanvasBridgeManagerUnitTestsBtn">CanvasBridgeManager 유닛 테스트</button>
+        <button id="runMeasureManagerUnitTestsBtn">MeasureManager 유닛 테스트</button>
+        <button id="runMapManagerUnitTestsBtn">MapManager 유닛 테스트</button>
+        <button id="runUIEngineUnitTestsBtn">UIEngine 유닛 테스트</button>
+        <button id="runButtonEngineUnitTestsBtn">ButtonEngine 유닛 테스트</button>
+        <button id="runDiceEngineUnitTestsBtn">DiceEngine 유닛 테스트</button>
+        <button id="runDiceRollManagerUnitTestsBtn">DiceRollManager 유닛 테스트</button>
+        <button id="runDiceBotManagerUnitTestsBtn">DiceBotManager 유닛 테스트</button>
+
+        <button id="runTurnCountManagerUnitTestsBtn">TurnCountManager 유닛 테스트</button>
+        <button id="runStatusEffectManagerUnitTestsBtn">StatusEffectManager 유닛 테스트</button>
+        <button id="runWorkflowManagerUnitTestsBtn">WorkflowManager 유닛 테스트</button>
+        <button id="runDisarmManagerUnitTestsBtn">DisarmManager 유닛 테스트</button>
+        <button id="runCoordinateManagerUnitTestsBtn">CoordinateManager 유닛 테스트</button> <button id="runTargetingManagerUnitTestsBtn">TargetingManager 유닛 테스트</button> <button id="runHeroEngineUnitTestsBtn">HeroEngine 유닛 테스트</button> <button id="runSynergyEngineUnitTestsBtn">SynergyEngine 유닛 테스트</button> <button id="runDetailInfoManagerUnitTestsBtn">DetailInfoManager 유닛 테스트</button>
+        <button id="runTagManagerUnitTestsBtn">TagManager 유닛 테스트</button>
+        <button id="runSkillIconManagerUnitTestsBtn">SkillIconManager 유닛 테스트</button>
+        <button id="runStatusIconManagerUnitTestsBtn">StatusIconManager 유닛 테스트</button>
+        <button id="runMovingManagerUnitTestsBtn">MovingManager 유닛 테스트</button>
+        <button id="runWarriorSkillsAIUnitTestsBtn">WarriorSkillsAI 유닛 테스트</button>
+        <button id="runShadowEngineUnitTestsBtn">ShadowEngine 유닛 테스트</button>
+
+        <h4>엔진 결함 주입 테스트</h4>
+        <button id="injectRendererFaultBtn" class="fault-btn">렌더러 결함 주입</button>
+        <button id="injectUpdateFaultBtn" class="fault-btn">Update 함수 결함 주입</button>
+        <button id="injectDrawFaultBtn" class="fault-btn">Draw 함수 결함 주입</button>
+        <button id="injectEventManagerFaultsBtn" class="fault-btn">이벤트 매니저 결함 주입</button>
+        <button id="injectGuardianManagerFaultsBtn" class="fault-btn">가디언 매니저 결함 주입</button>
+        <button id="injectSceneEngineFaultsBtn" class="fault-btn">SceneEngine 결함 주입</button>
+        <button id="injectLogicManagerFaultsBtn" class="fault-btn">LogicManager 결함 주입</button>
+        <button id="injectCompatibilityManagerFaultsBtn" class="fault-btn">CompatibilityManager 결함 주입</button>
+        <h4>이벤트 발생 시뮬레이션</h4>
+        <button id="simulateEventsBtn">이벤트 시뮬레이션 시작/정지</button>
+        <button id="toggleHeroPanelBtn">영웅 패널</button>
+
+        <h4>전투 계산 테스트</h4>
+        <button id="testDamageCalculationBtn">대미지 계산 테스트 (전사 -> 해골)</button>
+
+        <h4>시스템 제어</h4>
+        <button id="toggleDisarmSystemBtn">무장해제 시스템 활성화/비활성화</button>
+        <button id="toggleShadowsBtn">그림자 효과 활성화/비활성화</button>
+
+        <h4>상태 이상 테스트</h4>
+        <button id="applyPoisonToSkeletonBtn">해골에 독 적용 (3턴)</button>
+        <button id="applyStunToSkeletonBtn">해골에 기절 적용 (1턴)</button>
+        <button id="applyBerserkToWarriorBtn">전사에 광폭화 적용 (2턴)</button>
+        <button id="clearAllEffectsBtn">모든 효과 제거 (전체)</button>
+    </div>
+    <div id="gameContainer">
+        <canvas id="gameCanvas"></canvas>
+        <canvas id="combatLogCanvas"></canvas>
+    </div>
+    <!-- ✨ 전투 시작을 위한 별도의 HTML 버튼 -->
+    <button id="battleStartHtmlBtn" class="game-button">전투 시작</button>
+    <script type="module">
+    import { GameEngine } from './js/GameEngine.js'; // <-- GameEngine 불러오기
+    import {
+            runEngineTests, 
+            injectRendererFault, 
+            injectGameLoopFault, 
+            getFaultFlags, 
+            setFaultFlag,
+            runEventManagerTests,
+            injectEventManagerFaults,
+            runGuardianManagerTests,
+            injectGuardianManagerFaults,
+            runMeasureManagerIntegrationTest,
+            runBattleSimulationIntegrationTest,
+            runWarriorSkillsIntegrationTest,
+            runSceneEngineUnitTests,
+            injectSceneEngineFaults,
+            runLogicManagerUnitTests,
+            injectLogicManagerFaults,
+            runCompatibilityManagerUnitTests,
+            injectCompatibilityManagerFaults,
+            runMercenaryPanelManagerUnitTests,
+            runPanelEngineUnitTests,
+            runBattleLogManagerUnitTests,
+            runTurnEngineUnitTests,
+            runDelayEngineUnitTests,
+            runTimingEngineUnitTests,
+            runRuleManagerUnitTests,
+            runTurnOrderManagerUnitTests,
+            runBasicAIManagerUnitTests,
+            runClassAIManagerUnitTests,
+            runBattleSimulationManagerUnitTests,
+            runAnimationManagerUnitTests,
+            runValorEngineUnitTests,
+            runWeightEngineUnitTests,
+            runStatManagerUnitTests,
+            runVFXManagerUnitTests,
+            runCanvasBridgeManagerUnitTests,
+            runMeasureManagerUnitTests,
+            runMapManagerUnitTests,
+            runUIEngineUnitTests,
+            runButtonEngineUnitTests,
+            runDiceEngineUnitTests,
+            runDiceRollManagerUnitTests,
+            runDiceBotManagerUnitTests,
+            runTurnCountManagerUnitTests,
+            runStatusEffectManagerUnitTests,
+            runWorkflowManagerUnitTests,
+            runDisarmManagerUnitTests,
+            runCoordinateManagerUnitTests,
+            runHeroEngineUnitTests,
+            runSynergyEngineUnitTests,
+            runDetailInfoManagerUnitTests,
+            runTagManagerUnitTests,
+            runSkillIconManagerUnitTests,
+            runStatusIconManagerUnitTests,
+            runShadowEngineUnitTests
+    } from './tests/index.js';
+    import { STATUS_EFFECTS } from './data/statusEffects.js';
+    // ✨ 상수 파일 임포트
+    import { BUTTON_IDS } from './js/constants.js';
+
+        document.addEventListener('DOMContentLoaded', () => {
+            let gameEngine; // gameEngine 인스턴스를 스코프 밖으로 뺍니다.
+
+            try {
+                gameEngine = new GameEngine('gameCanvas'); // GameEngine 인스턴스 생성
+                gameEngine.eventManager.setGameRunningState(true); // ✨ 디버그 모드에서도 게임 시작 시 상태 설정
+                gameEngine.start(); // 게임 엔진 시작
+            } catch (error) {
+                console.error("Fatal Error in Debug Mode: Game Engine failed to start.", error);
+                // debug.html에서는 오류가 나도 계속 실행되도록 alert는 생략
+                return; // 오류 발생 시 디버그 페이지의 나머지 로직도 중단
+            }
+
+            // GameEngine에서 각 매니저 인스턴스를 가져옵니다.
+            const renderer = gameEngine.getRenderer();
+            const eventManager = gameEngine.getEventManager();
+            const guardianManager = gameEngine.getGuardianManager();
+            const gameLoop = gameEngine.gameLoop; // GameLoop는 GameEngine에서 직접 노출되지 않으므로, GameEngine 내부에 getter를 추가해야 할 수도 있습니다. (현재 예시에서는 gameEngine.gameLoop로 접근)
+            // 새로운 매니저 인스턴스 가져오기
+            const sceneEngine = gameEngine.getSceneEngine();
+            const logicManager = gameEngine.getLogicManager();
+            const compatibilityManager = gameEngine.getCompatibilityManager();
+            const battleCalculationManager = gameEngine.getBattleCalculationManager();
+            const measureManager = gameEngine.getMeasureManager();
+            const battleSimulationManager = gameEngine.getBattleSimulationManager();
+            const turnOrderManager = gameEngine.getTurnOrderManager();
+            const classAIManager = gameEngine.getClassAIManager();
+            const delayEngine = gameEngine.getDelayEngine();
+            const timingEngine = gameEngine.getTimingEngine();
+            const idManager = gameEngine.getIdManager();
+            const basicAIManager = gameEngine.getBasicAIManager();
+            const animationManager = gameEngine.getAnimationManager();
+            const shadowEngine = gameEngine.getShadowEngine(); // ✨ ShadowEngine 인스턴스 가져오기
+            const turnCountManager = gameEngine.getTurnCountManager();
+            const statusEffectManager = gameEngine.getStatusEffectManager();
+            const workflowManager = gameEngine.getWorkflowManager();
+            // ✨ 다이스 관련 매니저 가져오기
+            const diceEngine = gameEngine.getDiceEngine();
+            const diceRollManager = gameEngine.getDiceRollManager();
+            const diceBotManager = gameEngine.getDiceBotManager();
+
+
+            // 테스트용 EventManager 구독 (debug.html에서만 필요)
+            eventManager.subscribe('unitDeath', (data) => {
+                console.log(`[Debug Main] Unit ${data.unitId} (${data.unitName}) has died!`);
+            });
+            eventManager.subscribe('skillExecuted', (data) => {
+                console.log(`[Debug Main] Skill '${data.skillName}' was executed.`);
+            });
+            eventManager.subscribe('statusEffectApplied', ({ unitId, statusEffectId, effectData }) => {
+                const unit = battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);
+                const unitName = unit ? unit.name : unitId;
+                console.log(`[Debug Main] 상태 효과 적용: ${effectData.name} (${statusEffectId}) 이(가) ${unitName}에게 적용됨. 지속 시간: ${effectData.duration}턴.`);
+            });
+            eventManager.subscribe('statusEffectRemoved', ({ unitId, statusEffectId }) => {
+                const unit = battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);
+                const unitName = unit ? unit.name : unitId;
+                console.log(`[Debug Main] 상태 효과 제거: ${statusEffectId} 이(가) ${unitName}에게서 제거됨.`);
+            });
+            eventManager.subscribe('logMessage', ({ message }) => {
+                console.log(`[Debug Main Log] ${message}`);
+            });
+
+
+            let frameCount = 0;
+            let lastFpsTime = 0;
+            const fpsCounterElement = document.getElementById('fpsCounter');
+
+            // --- 버튼 이벤트 리스너 설정 ---
+            document.getElementById('runAllEngineTestsBtn').addEventListener('click', () => {
+                // gameLoop는 gameEngine 내부에 있으므로 gameEngine.gameLoop로 전달 (혹은 getter)
+                runEngineTests(renderer, gameLoop, battleSimulationManager, gameEngine.getBattleGridManager(), idManager, gameEngine.getAssetLoaderManager(), diceEngine, diceBotManager, eventManager);
+                runEventManagerTests(eventManager);
+                runGuardianManagerTests(guardianManager);
+                runMeasureManagerIntegrationTest(gameEngine);
+                runBattleSimulationIntegrationTest(gameEngine);
+                // 모든 유닛 테스트에 새 매니저 추가
+                runSceneEngineUnitTests(sceneEngine);
+                runLogicManagerUnitTests(logicManager);
+                runCompatibilityManagerUnitTests(compatibilityManager);
+                runMercenaryPanelManagerUnitTests(measureManager, battleSimulationManager, logicManager, eventManager);
+                runPanelEngineUnitTests();
+                runBattleLogManagerUnitTests(eventManager, measureManager);
+                runTurnEngineUnitTests(eventManager, battleSimulationManager, turnOrderManager, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager);
+                runDelayEngineUnitTests();
+                runTimingEngineUnitTests();
+                runRuleManagerUnitTests();
+                runTurnOrderManagerUnitTests(eventManager, battleSimulationManager);
+                runBasicAIManagerUnitTests(battleSimulationManager);
+                runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager);
+                runBattleSimulationManagerUnitTests(measureManager, gameEngine.getAssetLoaderManager(), idManager, logicManager);
+                runAnimationManagerUnitTests();
+                runValorEngineUnitTests();
+                runWeightEngineUnitTests();
+                runStatManagerUnitTests();
+                runVFXManagerUnitTests();
+                runCanvasBridgeManagerUnitTests();
+                runMeasureManagerUnitTests();
+                runMapManagerUnitTests();
+                runUIEngineUnitTests();
+                runButtonEngineUnitTests();
+                runDiceEngineUnitTests();
+                runDiceRollManagerUnitTests();
+                runDiceBotManagerUnitTests();
+                runTurnCountManagerUnitTests();
+                runStatusEffectManagerUnitTests(eventManager, idManager, turnCountManager, battleCalculationManager);
+                runWorkflowManagerUnitTests(eventManager, statusEffectManager, battleSimulationManager);
+                runDisarmManagerUnitTests(eventManager, measureManager, statusEffectManager, battleSimulationManager);
+                runCoordinateManagerUnitTests(battleSimulationManager, gameEngine.getBattleGridManager());
+            });
+
+            document.getElementById('runMeasureManagerIntegrationTestBtn').addEventListener('click', () => {
+                runMeasureManagerIntegrationTest(gameEngine);
+            });
+
+            document.getElementById('runBattleSimulationIntegrationTestBtn').addEventListener('click', () => {
+                runBattleSimulationIntegrationTest(gameEngine);
+            });
+            document.getElementById('runWarriorSkillsIntegrationTestBtn').addEventListener('click', () => {
+                runWarriorSkillsIntegrationTest(gameEngine);
+            });
+
+            // 개별 유닛 테스트 버튼 리스너 추가
+            document.getElementById('runSceneEngineUnitTestsBtn').addEventListener('click', () => {
+                runSceneEngineUnitTests(sceneEngine);
+            });
+            document.getElementById('runLogicManagerUnitTestsBtn').addEventListener('click', () => {
+                runLogicManagerUnitTests(logicManager);
+            });
+            document.getElementById('runCompatibilityManagerUnitTestsBtn').addEventListener('click', () => {
+                runCompatibilityManagerUnitTests(compatibilityManager);
+            });
+            document.getElementById('runEventManagerUnitTestsBtn').addEventListener('click', () => {
+                runEventManagerTests(eventManager);
+            });
+            document.getElementById('runGuardianManagerUnitTestsBtn').addEventListener('click', () => {
+                runGuardianManagerTests(guardianManager);
+            });
+            document.getElementById('runValorEngineUnitTestsBtn').addEventListener('click', () => {
+                runValorEngineUnitTests();
+            });
+            document.getElementById('runWeightEngineUnitTestsBtn').addEventListener('click', () => {
+                runWeightEngineUnitTests();
+            });
+            document.getElementById('runStatManagerUnitTestsBtn').addEventListener('click', () => {
+                runStatManagerUnitTests();
+            });
+            document.getElementById('runVFXManagerUnitTestsBtn').addEventListener('click', () => {
+                runVFXManagerUnitTests();
+            });
+            document.getElementById('runCanvasBridgeManagerUnitTestsBtn').addEventListener('click', () => {
+                runCanvasBridgeManagerUnitTests();
+            });
+            document.getElementById('runMeasureManagerUnitTestsBtn').addEventListener('click', () => {
+                runMeasureManagerUnitTests();
+            });
+            document.getElementById('runMapManagerUnitTestsBtn').addEventListener('click', () => {
+                runMapManagerUnitTests();
+            });
+            document.getElementById('runUIEngineUnitTestsBtn').addEventListener('click', () => {
+                runUIEngineUnitTests();
+            });
+            document.getElementById('runButtonEngineUnitTestsBtn').addEventListener('click', () => {
+                runButtonEngineUnitTests();
+            });
+            // ✨ 다이스 관련 유닛 테스트 버튼
+            document.getElementById('runDiceEngineUnitTestsBtn').addEventListener('click', () => {
+                runDiceEngineUnitTests();
+            });
+            document.getElementById('runDiceRollManagerUnitTestsBtn').addEventListener('click', () => {
+                runDiceRollManagerUnitTests();
+            });
+            document.getElementById('runDiceBotManagerUnitTestsBtn').addEventListener('click', () => {
+                runDiceBotManagerUnitTests();
+            });
+            document.getElementById('runTurnCountManagerUnitTestsBtn').addEventListener('click', () => {
+                runTurnCountManagerUnitTests();
+            });
+            document.getElementById('runStatusEffectManagerUnitTestsBtn').addEventListener('click', () => {
+                runStatusEffectManagerUnitTests(eventManager, idManager, turnCountManager, battleCalculationManager);
+            });
+            document.getElementById('runWorkflowManagerUnitTestsBtn').addEventListener('click', () => {
+                runWorkflowManagerUnitTests(eventManager, statusEffectManager, battleSimulationManager);
+            });
+            document.getElementById('runDisarmManagerUnitTestsBtn').addEventListener('click', () => {
+                runDisarmManagerUnitTests(eventManager, measureManager, statusEffectManager, battleSimulationManager);
+            });
+            // ✨ CoordinateManager 단위 테스트 버튼 리스너 추가
+            document.getElementById('runCoordinateManagerUnitTestsBtn').addEventListener('click', () => {
+                runCoordinateManagerUnitTests(battleSimulationManager, gameEngine.getBattleGridManager());
+            });
+            // ✨ TargetingManager 단위 테스트 버튼 리스너 추가
+            document.getElementById('runTargetingManagerUnitTestsBtn').addEventListener('click', () => {
+                runTargetingManagerUnitTests(battleSimulationManager);
+            });
+
+            document.getElementById("runHeroEngineUnitTestsBtn").addEventListener("click", () => {
+                runHeroEngineUnitTests(idManager, gameEngine.getAssetLoaderManager(), diceEngine, diceBotManager);
+            });
+            // ✨ SynergyEngine 단위 테스트 버튼 리스너 추가
+            document.getElementById('runSynergyEngineUnitTestsBtn').addEventListener('click', () => {
+                runSynergyEngineUnitTests(idManager, eventManager);
+            });
+            // ✨ DetailInfoManager 단위 테스트 버튼 리스너 추가
+            document.getElementById('runDetailInfoManagerUnitTestsBtn').addEventListener('click', () => {
+                runDetailInfoManagerUnitTests(); // 목업 사용
+            });
+            // ✨ TagManager 단위 테스트 버튼 리스너 추가
+            document.getElementById('runTagManagerUnitTestsBtn').addEventListener('click', () => {
+                runTagManagerUnitTests(idManager);
+            });
+            // ✨ SkillIconManager 단위 테스트 버튼 리스너
+            document.getElementById('runSkillIconManagerUnitTestsBtn').addEventListener('click', () => {
+                runSkillIconManagerUnitTests(gameEngine.getAssetLoaderManager(), idManager);
+            });
+            // ✨ StatusIconManager 단위 테스트 버튼 리스너
+            document.getElementById('runStatusIconManagerUnitTestsBtn').addEventListener('click', () => {
+                runStatusIconManagerUnitTests();
+            });
+            document.getElementById('runMovingManagerUnitTestsBtn').addEventListener('click', () => {
+                runMovingManagerUnitTests();
+            });
+            document.getElementById('runWarriorSkillsAIUnitTestsBtn').addEventListener('click', () => {
+                runWarriorSkillsAIUnitTests();
+            });
+            // ✨ ShadowEngine 단위 테스트 버튼 리스너
+            document.getElementById('runShadowEngineUnitTestsBtn').addEventListener('click', () => {
+                runShadowEngineUnitTests();
+            });
+            document.getElementById('injectRendererFaultBtn').addEventListener('click', () => {
+                injectRendererFault(renderer);
+            });
+            document.getElementById('injectUpdateFaultBtn').addEventListener('click', () => {
+                // GameEngine의 _update/_draw 함수에 결함을 주입하려면,
+                // GameEngine 내부에서 _update/_draw가 getFaultFlags()를 호출해야 합니다.
+                // 현재 GameEngine의 _update/_draw에 이 로직이 없으므로,
+                // 이 버튼은 debug.html의 update/draw에 직접 영향을 미치지 않습니다.
+                // (이전 예시에서 debug.html 자체에 update/draw가 정의되어 있었기 때문)
+                // 따라서 이 버튼은 현재 debug.html의 _update/_draw 로직에 영향을 주지 않습니다.
+                // GameEngine의 _update/_draw 내부에서 faultFlags를 체크하도록 수정해야 합니다.
+                console.warn("Update/Draw fault injection in GameEngine is not directly supported by this debug button yet.");
+                console.warn("You need to modify GameEngine's _update and _draw methods to check getFaultFlags().");
+            });
+            document.getElementById('injectDrawFaultBtn').addEventListener('click', () => {
+                 console.warn("Update/Draw fault injection in GameEngine is not directly supported by this debug button yet.");
+                 console.warn("You need to modify GameEngine's _update and _draw methods to check getFaultFlags().");
+            });
+            document.getElementById('injectEventManagerFaultsBtn').addEventListener('click', () => {
+                injectEventManagerFaults(eventManager);
+            });
+            document.getElementById('injectGuardianManagerFaultsBtn').addEventListener('click', () => {
+                injectGuardianManagerFaults(guardianManager);
+            });
+            // 새로운 결함 주입 테스트 버튼 리스너 추가
+            document.getElementById('injectSceneEngineFaultsBtn').addEventListener('click', () => {
+                injectSceneEngineFaults(sceneEngine);
+            });
+            document.getElementById('injectLogicManagerFaultsBtn').addEventListener('click', () => {
+                injectLogicManagerFaults(logicManager);
+            });
+            document.getElementById('injectCompatibilityManagerFaultsBtn').addEventListener('click', () => {
+                injectCompatibilityManagerFaults(compatibilityManager);
+            });
+
+            document.getElementById('testDamageCalculationBtn').addEventListener('click', () => {
+                gameEngine.getSceneEngine().setCurrentScene('battleScene');
+                gameEngine.getUIEngine().setUIState('combatScreen');
+                gameEngine.getCameraEngine().reset();
+
+                setTimeout(() => {
+                    console.log("[Debug Main] Requesting damage calculation: WARRIOR attacks SKELETON");
+                    battleCalculationManager.requestDamageCalculation('unit_warrior_001', 'unit_skeleton_001', {
+                        type: 'physical',
+                        dice: { num: 1, sides: 6 }
+                    });
+                }, 2000);
+
+                setTimeout(() => {
+                    console.log("[Debug Main] Requesting damage calculation again: WARRIOR attacks SKELETON");
+                    battleCalculationManager.requestDamageCalculation('unit_warrior_001', 'unit_skeleton_001', {
+                        type: 'physical',
+                        dice: { num: 2, sides: 8 }
+                    });
+                }, 4000);
+            });
+
+            // ✨ 무장해제 시스템 활성화/비활성화 토글 버튼
+            const toggleDisarmSystemBtn = document.getElementById('toggleDisarmSystemBtn');
+            toggleDisarmSystemBtn.textContent = `무장해제 시스템: ${measureManager.get('gameConfig.enableDisarmSystem') ? '활성화됨' : '비활성화됨'}`;
+            toggleDisarmSystemBtn.addEventListener('click', () => {
+                const currentState = measureManager.get('gameConfig.enableDisarmSystem');
+                measureManager.set('gameConfig.enableDisarmSystem', !currentState);
+                toggleDisarmSystemBtn.textContent = `무장해제 시스템: ${!currentState ? '활성화됨' : '비활성화됨'}`;
+                console.log(`[Debug Main] 무장해제 시스템이 ${!currentState ? '활성화' : '비활성화'}되었습니다.`);
+            });
+
+            // ✨ 그림자 토글 버튼 리스너
+            const toggleShadowsBtn = document.getElementById('toggleShadowsBtn');
+            if (toggleShadowsBtn) {
+                toggleShadowsBtn.textContent = `그림자 효과: ${shadowEngine.shadowsEnabled ? '활성화됨' : '비활성화됨'}`;
+                toggleShadowsBtn.addEventListener('click', () => {
+                    const newState = shadowEngine.toggleShadows();
+                    toggleShadowsBtn.textContent = `그림자 효과: ${newState ? '활성화됨' : '비활성화됨'}`;
+                });
+            }
+
+            document.getElementById('applyPoisonToSkeletonBtn').addEventListener('click', () => {
+                workflowManager.triggerStatusEffectApplication('unit_skeleton_001', STATUS_EFFECTS.POISON.id);
+            });
+            document.getElementById('applyStunToSkeletonBtn').addEventListener('click', () => {
+                workflowManager.triggerStatusEffectApplication('unit_skeleton_001', STATUS_EFFECTS.STUN.id);
+            });
+            document.getElementById('applyBerserkToWarriorBtn').addEventListener('click', () => {
+                workflowManager.triggerStatusEffectApplication('unit_warrior_001', STATUS_EFFECTS.BERSERK.id);
+            });
+            document.getElementById('clearAllEffectsBtn').addEventListener('click', () => {
+                turnCountManager.clearAllEffects();
+                console.log("[Debug Main] 모든 유닛의 모든 효과를 제거했습니다.");
+            });
+
+            let isSimulatingEvents = false;
+            let lastEmittedSecond = -1;
+            document.getElementById('simulateEventsBtn').addEventListener('click', (e) => {
+                isSimulatingEvents = !isSimulatingEvents;
+                e.target.textContent = isSimulatingEvents ? '이벤트 시뮬레이션 정지' : '이벤트 시뮬레이션 시작';
+                if (!isSimulatingEvents) {
+                    console.log("Event simulation stopped.");
+                } else {
+                    console.log("Event simulation started. Check console.");
+                }
+            });
+
+            // ✨ 영웅 패널 토글 버튼
+            document.getElementById(BUTTON_IDS.TOGGLE_HERO_PANEL).addEventListener('click', () => { // ✨ 상수 사용
+                gameEngine.getUIEngine().toggleHeroPanel();
+            });
+
+            // ✨ 전투 시작 HTML 버튼
+            const battleStartHtmlBtn = document.getElementById(BUTTON_IDS.BATTLE_START_HTML);
+            if (battleStartHtmlBtn) {
+                battleStartHtmlBtn.addEventListener('click', () => {
+                    gameEngine.getUIEngine().handleBattleStartClick();
+                });
+            }
+
+
+            // 게임 업데이트 함수 정의 (DEBUG ONLY - GameEngine의 _update가 대신함)
+            // 이 함수는 더 이상 GameLoop에 직접 전달되지 않습니다.
+            // 대신 GameEngine 내부의 _update 메서드가 GameLoop에 전달됩니다.
+            // 하지만 FPS 카운터와 이벤트 시뮬레이션은 debug.html에서 별도로 관리할 수 있습니다.
+
+            // FPS 업데이트는 GameEngine의 _draw가 아닌 debug.html에서 계속 직접 처리
+            const originalDraw = gameEngine._draw; // GameEngine의 원래 _draw 함수를 저장
+            gameEngine._draw = function() { // GameEngine의 _draw를 오버라이드하여 FPS 로직 추가
+                originalDraw.apply(this, arguments); // 원래 _draw 함수 호출
+
+                // ✨ 전투 로그 패널 그리기 호출 추가
+                if (gameEngine.getPanelEngine()) {
+                    gameEngine.getPanelEngine().drawPanel('combatLog', gameEngine.getBattleLogManager().ctx);
+                }
+
+                // FPS 카운터 업데이트
+                frameCount++;
+                const currentTime = performance.now();
+                if (currentTime - lastFpsTime >= 1000) {
+                    const fps = frameCount / ((currentTime - lastFpsTime) / 1000);
+                    fpsCounterElement.textContent = fps.toFixed(0);
+                    frameCount = 0;
+                    lastFpsTime = currentTime;
+                }
+            };
+            
+            // 이벤트 시뮬레이션은 GameEngine의 _update와는 별개로 debug.html에서 직접 관리
+            const originalUpdate = gameEngine._update; // GameEngine의 원래 _update 함수를 저장
+            gameEngine._update = function(deltaTime) { // GameEngine의 _update를 오버라이드하여 이벤트 시뮬레이션 로직 추가
+                const faultFlags = getFaultFlags();
+                if (faultFlags.update) {
+                    setFaultFlag('update', false);
+                    throw new Error("Simulated Error: Something went wrong in GameEngine's _update()!");
+                }
+
+                originalUpdate.apply(this, arguments); // 원래 _update 함수 호출
+
+                if (isSimulatingEvents) {
+                    if (Math.floor(performance.now() / 1000) % 5 === 0 && Math.floor(performance.now() / 1000) !== lastEmittedSecond) {
+                        eventManager.emit('unitAttack', { attackerId: 'DebugHero', targetId: 'DebugGoblin', damageDealt: 15 });
+                        eventManager.emit('unitDeath', { unitId: 'DebugGoblin', unitName: '디버그 고블린', unitType: 'normal' });
+                        eventManager.emit('unitDeath', { unitId: 'DebugOgreBoss', unitName: '디버그 오우거 보스', unitType: 'elite' });
+                        lastEmittedSecond = Math.floor(performance.now() / 1000);
+                    }
+                }
+            };
+
+            // 페이지 로드 시 기본 엔진 테스트 자동 실행
+            runEngineTests(renderer, gameLoop, battleSimulationManager, gameEngine.getBattleGridManager(), idManager, gameEngine.getAssetLoaderManager(), diceEngine, diceBotManager, eventManager);
+            runEventManagerTests(eventManager); // EventManager 테스트도 자동 실행
+            runGuardianManagerTests(guardianManager); // GuardianManager 테스트도 자동 실행
+            runMeasureManagerIntegrationTest(gameEngine); // MeasureManager 통합 테스트도 자동 실행
+            runBattleSimulationIntegrationTest(gameEngine);
+            runSceneEngineUnitTests(sceneEngine);
+            runLogicManagerUnitTests(logicManager);
+            runCompatibilityManagerUnitTests(compatibilityManager);
+            runMercenaryPanelManagerUnitTests(measureManager, battleSimulationManager, logicManager, eventManager);
+            runPanelEngineUnitTests();
+            runBattleLogManagerUnitTests(eventManager, measureManager);
+            runTurnEngineUnitTests(eventManager, battleSimulationManager, turnOrderManager, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager);
+            runDelayEngineUnitTests();
+            runTimingEngineUnitTests();
+            runRuleManagerUnitTests();
+            runTurnOrderManagerUnitTests(eventManager, battleSimulationManager);
+            runBasicAIManagerUnitTests(battleSimulationManager);
+            runClassAIManagerUnitTests(idManager, battleSimulationManager, measureManager, basicAIManager, warriorSkillsAI, diceEngine, targetingManager);
+            runBattleSimulationManagerUnitTests(measureManager, gameEngine.getAssetLoaderManager(), idManager, logicManager);
+            runAnimationManagerUnitTests();
+            runValorEngineUnitTests();
+            runWeightEngineUnitTests();
+            runStatManagerUnitTests();
+            runVFXManagerUnitTests();
+            runCanvasBridgeManagerUnitTests();
+            runMeasureManagerUnitTests();
+            runMapManagerUnitTests();
+            runUIEngineUnitTests();
+            runDiceEngineUnitTests();
+            runDiceRollManagerUnitTests();
+            runDiceBotManagerUnitTests();
+            runTurnCountManagerUnitTests();
+            runStatusEffectManagerUnitTests(eventManager, idManager, turnCountManager, battleCalculationManager);
+            runWorkflowManagerUnitTests(eventManager, statusEffectManager, battleSimulationManager);
+            runDisarmManagerUnitTests(eventManager, measureManager, statusEffectManager, battleSimulationManager);
+            runCoordinateManagerUnitTests(battleSimulationManager, gameEngine.getBattleGridManager());
+        });
+    </script>
+</body>
+</html>
