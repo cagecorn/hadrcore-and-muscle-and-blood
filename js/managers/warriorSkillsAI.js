@@ -54,15 +54,22 @@ export class WarriorSkillsAI {
             const closestEnemy = this.managers.coordinateManager.findClosestUnit(userUnit.id, ATTACK_TYPES.ENEMY);
 
             if (closestEnemy) {
-                this.managers.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
-                    attackerId: userUnit.id,
-                    targetId: closestEnemy.id,
-                    attackType: ATTACK_TYPES.MELEE
-                });
+                const distance = Math.abs(userUnit.gridX - closestEnemy.gridX) + Math.abs(userUnit.gridY - closestEnemy.gridY);
+                const attackRange = userUnit.baseStats.attackRange || 1;
 
-                const normalAttackData = { type: ATTACK_TYPES.PHYSICAL, dice: skillData.effect.dice };
-                this.managers.battleCalculationManager.requestDamageCalculation(userUnit.id, closestEnemy.id, normalAttackData);
-                await this.managers.delayEngine.waitFor(500);
+                if (distance <= attackRange) {
+                    this.managers.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
+                        attackerId: userUnit.id,
+                        targetId: closestEnemy.id,
+                        attackType: ATTACK_TYPES.MELEE
+                    });
+
+                    const normalAttackData = { type: ATTACK_TYPES.PHYSICAL, dice: skillData.effect.dice };
+                    this.managers.battleCalculationManager.requestDamageCalculation(userUnit.id, closestEnemy.id, normalAttackData);
+                    await this.managers.delayEngine.waitFor(500);
+                } else if (GAME_DEBUG_MODE) {
+                    console.log(`[WarriorSkillsAI] Additional attack skipped. Target out of range (${distance} > ${attackRange}).`);
+                }
             } else {
                 console.log(`[WarriorSkillsAI] No target found for additional attack.`);
             }
