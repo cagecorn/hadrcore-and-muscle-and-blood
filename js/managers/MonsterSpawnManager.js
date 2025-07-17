@@ -27,6 +27,11 @@ export class MonsterSpawnManager {
         const zombieClassData = await this.idManager.get('class_zombie');
         const zombieImage = this.assetLoaderManager.getImage('sprite_zombie_default');
 
+        if (!zombieClassData || !zombieClassData.baseStats) {
+            console.error('[MonsterSpawnManager] Invalid zombie class data.');
+            return;
+        }
+
         const zombieData = currentStage.monsters.find(m => m.classId === 'class_zombie');
         if (zombieData) {
             const formation = currentStage.formations[zombieData.formation] || [];
