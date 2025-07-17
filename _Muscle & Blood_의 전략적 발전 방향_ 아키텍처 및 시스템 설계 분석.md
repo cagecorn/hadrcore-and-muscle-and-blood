@@ -399,3 +399,505 @@ AI는 '똑똑한 상대'를 넘어 '흥미로운 교사'가 되어야 한다: [�
 메타 게임은 '지속 가능한 재미'의 원천이 되어야 한다: "영지 경영" 시스템을 전투-자원-성장으로 이어지는 강력한 핵심 루프로 설계해야 한다. Darkest Dungeon과 XCOM의 사례에서 보듯, 기지 관리는 단순한 업그레이드 메뉴가 아니라, 플레이어에게 장기적인 목표와 전략적 선택의 즐거움을 제공하는 게임의 심장부 역할을 해야 한다.
 
 "Muscle & Blood"는 이미 성공적인 게임이 될 수 있는 독창적이고 매력적인 핵심 요소들을 갖추고 있다. 본 보고서에서 제안된 기술적, 설계적 발전 방향을 체계적으로 이행한다면, 이 잠재력은 현실이 되어 플레이어들에게 오랫동안 기억에 남는 깊이 있는 전략 RPG 경험을 선사할 수 있을 것으로 확신한다.
+
+---
+
+행동 트리(BT) 기반 AI 시스템 설계 요약
+기존 AI의 switch 문은 새로운 행동을 추가할 때마다 코드가 복잡해지는 구조적 문제를 가집니다. 행동 트리는 이 문제를 해결하기 위해 AI의 의사결정 로직을 독립적인 '노드(Node)'들의 계층적 조합으로 만듭니다.
+
+행동의 모듈화: '적 찾기', '이동하기', '공격하기', '스킬 사용하기'와 같은 행동들을 각각의 **액션 노드(Action Node)**로 분리합니다.
+
+상황 판단의 분리: '체력이 낮은가?', '적이 보이는가?'와 같은 조건들을 **조건 노드(Condition Node)**로 분리합니다.
+
+논리적 흐름 제어: **셀렉터(Selector)**와 시퀀스(Sequence) 같은 **복합 노드(Composite Node)**를 사용하여, "만약 체력이 낮으면 도망가고, 그렇지 않으면 적을 찾아 공격하라"와 같은 복잡한 논리 흐름을 구성합니다.
+
+중앙 데이터 공유: **블랙보드(Blackboard)**를 통해 AI의 '기억' (예: 현재 공격 대상)을 모든 노드가 공유하여, 노드 간의 직접적인 의존성을 제거합니다.
+
+이 설계에 따라 기존 AI 시스템을 강화하는 코드는 다음과 같습니다.
+
+1단계: 핵심 행동 트리 프레임워크 구현
+먼저, 행동 트리를 구성하는 데 필요한 핵심 클래스들을 js/ai/ 폴더에 생성합니다. 이 코드들은 '지능의 설계' 가이드의 개념을 JavaScript로 구현한 것입니다.
+
+js/ai/core/Node.js (신규 파일)
+모든 노드의 기반이 되는 추상 클래스입니다. 모든 노드는 evaluate 메서드를 통해 자신의 상태를 반환해야 합니다.
+
+JavaScript
+
+// js/ai/core/Node.js
+
+export const NodeState = {
+    RUNNING: 'RUNNING', // 작업이 진행 중
+    SUCCESS: 'SUCCESS', // 작업 성공
+    FAILURE: 'FAILURE'  // 작업 실패
+};
+
+export class Node {
+    constructor() {
+        if (this.constructor === Node) {
+            throw new Error("추상 클래스는 인스턴스화할 수 없습니다.");
+        }
+        this.name = this.constructor.name; // 디버깅용 노드 이름
+    }
+
+    /**
+     * 이 노드의 로직을 평가합니다.
+     * @param {Blackboard} blackboard - AI의 데이터 공유 객체
+     * @returns {Promise<NodeState>} 노드의 실행 결과 상태
+     */
+    async evaluate(blackboard) {
+        throw new Error("메서드 'evaluate()'를 구현해야 합니다.");
+    }
+}
+js/ai/core/CompositeNode.js (신규 파일)
+Selector, Sequence 와 같이 자식 노드를 가지는 모든 노드의 부모 클래스입니다.
+
+JavaScript
+
+// js/ai/core/CompositeNode.js
+
+import { Node } from './Node.js';
+
+export class CompositeNode extends Node {
+    /**
+     * @param {Node[]} children - 자식 노드의 배열
+     */
+    constructor(children = []) {
+        super();
+        this.children = children;
+    }
+}
+js/ai/core/Selector.js (신규 파일)
+자식 노드를 순서대로 실행하며, 하나라도 SUCCESS 또는 RUNNING을 반환하면 그 즉시 멈춥니다. 논리적 'OR' 연산과 같습니다.
+
+JavaScript
+
+// js/ai/core/Selector.js
+
+import { CompositeNode } from './CompositeNode.js';
+import { NodeState } from './Node.js';
+
+export class Selector extends CompositeNode {
+    /**
+     * @param {Node[]} children
+     */
+    constructor(children) {
+        super(children);
+    }
+
+    async evaluate(blackboard) {
+        for (const node of this.children) {
+            const result = await node.evaluate(blackboard);
+            if (result !== NodeState.FAILURE) {
+                return result;
+            }
+        }
+        return NodeState.FAILURE;
+    }
+}
+js/ai/core/Sequence.js (신규 파일)
+자식 노드를 순서대로 실행하며, 하나라도 FAILURE 또는 RUNNING을 반환하면 그 즉시 멈춥니다. 논리적 'AND' 연산과 같습니다.
+
+JavaScript
+
+// js/ai/core/Sequence.js
+
+import { CompositeNode } from './CompositeNode.js';
+import { NodeState } from './Node.js';
+
+export class Sequence extends CompositeNode {
+    /**
+     * @param {Node[]} children
+     */
+    constructor(children) {
+        super(children);
+    }
+
+    async evaluate(blackboard) {
+        for (const node of this.children) {
+            const result = await node.evaluate(blackboard);
+            if (result !== NodeState.SUCCESS) {
+                return result;
+            }
+        }
+        return NodeState.SUCCESS;
+    }
+}
+js/ai/core/Blackboard.js (신규 파일)
+AI의 '뇌' 역할을 하는 중앙 데이터 저장소입니다.
+
+JavaScript
+
+// js/ai/core/Blackboard.js
+
+export class Blackboard {
+    constructor() {
+        this.data = new Map();
+    }
+
+    setData(key, value) {
+        this.data.set(key, value);
+    }
+
+    getData(key) {
+        return this.data.get(key);
+    }
+
+    hasData(key) {
+        return this.data.has(key);
+    }
+}
+2단계: AIEngine을 행동 트리 컨트롤러로 강화
+기존의 비어있던 AIEngine을 각 유닛의 행동 트리를 만들고 실행하는 컨트롤러로 강화합니다. 이 클래스가 AI 로직의 새로운 중심이 됩니다.
+
+js/managers/AIEngine.js (수정)
+JavaScript
+
+// js/managers/AIEngine.js
+
+import { BehaviorTree } from '../ai/BehaviorTree.js';
+import { Blackboard } from '../ai/core/Blackboard.js';
+import { Selector } from '../ai/core/Selector.js';
+import { Sequence } from '../ai/core/Sequence.js';
+import { FindTargetNode, IsTargetInRangeNode, MoveToTargetNode, AttackTargetNode, UseSkillNode, DecideSkillNode } from '../ai/nodes/UnitActionNodes.js';
+import { IsHealthLowNode } from '../ai/nodes/UnitConditionNodes.js';
+
+export class AIEngine {
+    /**
+     * @param {object} managers - 게임의 모든 주요 매니저 객체
+     */
+    constructor(managers) {
+        console.log("🤖 AIEngine (Behavior Tree) initialized. Ready to orchestrate intelligent behaviors. 🤖");
+        this.managers = managers;
+        this.unitControllers = new Map(); // key: unitId, value: { bt: BehaviorTree, blackboard: Blackboard }
+    }
+
+    /**
+     * 특정 유닛을 위한 BT 컨트롤러를 생성하고 등록합니다.
+     * @param {object} unit - AI를 적용할 유닛
+     * @param {object[]} allUnits - 현재 전장의 모든 유닛
+     */
+    registerUnit(unit, allUnits) {
+        const blackboard = new Blackboard();
+        blackboard.setData('self', unit);
+        blackboard.setData('allUnits', allUnits);
+        blackboard.setData('managers', this.managers);
+
+        const behaviorTree = this._createBehaviorTreeForUnit(unit);
+        this.unitControllers.set(unit.id, { bt: behaviorTree, blackboard });
+    }
+
+    /**
+     * 유닛의 클래스와 스킬에 따라 맞춤형 행동 트리를 생성합니다.
+     * @param {object} unit
+     * @returns {BehaviorTree}
+     */
+    _createBehaviorTreeForUnit(unit) {
+        // '지능의 설계' 원칙에 따라, 우선순위가 높은 행동을 왼쪽에 배치합니다.
+        const root = new Selector([
+            // 1순위: 생존 (체력이 30% 미만이면 도망치는 로직 - 현재는 비활성화)
+            // new Sequence([
+            //     new IsHealthLowNode(0.3),
+            //     new FleeNode() // TODO: FleeNode 구현 필요
+            // ]),
+
+            // 2순위: 스킬 사용 결정 및 실행
+            new Sequence([
+                new DecideSkillNode(), // 사용할 스킬을 결정하여 블랙보드에 저장
+                new UseSkillNode(),    // 블랙보드에 저장된 스킬 사용
+            ]),
+
+            // 3순위: 기본 공격 (가장 가까운 적을 찾아 이동 후 공격)
+            new Sequence([
+                new FindTargetNode(), // 공격 대상을 찾아 블랙보드에 'target'으로 저장
+                new Selector([ // 이미 공격 범위 내에 있으면 이동 단계를 건너뜀
+                    new IsTargetInRangeNode(1), // 공격 범위 1 이내인지 확인
+                    new MoveToTargetNode(),     // 범위 밖이면 대상에게 이동
+                ]),
+                new AttackTargetNode(), // 대상 공격
+            ])
+        ]);
+
+        return new BehaviorTree(root);
+    }
+
+    /**
+     * 특정 유닛의 턴에 행동을 결정하고 실행합니다.
+     * @param {string} unitId - 행동할 유닛의 ID
+     * @returns {Promise<void>}
+     */
+    async runUnitAI(unitId) {
+        const controller = this.unitControllers.get(unitId);
+        if (controller) {
+            console.log(`[AIEngine] Running AI for ${controller.blackboard.getData('self').name}...`);
+            await controller.bt.evaluate(controller.blackboard);
+        } else {
+            console.warn(`[AIEngine] No BT controller found for unit: ${unitId}`);
+        }
+    }
+
+    /**
+     * 전투 종료 시 모든 컨트롤러를 초기화합니다.
+     */
+    cleanup() {
+        this.unitControllers.clear();
+    }
+}
+3단계: 구체적인 행동 및 조건 노드 구현
+AI의 실제 행동과 판단을 담당하는 리프 노드들을 js/ai/nodes/ 폴더에 생성합니다.
+
+js/ai/nodes/UnitConditionNodes.js (신규 파일)
+유닛의 상태를 확인하는 조건 노드들입니다.
+
+JavaScript
+
+// js/ai/nodes/UnitConditionNodes.js
+
+import { Node, NodeState } from '../core/Node.js';
+
+/**
+ * 자신의 체력이 특정 임계치보다 낮은지 확인합니다.
+ */
+export class IsHealthLowNode extends Node {
+    constructor(threshold) {
+        super();
+        this.threshold = threshold;
+    }
+
+    async evaluate(blackboard) {
+        const unit = blackboard.getData('self');
+        if ((unit.currentHp / unit.baseStats.hp) < this.threshold) {
+            return NodeState.SUCCESS;
+        }
+        return NodeState.FAILURE;
+    }
+}
+
+/**
+ * 블랙보드에 저장된 타겟이 공격 범위 내에 있는지 확인합니다.
+ */
+export class IsTargetInRangeNode extends Node {
+    constructor(range) {
+        super();
+        this.range = range;
+    }
+
+    async evaluate(blackboard) {
+        if (!blackboard.hasData('target')) {
+            return NodeState.FAILURE;
+        }
+
+        const self = blackboard.getData('self');
+        const target = blackboard.getData('target');
+        const distance = Math.abs(self.gridX - target.gridX) + Math.abs(self.gridY - target.gridY);
+
+        return distance <= this.range ? NodeState.SUCCESS : NodeState.FAILURE;
+    }
+}
+js/ai/nodes/UnitActionNodes.js (신규 파일)
+유닛의 실제 행동을 실행하는 액션 노드들입니다. 기존 BasicAIManager와 ClassAIManager의 로직이 이곳으로 이전됩니다.
+
+JavaScript
+
+// js/ai/nodes/UnitActionNodes.js
+
+import { Node, NodeState } from '../core/Node.js';
+import { AttackCommand } from '../../commands/AttackCommand.js';
+import { MoveCommand } from '../../commands/MoveCommand.js';
+import { WARRIOR_SKILLS } from '../../../data/warriorSkills.js';
+
+/**
+ * 공격할 대상을 찾아 블랙보드에 'target'으로 저장합니다.
+ */
+export class FindTargetNode extends Node {
+    async evaluate(blackboard) {
+        const unit = blackboard.getData('self');
+        const { targetingManager } = blackboard.getData('managers');
+        const target = targetingManager.getLowestHpUnit('enemy');
+
+        if (target) {
+            blackboard.setData('target', target);
+            return NodeState.SUCCESS;
+        }
+        return NodeState.FAILURE;
+    }
+}
+
+/**
+ * 블랙보드의 'target'을 향해 이동합니다.
+ */
+export class MoveToTargetNode extends Node {
+    async evaluate(blackboard) {
+        if (!blackboard.hasData('target')) return NodeState.FAILURE;
+
+        const unit = blackboard.getData('self');
+        const target = blackboard.getData('target');
+        const { basicAIManager, battleSimulationManager, animationManager } = blackboard.getData('managers');
+        const classData = await blackboard.getData('managers').idManager.get(unit.classId);
+        const moveRange = classData.moveRange || 3;
+
+        const moveAction = basicAIManager.determineMoveAndTarget(unit, [target], moveRange, 1);
+        
+        if (moveAction && moveAction.actionType === 'move' || moveAction.actionType === 'moveAndAttack') {
+             const command = new MoveCommand(unit.id, moveAction.moveTargetX, moveAction.moveTargetY);
+             await command.execute({ battleSimulationManager, animationManager });
+             return NodeState.SUCCESS;
+        }
+        
+        return NodeState.FAILURE;
+    }
+}
+
+/**
+ * 블랙보드의 'target'을 공격합니다.
+ */
+export class AttackTargetNode extends Node {
+    async evaluate(blackboard) {
+        if (!blackboard.hasData('target')) return NodeState.FAILURE;
+        
+        const unit = blackboard.getData('self');
+        const target = blackboard.getData('target');
+        const { battleCalculationManager, eventManager, delayEngine } = blackboard.getData('managers');
+
+        const command = new AttackCommand(unit.id, target.id);
+        await command.execute({ battleCalculationManager, eventManager, delayEngine });
+        
+        return NodeState.SUCCESS;
+    }
+}
+
+
+/**
+ * 유닛의 스킬 슬롯과 확률에 기반하여 사용할 스킬을 결정하고,
+ * 블랙보드에 'skillToUse'로 저장합니다.
+ */
+export class DecideSkillNode extends Node {
+    async evaluate(blackboard) {
+        const unit = blackboard.getData('self');
+        const { diceEngine } = blackboard.getData('managers');
+
+        if (!unit.skillSlots || unit.skillSlots.length === 0) {
+            return NodeState.FAILURE;
+        }
+
+        const roll = diceEngine.getRandomFloat() * 100;
+        let cumulativeProbability = 0;
+
+        for (const skillId of unit.skillSlots) {
+            // 참고: 실제로는 모든 스킬 데이터를 한 곳에서 관리해야 합니다.
+            // 여기서는 WARRIOR_SKILLS에만 있다고 가정합니다.
+            const skillData = Object.values(WARRIOR_SKILLS).find(s => s.id === skillId);
+            
+            if (skillData && (skillData.type === 'active' || skillData.type === 'buff')) {
+                cumulativeProbability += skillData.probability;
+                if (roll < cumulativeProbability) {
+                    blackboard.setData('skillToUse', skillData);
+                    return NodeState.SUCCESS;
+                }
+            }
+        }
+
+        return NodeState.FAILURE; // 아무 스킬도 선택되지 않음
+    }
+}
+
+/**
+ * 블랙보드에 저장된 'skillToUse'를 실행합니다.
+ */
+export class UseSkillNode extends Node {
+    async evaluate(blackboard) {
+        if (!blackboard.hasData('skillToUse')) {
+            return NodeState.FAILURE;
+        }
+        
+        const unit = blackboard.getData('self');
+        const skillData = blackboard.getData('skillToUse');
+        const { warriorSkillsAI, targetingManager } = blackboard.getData('managers');
+
+        if (!skillData.aiFunction) {
+            console.warn(`[UseSkillNode] Skill ${skillData.name} has no 'aiFunction' defined.`);
+            return NodeState.FAILURE;
+        }
+
+        const aiFunction = warriorSkillsAI[skillData.aiFunction];
+        if (typeof aiFunction === 'function') {
+            // 스킬 대상 결정 (간단한 예시)
+            let targetUnit = null;
+            if (skillData.id === WARRIOR_SKILLS.CHARGE.id) {
+                targetUnit = targetingManager.getLowestHpUnit('enemy');
+            }
+            
+            // warriorSkillsAI 내부의 this가 올바르게 참조되도록 .call 사용
+            await aiFunction.call(warriorSkillsAI, unit, targetUnit, skillData);
+            
+            // 사용한 스킬 정보는 블랙보드에서 제거
+            blackboard.setData('skillToUse', null);
+            return NodeState.SUCCESS;
+        } else {
+            console.warn(`[UseSkillNode] AI function '${skillData.aiFunction}' not found in WarriorSkillsAI.`);
+            return NodeState.FAILURE;
+        }
+    }
+}
+4단계: TurnEngine에 새로운 AI 시스템 통합
+마지막으로, TurnEngine이 기존 ClassAIManager 대신 새로운 AIEngine을 사용하도록 수정합니다.
+
+js/managers/TurnEngine.js (수정)
+constructor에서 classAIManager 대신 AIEngine을 생성하고, ProcessUnitTurnState에서 AIEngine.runUnitAI()를 호출하도록 변경합니다.
+
+JavaScript
+
+// js/managers/TurnEngine.js (주요 변경점)
+
+import { AIEngine } from './AIEngine.js'; // ClassAIManager 대신 AIEngine 임포트
+
+export class TurnEngine {
+    constructor(eventManager, battleSimulationManager, turnOrderManager, /* classAIManager, */ /*...기타 매니저들...*/) {
+        // ... 기존 초기화 코드 ...
+        // this.classAIManager = classAIManager; // 이 줄을 제거하거나 주석 처리
+
+        // 모든 매니저를 담는 객체 생성
+        const allManagers = {
+            eventManager,
+            battleSimulationManager,
+            turnOrderManager,
+            delayEngine,
+            timingEngine,
+            measureManager,
+            animationManager,
+            battleCalculationManager,
+            statusEffectManager,
+            idManager, // IdManager 등 필요한 모든 매니저 추가
+            basicAIManager,
+            warriorSkillsAI,
+            diceEngine,
+            targetingManager,
+            coordinateManager
+        };
+        
+        this.aiEngine = new AIEngine(allManagers); // 새로운 AIEngine 인스턴스 생성
+        // ...
+    }
+
+    async startBattleTurns() {
+        console.log("[TurnEngine] Battle turns are starting!");
+        this.currentTurn = 0;
+        this.initializeTurnOrder();
+        
+        // 전투 시작 시 모든 유닛을 AIEngine에 등록
+        const allUnits = this.battleSimulationManager.unitsOnGrid;
+        allUnits.forEach(unit => this.aiEngine.registerUnit(unit, allUnits));
+        
+        this.statusEffectManager.turnCountManager.clearAllEffects();
+        this.setState(new StartTurnState(this));
+    }
+
+    // ...
+}
+
+// js/states/ProcessUnitTurnState.js (주요 변경점)
+// ...
+// aiResult = await this.turnEngine.classAIManager.getBasicClassAction(unit, bsm.unitsOnGrid);
+// 위 줄을 아래 코드로 대체:
+await this.turnEngine.aiEngine.runUnitAI(unit.id);
+// ...
+이제 게임을 실행하면 유닛들은 ClassAIManager의 switch 문이 아닌, AIEngine이 생성한 행동 트리에 따라 훨씬 더 체계적이고 확장 가능한 방식으로 행동하게 됩니다. 앞으로 새로운 몬스터나 클래스를 추가할 때, 그들만의 고유한 행동 트리를 정의하여 쉽게 AI를 확장할 수 있습니다.
