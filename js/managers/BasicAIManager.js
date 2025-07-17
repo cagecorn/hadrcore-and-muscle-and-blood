@@ -20,28 +20,59 @@ export class BasicAIManager {
         const enemies = allUnits.filter(u => u.type !== unit.type && u.currentHp > 0);
         if (enemies.length === 0) return null;
 
-        const best = this._findBestAttackPosition(unit, enemies, moveRange, attackRange);
-        if (best) {
-            if (best.path.length <= 1) {
-                return { actionType: 'attack', targetId: best.target.id };
+        // 1. 이번 턴에 공격할 수 있는 최적의 위치를 찾습니다.
+        const bestAttack = this._findBestAttackPosition(unit, enemies, moveRange, attackRange);
+        if (bestAttack) {
+            // 경로 길이가 1 이하라면 이미 공격 위치에 있다는 의미입니다.
+            if (bestAttack.path.length <= 1) {
+                return { actionType: 'attack', targetId: bestAttack.target.id };
             }
-            const dest = best.path[best.path.length - 1];
+            // 이동 후 공격합니다.
+            const dest = bestAttack.path[bestAttack.path.length - 1];
             return {
                 actionType: 'moveAndAttack',
-                targetId: best.target.id,
+                targetId: bestAttack.target.id,
                 moveTargetX: dest.x,
                 moveTargetY: dest.y
             };
         }
 
-        const closest = this._findClosestUnit(unit, enemies);
-        if (closest) {
-            const path = this._findPath(unit.gridX, unit.gridY, closest.gridX, closest.gridY, moveRange);
-            if (path && path.length > 1) {
-                const dest = path[path.length - 1];
-                return { actionType: 'move', moveTargetX: dest.x, moveTargetY: dest.y };
+        // 2. 공격할 수 없다면, 가장 가까운 적에게 이동합니다.
+        const bestMove = this._findBestMovePosition(unit, enemies, moveRange);
+        if (bestMove) {
+            return { actionType: 'move', moveTargetX: bestMove.x, moveTargetY: bestMove.y };
+        }
+
+        return null; // 이동할 곳도 없으면 행동하지 않습니다.
+    }
+
+    /**
+     * 공격할 수 없을 때, 가장 가까운 적을 향해 이동할 최적의 위치를 찾습니다.
+     * @private
+     */
+    _findBestMovePosition(unit, enemies, moveRange) {
+        let bestPath = null;
+
+        // 모든 적에 대해...
+        for (const enemy of enemies) {
+            // 적 주변의 모든 공격 가능한 빈 타일을 찾습니다.
+            const attackPositions = this._getAttackablePositions(enemy, 1); // 기본 공격 범위 1로 가정
+            for (const pos of attackPositions) {
+                // 현재 위치에서 해당 공격 위치까지의 경로를 찾습니다. (이동 범위는 무제한으로 가정)
+                const path = this._findPath(unit.gridX, unit.gridY, pos.x, pos.y, 999);
+                // 가장 짧은 경로를 찾습니다.
+                if (path && (!bestPath || path.length < bestPath.length)) {
+                    bestPath = path;
+                }
             }
         }
+
+        if (bestPath && bestPath.length > 1) {
+            // 가장 짧은 경로가 있다면, 이번 턴에 이동할 수 있는 최대 거리의 지점을 목적지로 설정합니다.
+            const destinationIndex = Math.min(moveRange, bestPath.length - 1);
+            return bestPath[destinationIndex];
+        }
+
         return null;
     }
 

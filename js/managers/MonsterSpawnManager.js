@@ -49,6 +49,7 @@ export class MonsterSpawnManager {
                     gridY: pos.y,
                     baseStats: { ...(zombieClassData.baseStats || {}) },
                     currentHp: zombieClassData.baseStats.hp,
+                    skillSlots: [...(zombieClassData.skills || [])]
                 };
 
                 await this.idManager.addOrUpdateId(unitId, zombieUnit);
