@@ -141,6 +141,19 @@ export class WarriorSkillsAI {
         });
         await this.managers.delayEngine.waitFor(300);
 
+        // 1. 목표가 사거리 밖에 있는지 확인하고 이동
+        const inRange = this.managers.rangeManager.isTargetInRange(userUnit, targetUnit);
+        if (!inRange) {
+            if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Target out of range. Moving closer...`);
+            const moveRange = userUnit.baseStats.moveRange || 1;
+            const moved = await this.managers.movingManager.chargeMove(userUnit, targetUnit.gridX, targetUnit.gridY, moveRange);
+            if (!moved) {
+                if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Could not move to target. Double Strike cancelled.`);
+                return; // 이동에 실패하면 스킬 취소
+            }
+        }
+
+        // 2. 첫 번째 공격
         if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Double Strike: First attack.`);
         this.managers.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
             attackerId: userUnit.id,
@@ -148,8 +161,10 @@ export class WarriorSkillsAI {
             attackType: ATTACK_TYPES.MELEE,
             skillId: null
         });
+        this.managers.battleCalculationManager.requestDamageCalculation(userUnit.id, targetUnit.id, { type: 'physical', dice: { num: 1, sides: 6 } });
         await this.managers.delayEngine.waitFor(800);
 
+        // 3. 두 번째 공격 (대상이 살아있는 경우)
         if (targetUnit.currentHp > 0) {
             if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Double Strike: Second attack.`);
             this.managers.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
@@ -158,6 +173,7 @@ export class WarriorSkillsAI {
                 attackType: ATTACK_TYPES.MELEE,
                 skillId: null
             });
+            this.managers.battleCalculationManager.requestDamageCalculation(userUnit.id, targetUnit.id, { type: 'physical', dice: { num: 1, sides: 6 } });
             await this.managers.delayEngine.waitFor(800);
         } else if (GAME_DEBUG_MODE) {
             console.log(`[WarriorSkillsAI] Target ${targetUnit.name} defeated. Second strike cancelled.`);
