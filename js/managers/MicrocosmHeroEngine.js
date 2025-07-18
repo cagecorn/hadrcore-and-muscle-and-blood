@@ -40,7 +40,9 @@ export class MicrocosmHeroEngine {
             id: heroData.id,
             name: heroData.name,
             worker: heroAIWorker,
-            state: heroData // 이 영웅만의 고유한 상태 정보
+            // Worker로 전달될 상태는 직렬화 가능한 데이터만 포함해야 합니다.
+            // illustration과 같이 클론 불가능한 객체는 제외한 버전을 사용합니다.
+            state: serializableData
         };
 
         this.heroInstances.set(heroData.id, instance);
