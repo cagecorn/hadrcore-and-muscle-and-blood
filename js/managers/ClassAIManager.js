@@ -44,48 +44,85 @@ export class ClassAIManager {
     }
 
     async getWarriorAction(unit, allUnits) {
-        const skillToUse = await this.decideSkillToUse(unit);
-        if (skillToUse) {
-            if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${skillToUse.name}`);
-            return {
-                actionType: 'skill',
-                skillId: skillToUse.id,
-                execute: () => this.executeSkillAI(unit, skillToUse)
-            };
+        // 유닛이 직접 보유한 스킬 슬롯을 기준으로 판단한다.
+        if (unit.skillSlots && unit.skillSlots.length > 0) {
+            // 2. 스톤 스킨
+            const stoneSkinData = WARRIOR_SKILLS.STONE_SKIN;
+            if (
+                unit.skillSlots.includes(stoneSkinData.id) &&
+                this.diceEngine.getRandomFloat() < stoneSkinData.ai.usageChance
+            ) {
+                if (stoneSkinData.ai.condition(unit, null)) {
+                    if (GAME_DEBUG_MODE)
+                        console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${stoneSkinData.name}`);
+                    return {
+                        actionType: 'skill',
+                        skillId: stoneSkinData.id,
+                        targetId: unit.id, // 자신에게 사용
+                        execute: () => this.warriorSkillsAI.stoneSkin(unit, stoneSkinData)
+                    };
+                }
+            }
+
+            // 3. 더블 스트라이크
+            const doubleStrikeData = WARRIOR_SKILLS.DOUBLE_STRIKE;
+            if (
+                unit.skillSlots.includes(doubleStrikeData.id) &&
+                this.diceEngine.getRandomFloat() < doubleStrikeData.ai.usageChance
+            ) {
+                const targetForDoubleStrike = this.targetingManager.findBestTarget(
+                    'enemy',
+                    'closest',
+                    unit
+                );
+                if (
+                    targetForDoubleStrike &&
+                    this.rangeManager.isTargetInRange(unit, targetForDoubleStrike)
+                ) {
+                    if (GAME_DEBUG_MODE)
+                        console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${doubleStrikeData.name}`);
+                    return {
+                        actionType: 'skill',
+                        skillId: doubleStrikeData.id,
+                        targetId: targetForDoubleStrike.id,
+                        execute: () =>
+                            this.warriorSkillsAI.doubleStrike(
+                                unit,
+                                targetForDoubleStrike,
+                                doubleStrikeData
+                            )
+                    };
+                }
+            }
+
+            // 4. 전투의 외침
+            const battleCryData = WARRIOR_SKILLS.BATTLE_CRY;
+            if (
+                unit.skillSlots.includes(battleCryData.id) &&
+                this.diceEngine.getRandomFloat() < battleCryData.probability / 100
+            ) {
+                if (GAME_DEBUG_MODE)
+                    console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${battleCryData.name}`);
+                return {
+                    actionType: 'skill',
+                    skillId: battleCryData.id,
+                    targetId: unit.id, // 자신에게 사용
+                    execute: () => this.warriorSkillsAI.battleCry(unit, battleCryData)
+                };
+            }
         }
 
-        const stoneSkinData = WARRIOR_SKILLS.STONE_SKIN;
-        if (
-            this.diceEngine.getRandomFloat() < stoneSkinData.ai.usageChance &&
-            stoneSkinData.ai.condition(unit, null)
-        ) {
-            if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${stoneSkinData.name}`);
-            return {
-                actionType: 'skill',
-                skillId: stoneSkinData.id,
-                targetId: unit.id,
-                execute: () => this.warriorSkillsAI.stoneSkin(unit, stoneSkinData)
-            };
-        }
-
-        const doubleStrikeData = WARRIOR_SKILLS.DOUBLE_STRIKE;
-        const targetForDoubleStrike = this.targetingManager.findBestTarget('enemy', 'closest', unit);
-        if (targetForDoubleStrike &&
-            this.diceEngine.getRandomFloat() < doubleStrikeData.ai.usageChance &&
-            doubleStrikeData.ai.condition(unit, targetForDoubleStrike)) {
-            if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] ${unit.name} decided to use skill: ${doubleStrikeData.name}`);
-            return {
-                actionType: 'skill',
-                skillId: doubleStrikeData.id,
-                targetId: targetForDoubleStrike.id,
-                execute: () => this.warriorSkillsAI.doubleStrike(unit, targetForDoubleStrike, doubleStrikeData)
-            };
-        }
-
-        if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] No warrior skill chosen for ${unit.name}, using basic AI.`);
+        // 사용할 스킬이 없으면 기본 AI(이동 및 공격)를 수행
+        if (GAME_DEBUG_MODE)
+            console.log(`[ClassAIManager] No warrior skill chosen for ${unit.name}, using basic AI.`);
         const defaultMoveRange = unit.baseStats.moveRange || 1;
         const defaultAttackRange = unit.baseStats.attackRange || 1;
-        return this.basicAIManager.determineMoveAndTarget(unit, allUnits, defaultMoveRange, defaultAttackRange);
+        return this.basicAIManager.determineMoveAndTarget(
+            unit,
+            allUnits,
+            defaultMoveRange,
+            defaultAttackRange
+        );
     }
 
     async decideSkillToUse(unit) {
