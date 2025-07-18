@@ -85,6 +85,7 @@ import { SlotMachineManager } from './managers/SlotMachineManager.js';
 
 import { OneTwoThreeManager } from './managers/OneTwoThreeManager.js';
 import { PassiveIsAlsoASkillManager } from './managers/PassiveIsAlsoASkillManager.js';
+import { ModifierEngine } from './managers/ModifierEngine.js';
 // ✨ 상수 파일 임포트
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
@@ -341,6 +342,8 @@ export class GameEngine {
         // ------------------------------------------------------------------
         this.conditionalManager = new ConditionalManager(this.battleSimulationManager, this.idManager);
 
+        this.modifierEngine = new ModifierEngine(this.statusEffectManager, this.conditionalManager);
+
         // ------------------------------------------------------------------
         // 12. Combat Flow & AI Managers
         // ------------------------------------------------------------------
@@ -351,7 +354,9 @@ export class GameEngine {
             null,
             this.delayEngine,
             this.conditionalManager,
-            this.unitStatManager
+            this.unitStatManager,
+            null,
+            this.modifierEngine
         );
 
         // Status effect 관련 매니저 초기화
@@ -364,10 +369,12 @@ export class GameEngine {
         );
 
         this.battleCalculationManager.statusEffectManager = this.statusEffectManager;
-
+        this.modifierEngine.statusEffectManager = this.statusEffectManager;
+        
         // 이제 StatusEffectManager가 준비되었으므로 DiceRollManager를 생성
-        this.diceRollManager = new DiceRollManager(this.diceEngine, this.valorEngine, this.statusEffectManager);
+        this.diceRollManager = new DiceRollManager(this.diceEngine, this.valorEngine, this.statusEffectManager, this.modifierEngine);
         this.battleCalculationManager.diceRollManager = this.diceRollManager;
+        this.battleCalculationManager.modifierEngine = this.modifierEngine;
         this.workflowManager = new WorkflowManager(
             this.eventManager,
             this.statusEffectManager,
@@ -892,4 +899,5 @@ export class GameEngine {
     getSoundEngine() { return this.soundEngine; }
     getOneTwoThreeManager() { return this.oneTwoThreeManager; }
     getPassiveIsAlsoASkillManager() { return this.passiveIsAlsoASkillManager; }
+    getModifierEngine() { return this.modifierEngine; }
 }

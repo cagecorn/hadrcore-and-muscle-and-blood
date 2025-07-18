@@ -3,7 +3,7 @@ import { DelayEngine } from './DelayEngine.js'; // ✨ DelayEngine 추가
 import { GAME_EVENTS } from '../constants.js';
 
 export class BattleCalculationManager {
-    constructor(eventManager, battleSimulationManager, diceRollManager, delayEngine, conditionalManager, unitStatManager, statusEffectManager = null) {
+    constructor(eventManager, battleSimulationManager, diceRollManager, delayEngine, conditionalManager, unitStatManager, statusEffectManager = null, modifierEngine) {
         console.log("\ud83d\udcca BattleCalculationManager initialized. Delegating heavy calculations to worker. \ud83d\udcca");
         this.eventManager = eventManager;
         this.battleSimulationManager = battleSimulationManager;
@@ -12,6 +12,7 @@ export class BattleCalculationManager {
         this.conditionalManager = conditionalManager; // ✨ 인스턴스 저장
         this.unitStatManager = unitStatManager;
         this.statusEffectManager = statusEffectManager;
+        this.modifierEngine = modifierEngine;
         this.worker = new Worker('./js/workers/battleCalculationWorker.js');
 
         this.worker.onmessage = this._handleWorkerMessage.bind(this);
@@ -78,9 +79,7 @@ export class BattleCalculationManager {
         );
         console.log(`[BattleCalculationManager] Final damage roll from DiceRollManager: ${finalDamageRoll}`);
 
-        const baseReduction = this.conditionalManager.getDamageReduction(targetUnitId);
-        const statusReduction = this._getDamageReductionFromStatusEffects(targetUnitId);
-        const damageReduction = baseReduction + statusReduction;
+        const damageReduction = this.modifierEngine.getDamageReduction(targetUnitId);
 
         const payload = {
             attackerStats: attackerUnit.fullUnitData ? attackerUnit.fullUnitData.baseStats : attackerUnit.baseStats,
@@ -98,19 +97,6 @@ export class BattleCalculationManager {
 
         this.worker.postMessage({ type: 'CALCULATE_DAMAGE', payload });
         console.log(`[BattleCalculationManager] Requested damage calculation: ${attackerUnitId} attacks ${targetUnitId}.`);
-    }
-
-    _getDamageReductionFromStatusEffects(unitId) {
-        if (!this.statusEffectManager) return 0;
-        const effects = this.statusEffectManager.getUnitActiveEffects(unitId);
-        let reduction = 0;
-        if (effects) {
-            for (const [id, wrapper] of effects.entries()) {
-                const mod = wrapper.effectData.effect?.statModifiers?.damageReduction;
-                if (mod) reduction += mod;
-            }
-        }
-        return reduction;
     }
 
     terminateWorker() {

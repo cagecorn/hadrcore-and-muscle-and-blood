@@ -6,11 +6,12 @@ export class DiceRollManager {
      * @param {ValorEngine} valorEngine
      * @param {StatusEffectManager} statusEffectManager - \u2728 상태 효과 확인을 위해 추가
      */
-    constructor(diceEngine, valorEngine, statusEffectManager) {
+    constructor(diceEngine, valorEngine, statusEffectManager, modifierEngine) {
         console.log("\u2694\uFE0F DiceRollManager initialized. Ready for D&D-based rolls. \u2694\uFE0F");
         this.diceEngine = diceEngine;
         this.valorEngine = valorEngine;
         this.statusEffectManager = statusEffectManager; // \u2728 인스턴스 저장
+        this.modifierEngine = modifierEngine;
     }
 
     /**
@@ -85,16 +86,9 @@ export class DiceRollManager {
         );
         finalAttackModifier *= valorAmplification;
 
-        // 2. \uC0C1\uD0DC \uD6A8\uACFC \uC801\uC6A9
-        const activeEffects = this.statusEffectManager.getUnitActiveEffects(attackerUnit.id);
-        if (activeEffects) {
-            for (const [effectId, effectWrapper] of activeEffects.entries()) {
-                if (effectWrapper.effectData.effect.attackModifier) {
-                    finalAttackModifier *= effectWrapper.effectData.effect.attackModifier;
-                    console.log(`[DiceRollManager] Applying '${effectId}' modifier: ${effectWrapper.effectData.effect.attackModifier}`);
-                }
-            }
-        }
+        // 2. \uC0C1\uD0DC \ud6a8\uacfc\ub294 ModifierEngine\uc5d0\uc11c \uacc4\uc0b0
+        const statusEffectMultiplier = this.modifierEngine.getAttackMultiplier(attackerUnit.id);
+        finalAttackModifier *= statusEffectMultiplier;
 
         let finalDamage = (damageRoll + attackBonus) * finalAttackModifier;
 
