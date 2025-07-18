@@ -25,8 +25,12 @@ export class ClassAIManager {
         // 슬롯 머신에서 스킬이 당첨되었다면,
         if (skillToUse) {
             let targetUnit = null;
+            const isBuffSkill =
+                skillToUse.type === 'buff' ||
+                (Array.isArray(skillToUse.effect?.tags) && skillToUse.effect.tags.includes('버프'));
+
             // 버프 스킬이나 사거리가 0인 스킬은 자신을 대상으로 합니다.
-            if (skillToUse.type === 'buff' || skillToUse.range === 0) {
+            if (isBuffSkill || skillToUse.range === 0) {
                 targetUnit = unit;
             } else { // 그 외에는 가장 가까운 적을 대상으로 합니다.
                 targetUnit = this.targetingManager.findBestTarget('enemy', 'closest', unit);
@@ -38,9 +42,14 @@ export class ClassAIManager {
                 const defaultAttackRange = unit.baseStats.attackRange || 1;
                 let followUp = null;
 
-                // 버프 스킬 사용 시, 추가 공격 옵션이 없다면 기본 행동을 이어서 수행
-                if (skillToUse.type === 'buff' && !skillToUse.effect?.allowAdditionalAttack) {
-                    followUp = this.basicAIManager.determineMoveAndTarget(unit, allUnits, defaultMoveRange, defaultAttackRange);
+                // 버프 성격의 스킬 사용 시, 추가 공격 옵션이 없다면 기본 행동을 이어서 수행
+                if (isBuffSkill && !skillToUse.effect?.allowAdditionalAttack) {
+                    followUp = this.basicAIManager.determineMoveAndTarget(
+                        unit,
+                        allUnits,
+                        defaultMoveRange,
+                        defaultAttackRange
+                    );
                 }
 
                 return {

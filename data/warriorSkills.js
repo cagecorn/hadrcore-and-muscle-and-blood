@@ -92,7 +92,7 @@ export const WARRIOR_SKILLS = {
         id: 'skill_warrior_stone_skin',
         name: '스톤 스킨',
         description: '3턴 동안 받는 모든 피해가 15% 감소합니다.',
-        type: 'active',
+        type: SKILL_TYPES.BUFF,
         icon: 'assets/icons/skills/stone-skin-icon.png',
         tags: ['전사'],
         requiredUserTags: ['전사'],
