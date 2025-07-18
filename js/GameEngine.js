@@ -14,6 +14,7 @@ import { LogicManager } from './managers/LogicManager.js';
 import { CompatibilityManager } from './managers/CompatibilityManager.js';
 import { IdManager } from './managers/IdManager.js';
 import { AssetLoaderManager } from './managers/AssetLoaderManager.js';
+import { EraserEngine } from './managers/EraserEngine.js';
 import { BattleSimulationManager } from './managers/BattleSimulationManager.js';
 import { AnimationManager } from './managers/AnimationManager.js';
 import { VFXManager } from './managers/VFXManager.js';
@@ -129,13 +130,15 @@ export class GameEngine {
         this.ruleManager = new RuleManager();
         this.soundEngine = new SoundEngine(); // <-- SoundEngine 인스턴스 생성
 
+        this.eraserEngine = new EraserEngine();
+
         // 1. ModifierLogManager 초기화
         this.modifierLogManager = new ModifierLogManager();
 
         // ------------------------------------------------------------------
         // 2. Scene & Logic Managers
         // ------------------------------------------------------------------
-        this.sceneEngine = new SceneEngine();
+        this.sceneEngine = new SceneEngine(this.eraserEngine);
         this.logicManager = new LogicManager(this.measureManager, this.sceneEngine);
 
         // ------------------------------------------------------------------
@@ -279,7 +282,7 @@ export class GameEngine {
 
         this.territoryEngine = new TerritoryEngine();
         this.territoryBackgroundManager = new TerritoryBackgroundManager(this.assetLoaderManager);
-        this.territoryGridManager = new TerritoryGridManager(this.measureManager);
+        this.territoryGridManager = new TerritoryGridManager(this.measureManager, this.assetLoaderManager);
         this.territoryUIManager = new TerritoryUIManager();
         this.territoryInputManager = new TerritoryInputManager(
             this.renderer.canvas,
@@ -603,6 +606,7 @@ export class GameEngine {
             this.detailInfoManager.draw(ctx);
         }, 200); // 100보다 높게 설정
 
+        this._registerCleanupTasks();
 
         this._update = this._update.bind(this);
         this._draw = this._draw.bind(this);
@@ -840,6 +844,21 @@ export class GameEngine {
             this.battleFormationManager.placeAllies(newHeroes);
             console.log(`%c${newWarrior.name}이(가) 당신의 부대에 합류했습니다!`, "color: #7289DA; font-weight: bold;");
         }
+    }
+
+    _registerCleanupTasks() {
+        this.eraserEngine.registerCleanupTask(UI_STATES.COMBAT_SCREEN, () => {
+            this.battleSimulationManager.clearBattleState();
+            this.battleLogManager.clearLog();
+            this.vfxManager.clearEffects();
+            this.turnCountManager.clearAllEffects();
+        });
+
+        this.eraserEngine.registerCleanupTask(UI_STATES.MAP_SCREEN, () => {
+            if (this.territoryUIManager) {
+                this.territoryUIManager.cleanup();
+            }
+        });
     }
 
     /**

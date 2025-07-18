@@ -92,6 +92,12 @@ export class BattleLogManager {
         console.log(`[BattleLog] ${message}`);
     }
 
+    clearLog() {
+        this.logMessages = [];
+        this.draw(this.ctx);
+        console.log("[BattleLogManager] Log messages cleared.");
+    }
+
     draw(ctx) {
         ctx.clearRect(0, 0, this.canvas.width / this.pixelRatio, this.canvas.height / this.pixelRatio);
         ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';

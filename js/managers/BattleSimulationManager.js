@@ -150,6 +150,11 @@ export class BattleSimulationManager {
         };
     }
 
+    clearBattleState() {
+        this.unitsOnGrid = [];
+        console.log("[BattleSimulationManager] All units removed from the grid.");
+    }
+
     /**
      * 배틀 그리드에 배치된 모든 유닛을 그립니다.
      * @param {CanvasRenderingContext2D} ctx

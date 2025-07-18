@@ -5,8 +5,8 @@
 export class TerritoryBackgroundManager {
     constructor(assetLoaderManager) {
         console.log("🖼️ TerritoryBackgroundManager initialized. Managing the view of your lands.");
-        // Grab the preloaded image from the asset loader
-        this.backgroundImage = assetLoaderManager.getImage('territory_background');
+        this.assetLoaderManager = assetLoaderManager;
+        this.backgroundImage = null;
     }
 
     draw(ctx) {
@@ -14,6 +14,9 @@ export class TerritoryBackgroundManager {
         const logicalWidth = ctx.canvas.width / pixelRatio;
         const logicalHeight = ctx.canvas.height / pixelRatio;
 
+        if (!this.backgroundImage && this.assetLoaderManager) {
+            this.backgroundImage = this.assetLoaderManager.getImage('territory_background');
+        }
         if (this.backgroundImage) {
             // Fit the background image to the canvas
             ctx.drawImage(this.backgroundImage, 0, 0, logicalWidth, logicalHeight);

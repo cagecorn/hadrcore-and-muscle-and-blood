@@ -61,6 +61,12 @@ export class TerritoryUIManager {
         }
     }
 
+    cleanup() {
+        this.hideTooltip();
+        this.stopAnimation(this.animatedIcon);
+        console.log("[TerritoryUIManager] Cleaned up UI elements for scene transition.");
+    }
+
     draw(ctx) {
         // UI 요소 그리기 (툴팁은 HTML 요소로 처리하므로 canvas에 그리지 않음)
     }
