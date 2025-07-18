@@ -27,6 +27,9 @@ export class ModifierEngine {
                 }
             }
         }
+
+        if (GAME_DEBUG_MODE) console.log(`[ModifierEngine] Total attack multiplier for ${unitId}: ${multiplier.toFixed(2)}`);
+
         // 향후 장비나 퍽으로 인한 증폭 로직도 여기에 추가할 수 있습니다.
         return multiplier;
     }
@@ -57,8 +60,33 @@ export class ModifierEngine {
                 }
             }
         }
-        
+
+        if (GAME_DEBUG_MODE) console.log(`[ModifierEngine] Total damage reduction for ${unitId}: ${(totalReduction * 100).toFixed(1)}%`);
+
         // 향후 장비나 퍽으로 인한 감소 로직도 여기에 추가할 수 있습니다.
         return totalReduction;
+    }
+
+    /**
+     * 받는 피해량 증폭 배율을 계산합니다. 1.0이 기본값이며 1.2는 20% 더 받음을 의미합니다.
+     * @param {string} unitId
+     * @returns {number}
+     */
+    getDamageTakenMultiplier(unitId) {
+        let multiplier = 1.0;
+        const activeEffects = this.statusEffectManager?.getUnitActiveEffects(unitId);
+
+        if (activeEffects) {
+            for (const [effectId, effectWrapper] of activeEffects.entries()) {
+                const dmgTaken = effectWrapper.effectData.effect?.statModifiers?.damageTakenMultiplier;
+                if (dmgTaken) {
+                    multiplier *= dmgTaken;
+                    if (GAME_DEBUG_MODE) console.log(`[ModifierEngine] Applying '${effectId}' damage taken multiplier: ${dmgTaken}. New multiplier: ${multiplier.toFixed(2)}`);
+                }
+            }
+        }
+
+        if (GAME_DEBUG_MODE) console.log(`[ModifierEngine] Total damage taken multiplier for ${unitId}: ${multiplier.toFixed(2)}`);
+        return multiplier;
     }
 }

@@ -85,6 +85,7 @@ export class DiceRollManager {
             attackerUnit.maxBarrier || 0
         );
         finalAttackModifier *= valorAmplification;
+        console.log(`[DiceRollManager] Valor amplification from bravery: ${valorAmplification.toFixed(2)}`);
 
         // 2. \uC0C1\uD0DC \ud6a8\uacfc\ub294 ModifierEngine\uc5d0\uc11c \uacc4\uc0b0
         const statusEffectMultiplier = this.modifierEngine.getAttackMultiplier(attackerUnit.id);

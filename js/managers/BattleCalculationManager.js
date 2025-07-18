@@ -80,6 +80,9 @@ export class BattleCalculationManager {
         console.log(`[BattleCalculationManager] Final damage roll from DiceRollManager: ${finalDamageRoll}`);
 
         const damageReduction = this.modifierEngine.getDamageReduction(targetUnitId);
+        const damageTakenMultiplier = this.modifierEngine.getDamageTakenMultiplier(targetUnitId);
+
+        console.log(`[BattleCalculationManager] Damage modifiers for ${targetUnitId} -> reduction ${(damageReduction * 100).toFixed(1)}%, taken multiplier ${damageTakenMultiplier.toFixed(2)}`);
 
         const payload = {
             attackerUnitId: attackerUnitId, // 워커에 공격자 ID 전달
@@ -91,7 +94,8 @@ export class BattleCalculationManager {
             skillData: skillData,
             targetUnitId: targetUnitId,
             preCalculatedDamageRoll: finalDamageRoll,
-            damageReduction: damageReduction // ✨ 피해 감소율 추가
+            damageReduction: damageReduction, // ✨ 피해 감소율 추가
+            damageTakenMultiplier: damageTakenMultiplier
         };
 
         this.worker.postMessage({ type: 'CALCULATE_DAMAGE', payload });

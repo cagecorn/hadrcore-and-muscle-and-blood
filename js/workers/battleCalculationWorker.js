@@ -7,16 +7,22 @@ self.onmessage = (event) => {
         case 'CALCULATE_DAMAGE': {
             // ✨ payload에서 defender's damage reduction 값을 추가로 받음
             // attackerUnitId도 함께 전달받아야 메인 스레드에서 사용 가능
-            const { attackerStats, targetStats, skillData, currentTargetHp, currentTargetBarrier, maxBarrier, preCalculatedDamageRoll, damageReduction, attackerUnitId } = payload; // attackerUnitId 추가
+            const { attackerStats, targetStats, skillData, currentTargetHp, currentTargetBarrier, maxBarrier, preCalculatedDamageRoll, damageReduction, damageTakenMultiplier = 1, attackerUnitId } = payload; // attackerUnitId 추가
 
             // 방어력 적용
-            let finalDamage = preCalculatedDamageRoll - targetStats.defense;
+            let afterDefense = preCalculatedDamageRoll - targetStats.defense;
+            let finalDamage = afterDefense;
             if (finalDamage < 0) finalDamage = 0;
 
             // ✨ '강철 의지' 같은 패시브 스킬로 인한 최종 피해 감소 적용
             if (damageReduction > 0) {
                 finalDamage *= (1 - damageReduction);
             }
+
+            // ✨ 받는 피해량 증폭(디버프) 적용
+            finalDamage *= damageTakenMultiplier;
+
+            console.log(`[BattleCalculationWorker] after defense: ${afterDefense}, reduction ${(damageReduction * 100).toFixed(1)}%, taken mult ${damageTakenMultiplier}. Final damage: ${finalDamage.toFixed(0)}`);
 
             finalDamage = Math.floor(finalDamage); // 최종 데미지는 정수로
             let finalDamageToApply = finalDamage;
