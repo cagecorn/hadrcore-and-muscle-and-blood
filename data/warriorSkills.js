@@ -31,10 +31,9 @@ export const WARRIOR_SKILLS = {
         type: SKILL_TYPES.DEBUFF,
         icon: 'assets/icons/skills/rending_strike.png',
         probability: 0, // 평타에 묻어나는 스킬이라 자체 발동 확률은 0
-        description: '일반 공격 시 50% 확률로 적에게 출혈 디버프를 부여합니다.',
+        description: '일반 공격 시 일정 확률로 적에게 출혈 디버프를 부여합니다.',
         effect: {
-            statusEffectId: 'status_bleed', // 적용할 출혈 상태이상 ID
-            applyChance: 0.5 // 기본 적용 확률 50%
+            statusEffectId: 'status_bleed'
         }
     },
     // 리액션 스킬 (공격 받을 시 발동 예시)
@@ -45,9 +44,19 @@ export const WARRIOR_SKILLS = {
         icon: 'assets/icons/skills/retaliate.png',
         description: '공격을 받을 시 일정 확률로 즉시 80%의 피해로 반격합니다.',
         effect: {
-            probability: 0.4, // 기본 발동 확률 40% (슬롯에 따라 조정될 수 있음)
             damageModifier: 0.8, // 반격 시 피해량 80%
             tags: ['일반공격'] // 이 공격이 평타 판정임을 명시
+        }
+    },
+
+    SHIELD_BREAK: {
+        id: 'skill_warrior_shield_break',
+        name: '쉴드 브레이크',
+        description: '일반 공격 시 대상이 3턴간 받는 피해를 10% 증가시킵니다.',
+        type: SKILL_TYPES.DEBUFF,
+        icon: 'assets/icons/skills/shield-break.png',
+        effect: {
+            statusEffectId: 'status_shield_break'
         }
     },
     // 액티브 스킬: 빠르게 두 번 공격

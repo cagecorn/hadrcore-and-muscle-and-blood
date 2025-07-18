@@ -33,25 +33,29 @@ export class PassiveSkillManager {
      * @param {{ attackerId: string, targetId: string }} data
      */
     async _onUnitAttackAttempt({ attackerId, targetId }) {
-        const attacker = this.battleSimulationManager.unitsOnGrid.find(u => u.id === attackerId);
-        if (!attacker || !attacker.skillSlots) return; // 공격자나 스킬 슬롯이 없으면 중단
+        const attacker = this.battleSimulationManager.getUnitById(attackerId);
+        if (!attacker || !attacker.skillSlots) return;
 
-        const classData = await this.idManager.get(attacker.classId);
-        if (!classData || !classData.skills || !classData.skills.includes(WARRIOR_SKILLS.RENDING_STRIKE.id)) {
-            // 🔎 변경점: 클래스 데이터(classData)가 아닌 유닛의 실제 스킬 슬롯(skillSlots)을 확인합니다.
-            if (!attacker.skillSlots.includes(WARRIOR_SKILLS.RENDING_STRIKE.id)) {
-                return;
+        const slotProb = [0.4, 0.3, 0.2];
+
+        for (const skillId of attacker.skillSlots) {
+            const skillData = await this.idManager.get(skillId);
+
+            if (skillData && skillData.type === 'debuff' && skillData.effect && skillData.effect.statusEffectId) {
+                const slotIndex = attacker.skillSlots.indexOf(skillId);
+                const baseChance = slotProb[slotIndex] || 0;
+                const statusApplicationBonus = (attacker.baseStats.intelligence || 0) * 0.005;
+                const finalChance = baseChance + statusApplicationBonus;
+
+                if (this.diceEngine.getRandomFloat() < finalChance) {
+                    if (GAME_DEBUG_MODE) console.log(`[PassiveSkillManager] ${attacker.name}'s '${skillData.name}' triggered on ${targetId}!`);
+                    this.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, {
+                        unitId: attackerId,
+                        skillId: skillData.id
+                    });
+                    this.workflowManager.triggerStatusEffectApplication(targetId, skillData.effect.statusEffectId);
+                }
             }
-        }
-
-        const skillData = WARRIOR_SKILLS.RENDING_STRIKE;
-
-        const statusApplicationBonus = (attacker.baseStats.intelligence || 0) * 0.005;
-        const finalChance = skillData.effect.applyChance + statusApplicationBonus;
-
-        if (this.diceEngine.getRandomFloat() < finalChance) {
-            if (GAME_DEBUG_MODE) console.log(`[PassiveSkillManager] ${attacker.name}'s Rending Strike triggered on ${targetId}!`);
-            this.workflowManager.triggerStatusEffectApplication(targetId, skillData.effect.statusEffectId);
         }
     }
 }

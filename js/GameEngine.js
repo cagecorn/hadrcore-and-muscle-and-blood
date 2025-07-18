@@ -723,6 +723,7 @@ export class GameEngine {
         // ✨ 좀비 무기 이미지 로드
         await this.assetLoaderManager.loadImage('sprite_zombie_weapon_default', 'assets/images/zombie-weapon.png');
         await this.assetLoaderManager.loadImage('bleed', 'assets/icons/status_effects/bleed.png');
+        await this.assetLoaderManager.loadImage('icon_status_shield_break', 'assets/icons/status_effects/shield-break.png');
 
         await this._initBattleGrid();
     }
