@@ -33,6 +33,18 @@ export class TurnEngine {
         });
     }
 
+    _sanitizeAction(action) {
+        if (!action) return null;
+        const sanitized = { ...action };
+        if (typeof sanitized.execute === 'function') {
+            delete sanitized.execute;
+        }
+        if (sanitized.followUp) {
+            sanitized.followUp = this._sanitizeAction(sanitized.followUp);
+        }
+        return sanitized;
+    }
+
     async _executeAction(unit, action) {
         if (!action) return;
 
@@ -185,13 +197,7 @@ export class TurnEngine {
             // JudgementManager가 AI 결정을 감시할 수 있도록 알림
             // Web Worker에 전달되는 데이터는 직렬화 가능해야 하므로
             // 실행 함수를 포함한 원본 액션 객체를 복사한 뒤 함수는 제거한다.
-            let sanitizedAction = null;
-            if (action) {
-                sanitizedAction = { ...action };
-                if (typeof sanitizedAction.execute === 'function') {
-                    delete sanitizedAction.execute;
-                }
-            }
+            const sanitizedAction = this._sanitizeAction(action);
             this.eventManager.emit(GAME_EVENTS.AI_ACTION_DECIDED, {
                 unitId: unit.id,
                 decidedAction: sanitizedAction
