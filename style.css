@@ -159,12 +159,13 @@ canvas {
     align-items: center;
 }
 
+
 #tavern-grid {
     display: flex;
-    flex-direction: column;
-    width: 15%;
-    height: 80%;
-    gap: 15px;
+    flex-direction: row; /* ✨ 세로 정렬(column)에서 가로 정렬(row)로 변경 */
+    width: 80%;          /* ✨ 화면 너비의 80%를 차지하도록 변경 */
+    height: 25%;         /* ✨ 화면 높이의 25%를 차지하도록 변경 */
+    gap: 20px;           /* ✨ 그리드 셀 사이의 간격 조정 */
 }
 
 .tavern-grid-cell {
@@ -176,6 +177,7 @@ canvas {
     justify-content: center;
     align-items: center;
     overflow: hidden;
+    aspect-ratio: 2 / 3; /* ✨ 2:3 비율을 유지하도록 설정 */
 }
 
 #hire-hero-btn {
