@@ -35,7 +35,8 @@ import { DelayEngine } from './managers/DelayEngine.js'; // ✨ DelayEngine 추�
 import { TimingEngine } from './managers/TimingEngine.js'; // ✨ TimingEngine 추가
 import { BattleLogManager } from './managers/BattleLogManager.js'; // ✨ 새롭게 추가
 import { TurnOrderManager } from './managers/TurnOrderManager.js'; // ✨ 새롭게 추가
-import { AIModule } from './modules/AIModule.js'; // AI managers consolidated
+import { ClassAIManager } from './managers/ClassAIManager.js';   // ✨ 새롭게 추가
+import { BasicAIManager } from './managers/BasicAIManager.js'; // ✨ 새롭게 추가
 import { TargetingManager } from './managers/TargetingManager.js'; // ✨ TargetingManager 추가
 import { SoundEngine } from './managers/SoundEngine.js'; // SoundEngine 임포트 추가
 import { PositionManager } from './managers/PositionManager.js'; // ✨ PositionManager 추가
@@ -61,7 +62,7 @@ import { BattleGridManager } from './managers/BattleGridManager.js';
 import { CoordinateManager } from './managers/CoordinateManager.js';
 import { ButtonEngine } from './managers/ButtonEngine.js'; // ✨ ButtonEngine 임포트
 import { DetailInfoManager } from './managers/DetailInfoManager.js'; // ✨ DetailInfoManager 추가
-import { TagManager, StatManager, UNITS, CLASSES, WARRIOR_SKILLS } from './managers/warriormanager.js';
+import { TagManager, WarriorSkillsAI, StatManager, UNITS, CLASSES, WARRIOR_SKILLS } from './managers/warriormanager.js';
 import { UnitSpriteEngine } from './managers/UnitSpriteEngine.js';
 import { UnitActionManager } from './managers/UnitActionManager.js';
 import { PassiveSkillManager } from './managers/PassiveSkillManager.js';
@@ -77,6 +78,7 @@ import { UnitStatManager } from './managers/UnitStatManager.js';
 import { StageDataManager } from './managers/StageDataManager.js';
 import { RangeManager } from './managers/RangeManager.js';
 import { MonsterEngine } from './managers/MonsterEngine.js';
+import { MonsterAI } from './managers/MonsterAI.js';
 import { SlotMachineManager } from './managers/SlotMachineManager.js';
 import { StackEngine } from './managers/StackEngine.js'; // ✨ StackEngine 임포트
 
@@ -400,6 +402,13 @@ export class GameEngine {
         this.targetingManager = new TargetingManager(this.battleSimulationManager);
         this.positionManager = new PositionManager(this.battleSimulationManager);
 
+        // ✨ BasicAIManager에 신규 매니저들 주입
+        this.basicAIManager = new BasicAIManager(this.targetingManager, this.positionManager);
+
+        // Monster-related managers
+        this.monsterAI = new MonsterAI(this.basicAIManager);
+        this.monsterEngine = new MonsterEngine(this.monsterAI);
+
         // AI 와 턴 진행 관련 매니저들
         this.turnOrderManager = new TurnOrderManager(
             this.eventManager,
@@ -407,6 +416,7 @@ export class GameEngine {
             this.weightEngine // ✨ weightEngine 추가
         );
 
+        // ✨ WarriorSkillsAI를 먼저 생성하여 ClassAIManager에 주입
         const commonManagersForSkills = {
             battleSimulationManager: this.battleSimulationManager,
             battleCalculationManager: this.battleCalculationManager,
@@ -423,25 +433,22 @@ export class GameEngine {
             idManager: this.idManager,
             movingManager: this.movingManager
         };
+        this.warriorSkillsAI = new WarriorSkillsAI(commonManagersForSkills);
 
         // 🎰 슬롯 머신 매니저 초기화
         this.slotMachineManager = new SlotMachineManager(this.idManager, this.diceEngine);
 
-        // AI 관련 매니저들을 모듈로 묶어 초기화
-        this.aiModule = new AIModule({
-            idManager: this.idManager,
-            battleSimulationManager: this.battleSimulationManager,
-            eventManager: this.eventManager,
-            slotMachineManager: this.slotMachineManager,
-            targetingManager: this.targetingManager,
-            positionManager: this.positionManager,
-            commonManagersForSkills
-        });
-        this.basicAIManager = this.aiModule.basicAIManager;
-        this.monsterAI = this.aiModule.monsterAI;
-        this.warriorSkillsAI = this.aiModule.warriorSkillsAI;
-        this.classAIManager = this.aiModule.classAIManager;
-        this.monsterEngine = new MonsterEngine(this.monsterAI);
+        // ClassAIManager에 추가 매니저 전달
+        this.classAIManager = new ClassAIManager(
+            this.idManager,
+            this.battleSimulationManager,
+            this.basicAIManager,
+            this.warriorSkillsAI,
+            this.targetingManager,
+            this.monsterAI,
+            this.slotMachineManager,
+            this.eventManager
+        );
         this.oneTwoThreeManager = new OneTwoThreeManager(this.eventManager, this.battleSimulationManager);
         this.passiveIsAlsoASkillManager = new PassiveIsAlsoASkillManager(this.eventManager, this.battleSimulationManager, this.idManager);
 
@@ -896,6 +903,4 @@ export class GameEngine {
     getModifierEngine() { return this.modifierEngine; }
     // ✨ StackEngine getter 추가
     getStackEngine() { return this.stackEngine; }
-    // AIModule getter
-    getAIModule() { return this.aiModule; }
 }
