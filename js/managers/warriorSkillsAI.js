@@ -42,7 +42,8 @@ export class WarriorSkillsAI {
         // 스킬 이름 표시 이벤트
         this.managers.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
             unitId: userUnit.id,
-            skillName: skillData.name
+            skillName: skillData.name,
+            skillType: skillData.type
         });
 
         // 1. 스킬 시전 시각 효과
@@ -117,7 +118,8 @@ export class WarriorSkillsAI {
 
         this.managers.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
             unitId: userUnit.id,
-            skillName: skillData.name
+            skillName: skillData.name,
+            skillType: skillData.type
         });
         this.managers.workflowManager.triggerStatusEffectApplication(targetUnit.id, skillData.effect.statusEffectId);
         await this.managers.delayEngine.waitFor(100);
@@ -147,7 +149,8 @@ export class WarriorSkillsAI {
 
         this.managers.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
             unitId: userUnit.id,
-            skillName: skillData.name
+            skillName: skillData.name,
+            skillType: skillData.type
         });
         await this.managers.delayEngine.waitFor(300);
 
@@ -213,7 +216,8 @@ export class WarriorSkillsAI {
 
         this.managers.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
             unitId: userUnit.id,
-            skillName: skillData.name
+            skillName: skillData.name,
+            skillType: skillData.type
         });
 
         const effectId = skillData.effect.appliesEffect;

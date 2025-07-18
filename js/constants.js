@@ -68,4 +68,12 @@ export const SKILL_TYPES = {
     BUFF: 'buff'
 };
 
+export const SKILL_TYPE_COLORS = {
+    [SKILL_TYPES.BUFF]: 'blue',
+    [SKILL_TYPES.DEBUFF]: 'red',
+    [SKILL_TYPES.ACTIVE]: 'orange',
+    [SKILL_TYPES.REACTION]: 'purple',
+    [SKILL_TYPES.PASSIVE]: 'green'
+};
+
 export const GAME_DEBUG_MODE = true; // ✨ 디버그 모드 플래그 (배포 시 false로 설정)
