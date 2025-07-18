@@ -15,6 +15,7 @@ export const WARRIOR_SKILLS = {
         id: 'skill_warrior_battle_cry',
         name: '전투의 외침',
         type: SKILL_TYPES.BUFF,
+        icon: 'assets/icons/skills/battle_cry.png',
         aiFunction: 'battleCry',
         probability: 30,
         description: '자신의 공격력을 일시적으로 증가시키고 일반 공격을 수행합니다.',
@@ -30,6 +31,7 @@ export const WARRIOR_SKILLS = {
         id: 'skill_warrior_rending_strike',
         name: '찢어발기기',
         type: SKILL_TYPES.DEBUFF,
+        icon: 'assets/icons/skills/rending_strike.png',
         probability: 0, // 평타에 묻어나는 스킬이라 자체 발동 확률은 0
         description: '일반 공격 시 50% 확률로 적에게 출혈 디버프를 부여합니다.',
         requiredUserTags: ['근접'],
@@ -43,6 +45,7 @@ export const WARRIOR_SKILLS = {
         id: 'skill_warrior_retaliate',
         name: '반격',
         type: SKILL_TYPES.REACTION,
+        icon: 'assets/icons/skills/retaliate.png',
         description: '공격을 받을 시 일정 확률로 즉시 80%의 피해로 반격합니다.',
         requiredUserTags: ['방어'],
         effect: {
