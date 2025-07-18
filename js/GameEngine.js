@@ -82,6 +82,7 @@ import { RangeManager } from './managers/RangeManager.js';
 import { MonsterEngine } from './managers/MonsterEngine.js';
 import { MonsterAI } from './managers/MonsterAI.js';
 import { SlotMachineManager } from './managers/SlotMachineManager.js';
+import { BuffManager } from './managers/BuffManager.js'; // <-- 추가
 import { StackEngine } from './managers/StackEngine.js'; // ✨ StackEngine 임포트
 
 import { OneTwoThreeManager } from './managers/OneTwoThreeManager.js';
@@ -450,8 +451,9 @@ export class GameEngine {
         };
         this.warriorSkillsAI = new WarriorSkillsAI(commonManagersForSkills);
 
-        // 🎰 슬롯 머신 매니저 초기화
+        // 🎰 슬롯 머신 및 버프 매니저 초기화
         this.slotMachineManager = new SlotMachineManager(this.idManager, this.diceEngine);
+        this.buffManager = new BuffManager(this.idManager, this.diceEngine); // <-- 추가
 
         // ClassAIManager에 추가 매니저 전달
         this.classAIManager = new ClassAIManager(
@@ -462,7 +464,8 @@ export class GameEngine {
             this.targetingManager,
             this.monsterAI,
             this.slotMachineManager,
-            this.eventManager
+            this.eventManager,
+            this.buffManager // <-- 추가
         );
         this.oneTwoThreeManager = new OneTwoThreeManager(this.eventManager, this.battleSimulationManager);
         this.passiveIsAlsoASkillManager = new PassiveIsAlsoASkillManager(this.eventManager, this.battleSimulationManager, this.idManager);
@@ -913,6 +916,7 @@ export class GameEngine {
     getMonsterEngine() { return this.monsterEngine; }
     getMonsterAI() { return this.monsterAI; }
     getSlotMachineManager() { return this.slotMachineManager; }
+    getBuffManager() { return this.buffManager; } // <-- Getter 추가
     getSoundEngine() { return this.soundEngine; }
     getOneTwoThreeManager() { return this.oneTwoThreeManager; }
     getPassiveIsAlsoASkillManager() { return this.passiveIsAlsoASkillManager; }
