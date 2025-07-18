@@ -65,10 +65,23 @@ export class MicrocosmHeroEngine {
                 return;
             }
 
+            // Worker로 보내기 전, 복제 불가능한 데이터를 제거합니다.
+            const sanitizeUnit = (unit) => {
+                if (!unit) return null;
+                const { illustration, image, ...serializableUnit } = unit;
+                return serializableUnit;
+            };
+
+            const sanitizedHeroState = sanitizeUnit(instance.state);
+            const sanitizedBattleState = {
+                enemies: battleState.enemies.map(sanitizeUnit),
+                allies: battleState.allies.map(sanitizeUnit)
+            };
+
             instance.worker.postMessage({
                 type: 'DETERMINE_ACTION',
-                heroState: instance.state,
-                battleState: battleState
+                heroState: sanitizedHeroState,
+                battleState: sanitizedBattleState
             });
 
             instance.worker.onmessage = (event) => {

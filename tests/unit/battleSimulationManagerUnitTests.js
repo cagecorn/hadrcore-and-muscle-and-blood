@@ -146,5 +146,23 @@ export function runBattleSimulationManagerUnitTests(measureManager, assetLoaderM
         console.error("BattleSimulationManager: Error during isTileOccupied (dead unit). [FAIL]", e);
     }
 
+    // 테스트 9: getUnitById - 특정 ID의 유닛 검색
+    testCount++;
+    try {
+        const bsm = new BattleSimulationManager(measureManager, assetLoaderManager, idManager, logicManager);
+        const mockImage = new Image();
+        bsm.addUnit(mockUnit1, mockImage, 0, 0);
+        const found = bsm.getUnitById('u1');
+        const notFound = bsm.getUnitById('does_not_exist');
+        if (found && found.id === 'u1' && notFound === undefined) {
+            console.log("BattleSimulationManager: getUnitById returned correct unit and undefined when missing. [PASS]");
+            passCount++;
+        } else {
+            console.error("BattleSimulationManager: getUnitById did not behave as expected. [FAIL]", { found, notFound });
+        }
+    } catch (e) {
+        console.error("BattleSimulationManager: Error during getUnitById. [FAIL]", e);
+    }
+
     console.log(`--- BattleSimulationManager Unit Test End: ${passCount}/${testCount} tests passed ---`);
 }
