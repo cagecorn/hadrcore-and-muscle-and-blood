@@ -81,6 +81,7 @@ import { StageDataManager } from './managers/StageDataManager.js';
 import { RangeManager } from './managers/RangeManager.js';
 import { MonsterEngine } from './managers/MonsterEngine.js';
 import { MonsterAI } from './managers/MonsterAI.js';
+import { SlotMachineManager } from './managers/SlotMachineManager.js';
 
 // ✨ 상수 파일 임포트
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
@@ -425,18 +426,18 @@ export class GameEngine {
         };
         this.warriorSkillsAI = new WarriorSkillsAI(commonManagersForSkills);
 
+        // 🎰 슬롯 머신 매니저 초기화
+        this.slotMachineManager = new SlotMachineManager(this.idManager, this.diceEngine);
+
         // ClassAIManager에 추가 매니저 전달
         this.classAIManager = new ClassAIManager(
             this.idManager,
             this.battleSimulationManager,
-            this.measureManager,
             this.basicAIManager,
             this.warriorSkillsAI,
-            this.diceEngine,
             this.targetingManager,
-            this.diceBotEngine,
             this.monsterAI,
-            this.rangeManager // ✨ RangeManager 주입
+            this.slotMachineManager
         );
 
         // ✨ TurnEngine에 새로운 의존성 전달
@@ -882,5 +883,6 @@ export class GameEngine {
     getRangeManager() { return this.rangeManager; }
     getMonsterEngine() { return this.monsterEngine; }
     getMonsterAI() { return this.monsterAI; }
+    getSlotMachineManager() { return this.slotMachineManager; }
     getSoundEngine() { return this.soundEngine; }
 }
