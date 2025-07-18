@@ -36,11 +36,14 @@ export class ReactionSkillManager {
         if (damage <= 0 || !attackerId) return;
 
         const defender = this.battleSimulationManager.unitsOnGrid.find(u => u.id === defenderId);
-        if (!defender || defender.currentHp <= 0) return;
+        if (!defender || defender.currentHp <= 0 || !defender.skillSlots) return; // 방어자나 스킬 슬롯이 없으면 중단
 
         const classData = await this.idManager.get(defender.classId);
         if (!classData || !classData.skills || !classData.skills.includes(WARRIOR_SKILLS.RETALIATE.id)) {
-            return;
+            // 🔎 변경점: 클래스 데이터(classData)가 아닌 유닛의 실제 스킬 슬롯(skillSlots)을 확인합니다.
+            if (!defender.skillSlots.includes(WARRIOR_SKILLS.RETALIATE.id)) {
+                return;
+            }
         }
 
         const skillData = WARRIOR_SKILLS.RETALIATE;
