@@ -58,6 +58,11 @@ import { SynergyEngine } from './managers/SynergyEngine.js'; // ✨ SynergyEngin
 import { STATUS_EFFECTS } from '../data/statusEffects.js';
 
 import { TerritoryManager } from './managers/TerritoryManager.js';
+import { TerritoryEngine } from './managers/TerritoryEngine.js';
+import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManager.js';
+import { TerritoryGridManager } from './managers/TerritoryGridManager.js';
+import { TerritoryInputManager } from './managers/TerritoryInputManager.js';
+import { TerritorySceneManager } from './managers/TerritorySceneManager.js';
 import { BattleStageManager } from './managers/BattleStageManager.js';
 import { BattleGridManager } from './managers/BattleGridManager.js';
 import { CoordinateManager } from './managers/CoordinateManager.js';
@@ -272,7 +277,18 @@ export class GameEngine {
 
         this.layerEngine = new LayerEngine(this.renderer, this.cameraEngine);
 
-        this.territoryManager = new TerritoryManager();
+        this.territoryEngine = new TerritoryEngine();
+        this.territoryBackgroundManager = new TerritoryBackgroundManager(this.assetLoaderManager);
+        this.territoryGridManager = new TerritoryGridManager(this.measureManager);
+        this.territoryInputManager = new TerritoryInputManager(this.eventManager, this.territoryGridManager, this.renderer.canvas);
+        this.territorySceneManager = new TerritorySceneManager(this.sceneEngine);
+        this.territoryManager = new TerritoryManager(
+            this.assetLoaderManager,
+            this.measureManager,
+            this.eventManager,
+            this.sceneEngine,
+            this.renderer.canvas
+        );
         this.battleStageManager = new BattleStageManager(this.assetLoaderManager); // ✨ assetLoaderManager 전달
         this.battleGridManager = new BattleGridManager(this.measureManager, this.logicManager);
         // ✨ CoordinateManager 초기화 - BattleSimulationManager 후
@@ -591,7 +607,7 @@ export class GameEngine {
         this.gameLoop = new GameLoop(this._update, this._draw);
 
         // ✨ _initAsyncManagers에서 로드할 총 에셋 및 데이터 수를 수동으로 계산
-        const expectedDataAndAssetCount = 9 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4; // 9(기존) + 6(워리어 스킬) + 5(기본 상태 아이콘) + 5(워리어 스킬 아이콘) + 4(전사 상태 스프라이트)
+        const expectedDataAndAssetCount = 10 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4; // 10(기존 + 영지 배경) + 6(워리어 스킬) + 5(기본 상태 아이콘) + 5(워리어 스킬 아이콘) + 4(전사 상태 스프라이트)
         this.assetLoaderManager.setTotalAssetsToLoad(expectedDataAndAssetCount);
 
         // 초기화 과정의 비동기 처리
@@ -709,6 +725,8 @@ export class GameEngine {
         await this.assetLoaderManager.loadImage('sprite_warrior_panel', 'assets/images/warrior-panel-1.png');
         // ✨ 전투 배경 이미지 로드
         await this.assetLoaderManager.loadImage('sprite_battle_stage_forest', 'assets/images/battle-stage-forest.png');
+        // ✨ 영지 배경 이미지 로드
+        await this.assetLoaderManager.loadImage('territory_background', 'assets/images/city-1.png');
 
         console.log(`[GameEngine] Registered unit ID: ${UNITS.WARRIOR.id}`);
         console.log(`[GameEngine] Loaded warrior sprite: ${UNITS.WARRIOR.spriteId}`);
@@ -924,4 +942,11 @@ export class GameEngine {
     getModifierLogManager() { return this.modifierLogManager; }
     // ✨ StackEngine getter 추가
     getStackEngine() { return this.stackEngine; }
+    // ✨ Territory 관련 매니저 getter 추가
+    getTerritoryEngine() { return this.territoryEngine; }
+    getTerritoryBackgroundManager() { return this.territoryBackgroundManager; }
+    getTerritoryGridManager() { return this.territoryGridManager; }
+    getTerritoryInputManager() { return this.territoryInputManager; }
+    getTerritorySceneManager() { return this.territorySceneManager; }
+    getTerritoryManager() { return this.territoryManager; }
 }
