@@ -20,6 +20,11 @@ export class DOMEngine {
         this.registerElement('tavern-screen', document.getElementById('tavern-screen'));
         this.registerElement('tavern-grid', document.getElementById('tavern-grid'));
         this.registerElement('hire-hero-btn', document.getElementById('hire-hero-btn'));
+        // ✨ 고용 UI 요소 등록
+        this.registerElement('hire-ui-overlay', document.getElementById('hire-ui-overlay'));
+        this.registerElement('hire-class-image', document.getElementById('hire-class-image'));
+        this.registerElement('prev-class-btn', document.getElementById('prev-class-btn'));
+        this.registerElement('next-class-btn', document.getElementById('next-class-btn'));
         this.registerElement('gameCanvas', document.getElementById('gameCanvas'));
         this.registerElement('battle-log-panel', document.getElementById('battle-log-panel'));
         this.registerElement('hero-panel', document.getElementById('hero-panel'));
