@@ -110,6 +110,15 @@ export class BattleSimulationManager {
     }
 
     /**
+     * ID로 유닛을 찾습니다.
+     * @param {string} unitId
+     * @returns {object|undefined}
+     */
+    getUnitById(unitId) {
+        return this.unitsOnGrid.find(unit => unit.id === unitId);
+    }
+
+    /**
      * 유닛 렌더링에 필요한 그리드 관련 파라미터를 반환합니다.
      * 이 값들은 BattleGridManager와 VFXManager에서도 사용됩니다.
      * @returns {{effectiveTileSize: number, gridOffsetX: number, gridOffsetY: number, totalGridWidth: number, totalGridHeight: number}}
