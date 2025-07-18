@@ -28,7 +28,6 @@ import { SkillIconManager } from './managers/SkillIconManager.js'; // ✨ SkillI
 import { StatusIconManager } from './managers/StatusIconManager.js'; // ✨ StatusIconManager 추가
 import { BindingManager } from './managers/BindingManager.js';
 import { BattleCalculationManager } from './managers/BattleCalculationManager.js';
-import { DomOverlayManager } from './managers/DomOverlayManager.js';
 import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js'; // ✨ MercenaryPanelManager 추가
 import { RuleManager } from './managers/RuleManager.js'; // ✨ RuleManager 추가
 
@@ -317,17 +316,6 @@ export class GameEngine {
 
         this.bindingManager = new BindingManager();
 
-        const overlayContainerElement = document.getElementById('overlay-container');
-        this.domOverlayManager = new DomOverlayManager(
-            overlayContainerElement,
-            this.measureManager,
-            this.animationManager,
-            this.battleSimulationManager,
-            this.statusEffectManager,
-            this.skillIconManager,
-            this.eventManager
-        );
-
         // ------------------------------------------------------------------
         // 8. Timing & Movement Engines
         // ------------------------------------------------------------------
@@ -372,8 +360,7 @@ export class GameEngine {
             this.heroEngine,
             this.idManager,
             this.cameraEngine,
-            this.skillIconManager,
-            overlayContainerElement
+            this.skillIconManager
         );
 
         // ✨ TagManager 초기화
@@ -825,7 +812,6 @@ export class GameEngine {
         this.particleEngine.update(deltaTime); // ✨ ParticleEngine 업데이트 호출
         // ✨ DetailInfoManager 업데이트 호출
         this.detailInfoManager.update(deltaTime);
-        this.domOverlayManager.update(deltaTime);
 
         const { effectiveTileSize, gridOffsetX, gridOffsetY } = this.battleSimulationManager.getGridRenderParameters();
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
@@ -964,7 +950,6 @@ export class GameEngine {
     getSynergyEngine() { return this.synergyEngine; }
     // ✨ DetailInfoManager getter 추가
     getDetailInfoManager() { return this.detailInfoManager; }
-    getDomOverlayManager() { return this.domOverlayManager; }
     getDiceBotEngine() { return this.diceBotEngine; }
     // ✨ CoordinateManager getter 추가
     getCoordinateManager() { return this.coordinateManager; }
