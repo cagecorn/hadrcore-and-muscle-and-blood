@@ -1,7 +1,7 @@
 import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES } from '../constants.js';
 
 export class ClassAIManager {
-    constructor(idManager, battleSimulationManager, basicAIManager, warriorSkillsAI, targetingManager, monsterAI, slotMachineManager, eventManager) {
+    constructor(idManager, battleSimulationManager, basicAIManager, warriorSkillsAI, targetingManager, monsterAI, slotMachineManager, eventManager, buffManager) {
         console.log("\u2694\uFE0F ClassAIManager initialized. Ready to command units based on class.");
         this.idManager = idManager;
         this.battleSimulationManager = battleSimulationManager;
@@ -11,6 +11,7 @@ export class ClassAIManager {
         this.monsterAI = monsterAI;
         this.slotMachineManager = slotMachineManager; // 슬롯 머신 매니저 저장
         this.eventManager = eventManager;
+        this.buffManager = buffManager;
     }
 
     async getBasicClassAction(unit, allUnits) {
@@ -19,54 +20,64 @@ export class ClassAIManager {
             return this.monsterAI.getMeleeAIAction(unit, allUnits);
         }
 
-        // \uD83C\uDFB0 슬롯 머신을 돌려 스킬을 결정합니다!
-        const skillToUse = await this.slotMachineManager.spin(unit);
+        // 1. BuffManager를 통해 버프 스킬을 먼저 굴립니다.
+        const { activatedBuff, remainingSkills } = await this.buffManager.processBuffSkills(unit);
 
-        // 슬롯 머신에서 스킬이 당첨되었다면,
-        if (skillToUse) {
-            let targetUnit = null;
-            const isBuffSkill =
-                skillToUse.type === 'buff' ||
-                (Array.isArray(skillToUse.effect?.tags) && skillToUse.effect.tags.includes('버프'));
+        let buffAction = null;
+        if (activatedBuff) {
+            const buffTarget = activatedBuff.range === 0 ? unit : this.targetingManager.findBestTarget('ally', 'closest', unit) || unit;
+            buffAction = {
+                actionType: 'skill',
+                skillId: activatedBuff.id,
+                targetId: buffTarget.id,
+                execute: () => this.executeSkillAI(unit, activatedBuff, buffTarget),
+                followUp: null
+            };
+        }
 
-            // 버프 스킬이나 사거리가 0인 스킬은 자신을 대상으로 합니다.
-            if (isBuffSkill || skillToUse.range === 0) {
-                targetUnit = unit;
-            } else { // 그 외에는 가장 가까운 적을 대상으로 합니다.
-                targetUnit = this.targetingManager.findBestTarget('enemy', 'closest', unit);
-            }
+        // 2. 버프가 발동되었든 아니든, 나머지 스킬(액티브, 디버프)로 슬롯머신을 다시 굴립니다.
+        const subsequentSkill = await this.slotMachineManager.spinWithSkillList(unit, remainingSkills);
 
-            // 스킬 사용에 타겟이 필요했는데 못 찾은 경우만 제외
-            if (targetUnit) {
-                const defaultMoveRange = unit.baseStats.moveRange || 1;
-                const defaultAttackRange = unit.baseStats.attackRange || 1;
-                let followUp = null;
-
-                // 버프 성격의 스킬 사용 시, 추가 공격 옵션이 없다면 기본 행동을 이어서 수행
-                if (isBuffSkill && !skillToUse.effect?.allowAdditionalAttack) {
-                    followUp = this.basicAIManager.determineMoveAndTarget(
-                        unit,
-                        allUnits,
-                        defaultMoveRange,
-                        defaultAttackRange
-                    );
-                }
-
-                return {
+        let subsequentAction = null;
+        if (subsequentSkill) {
+            const skillTarget = this.targetingManager.findBestTarget('enemy', 'closest', unit);
+            if (skillTarget) {
+                subsequentAction = {
                     actionType: 'skill',
-                    skillId: skillToUse.id,
-                    targetId: targetUnit.id,
-                    execute: () => this.executeSkillAI(unit, skillToUse, targetUnit),
-                    followUp
+                    skillId: subsequentSkill.id,
+                    targetId: skillTarget.id,
+                    execute: () => this.executeSkillAI(unit, subsequentSkill, skillTarget)
                 };
             }
         }
 
-        // 스킬이 당첨되지 않았거나, 타겟을 못 찾았다면 기본 행동(이동 및 공격)을 합니다.
-        if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] No skill was chosen for ${unit.name}, proceeding with basic AI.`);
-        const defaultMoveRange = unit.baseStats.moveRange || 1;
-        const defaultAttackRange = unit.baseStats.attackRange || 1;
-        return this.basicAIManager.determineMoveAndTarget(unit, allUnits, defaultMoveRange, defaultAttackRange);
+        // 3. 행동 조합
+        if (buffAction && subsequentAction) {
+            buffAction.followUp = subsequentAction;
+            return buffAction;
+        }
+        if (buffAction) {
+            if (!subsequentAction) {
+                buffAction.followUp = this.basicAIManager.determineMoveAndTarget(
+                    unit,
+                    allUnits,
+                    unit.baseStats.moveRange || 1,
+                    unit.baseStats.attackRange || 1
+                );
+            }
+            return buffAction;
+        }
+        if (subsequentAction) {
+            return subsequentAction;
+        }
+
+        if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] No skills were chosen for ${unit.name}, proceeding with basic AI.`);
+        return this.basicAIManager.determineMoveAndTarget(
+            unit,
+            allUnits,
+            unit.baseStats.moveRange || 1,
+            unit.baseStats.attackRange || 1
+        );
     }
     
     async executeSkillAI(userUnit, skillData, targetUnit) {

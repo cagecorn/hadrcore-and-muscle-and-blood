@@ -23,26 +23,43 @@ export class SlotMachineManager {
             return null;
         }
 
-        // 1번, 2번, 3번 스킬 슬롯을 순서대로 확인 (최대 3개까지만)
-        for (let i = 0; i < unit.skillSlots.length; i++) {
-            const skillId = unit.skillSlots[i];
-            const skillData = await this.idManager.get(skillId);
-            
-            // 액티브 또는 버프 스킬이 아니면 이 매니저에서 처리하지 않습니다.
-            if (!skillData || (skillData.type !== 'active' && skillData.type !== 'buff')) {
+        const allSkillData = await Promise.all(
+            unit.skillSlots.map(skillId => this.idManager.get(skillId))
+        );
+        return this.spinWithSkillList(unit, allSkillData);
+    }
+
+    /**
+     * 제공된 스킬 목록과 유닛의 원본 슬롯 인덱스를 기반으로 슬롯 머신을 돌립니다.
+     * @param {object} unit - 스킬을 사용할 유닛
+     * @param {Array<object>} skillsToSpin - 굴림을 진행할 스킬 데이터 목록
+     * @returns {Promise<object | null>} - 발동에 성공한 스킬 데이터 또는 null
+     */
+    async spinWithSkillList(unit, skillsToSpin) {
+        if (!skillsToSpin || skillsToSpin.length === 0) {
+            return null;
+        }
+
+        for (const skillData of skillsToSpin) {
+            if (!skillData) continue;
+
+            // 액티브 또는 디버프 스킬만 대상으로 함 (버프는 BuffManager가 처리)
+            if (skillData.type !== 'active' && skillData.type !== 'debuff') {
                 continue;
             }
 
-            const chance = this.probabilities[i]; // 1번 슬롯은 0.4, 2번은 0.3...
+            // 원본 스킬 슬롯에서 이 스킬의 인덱스를 찾아 확률을 결정합니다.
+            const originalSlotIndex = unit.skillSlots.indexOf(skillData.id);
+            if (originalSlotIndex === -1) continue;
+
+            const chance = this.probabilities[originalSlotIndex];
             if (this.diceEngine.getRandomFloat() < chance) {
-                // 확률 성공!
-                if (GAME_DEBUG_MODE) console.log(`[SlotMachine] \uD83C\uDFB0 Success! Slot ${i + 1} skill '${skillData.name}' triggered (Chance: ${chance * 100}%).`);
-                return skillData; // 성공한 스킬을 반환하고 즉시 종료 (순차적 경쟁)
+                if (GAME_DEBUG_MODE) console.log(`[SlotMachine] \uD83C\uDFB0 Success! Slot ${originalSlotIndex + 1} skill '${skillData.name}' triggered (Chance: ${chance * 100}%).`);
+                return skillData;
             }
         }
 
-        // 모든 스킬의 확률 경쟁에서 실패하면 null을 반환합니다.
-        if (GAME_DEBUG_MODE) console.log(`[SlotMachine] ${unit.name} failed all skill rolls.`);
+        if (GAME_DEBUG_MODE) console.log(`[SlotMachine] ${unit.name} failed all non-buff skill rolls.`);
         return null;
     }
 }
