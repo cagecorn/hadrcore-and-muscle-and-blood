@@ -23,7 +23,9 @@ export class PassiveSkillManager {
     }
 
     _setupEventListeners() {
-        this.eventManager.subscribe(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, this._onUnitAttackAttempt.bind(this));
+        // \uD83D\uDCA1 \uBCC0\uACBD\uC810: 'UNIT_ATTACK_ATTEMPT' \uB300\uC2E0 'BASIC_ATTACK_LANDED'\uB97C \uAD6C\uB3C4\uD569\uB2C8\uB2E4.
+        // \uC774\uC81C "\uD3C9\uD0C0 \uC2EC\uD310"\uC758 \uD310\uC815\uC774 \uB05D\uB09C \uACF5\uACA9\uC5D0 \uB300\uD574\uC11C\uB9CC \uBC18\uC751\uD569\uB2C8\uB2E4.
+        this.eventManager.subscribe(GAME_EVENTS.BASIC_ATTACK_LANDED, this._onUnitAttackAttempt.bind(this));
     }
 
     /**
