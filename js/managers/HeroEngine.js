@@ -121,9 +121,7 @@ export class HeroEngine {
                 `skill_passive_${this.diceEngine.getRandomInt(1, 2)}`
             ];
         }
-
-        // 4. 랜덤한 특성 부여 (임시 특성 ID 사용)
-        const traits = [`trait_${this.diceEngine.getRandomInt(1, 3)}`];
+        // 4. 특성 시스템은 아직 구현되지 않았으므로 스킵합니다.
 
         // ✨ 5. 랜덤한 2~3개의 시너지 부여
         const allPossibleSynergies = ['synergy_warrior', 'synergy_mage', 'synergy_healer', 'synergy_archer'];
@@ -151,7 +149,6 @@ export class HeroEngine {
             illustration: illustrationImage,
             baseStats: baseStats,
             skillSlots: skills,
-            traits: traits,
             synergies: synergies, // ✨ 영웅 시너지 추가
             equippedItems: equippedItems,
             perks: perks,
