@@ -3,6 +3,7 @@
 import { StatusEffectManager } from '../../js/managers/StatusEffectManager.js';
 import { TurnCountManager } from '../../js/managers/TurnCountManager.js';
 import { EventManager } from '../../js/managers/EventManager.js';
+import { StackEngine } from '../../js/managers/StackEngine.js';
 
 export function runStatusEffectManagerUnitTests(eventManager, idManager, turnCountManager, battleCalculationManager) {
     console.log("--- StatusEffectManager Unit Test Start ---");
@@ -18,9 +19,11 @@ export function runStatusEffectManagerUnitTests(eventManager, idManager, turnCou
         }
     };
 
+    const stackEngine = new StackEngine(eventManager);
+
     testCount++;
     try {
-        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager);
+        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager, stackEngine);
         if (seManager.eventManager === eventManager && seManager.turnCountManager === turnCountManager) {
             console.log("StatusEffectManager: Initialized correctly. [PASS]");
             passCount++;
@@ -41,7 +44,7 @@ export function runStatusEffectManagerUnitTests(eventManager, idManager, turnCou
     turnCountManager.clearAllEffects();
 
     try {
-        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager);
+        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager, stackEngine);
         seManager.applyStatusEffect('testUnit1', 'status_poison');
         const activeEffects = turnCountManager.getEffectsOfUnit('testUnit1');
 
@@ -64,7 +67,7 @@ export function runStatusEffectManagerUnitTests(eventManager, idManager, turnCou
     });
 
     try {
-        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager);
+        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager, stackEngine);
         seManager.applyStatusEffect('testUnit1', 'status_poison');
         const removed = seManager.removeStatusEffect('testUnit1', 'status_poison');
         const activeEffects = turnCountManager.getEffectsOfUnit('testUnit1');
@@ -82,7 +85,7 @@ export function runStatusEffectManagerUnitTests(eventManager, idManager, turnCou
     testCount++;
     turnCountManager.clearAllEffects();
     try {
-        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager);
+        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager, stackEngine);
         seManager.applyStatusEffect('testUnit2', 'status_stun');
         const activeEffects = seManager.getUnitActiveEffects('testUnit2');
         if (activeEffects && activeEffects.has('status_stun')) {
@@ -106,7 +109,7 @@ export function runStatusEffectManagerUnitTests(eventManager, idManager, turnCou
     });
 
     try {
-        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager);
+        const seManager = new StatusEffectManager(eventManager, idManager, turnCountManager, mockBattleCalculationManager, stackEngine);
         seManager.applyStatusEffect('testUnit3', 'status_poison');
 
         eventManager.emit('unitTurnStart', { unitId: 'testUnit3' });

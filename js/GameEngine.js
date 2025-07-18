@@ -82,6 +82,7 @@ import { RangeManager } from './managers/RangeManager.js';
 import { MonsterEngine } from './managers/MonsterEngine.js';
 import { MonsterAI } from './managers/MonsterAI.js';
 import { SlotMachineManager } from './managers/SlotMachineManager.js';
+import { StackEngine } from './managers/StackEngine.js'; // ✨ StackEngine 임포트
 
 import { OneTwoThreeManager } from './managers/OneTwoThreeManager.js';
 import { PassiveIsAlsoASkillManager } from './managers/PassiveIsAlsoASkillManager.js';
@@ -112,6 +113,9 @@ export class GameEngine {
         this.eventManager.subscribe(GAME_EVENTS.CRITICAL_ERROR, this._handleCriticalError.bind(this));
         // JudgementManager는 EventManager 이후 초기화
         this.judgementManager = new JudgementManager(this.eventManager);
+
+        // ✨ StackEngine 초기화 (EventManager 이후)
+        this.stackEngine = new StackEngine(this.eventManager);
 
         this.guardianManager = new GuardianManager();
         this.measureManager = new MeasureManager();
@@ -365,7 +369,8 @@ export class GameEngine {
             this.eventManager,
             this.idManager,
             this.turnCountManager,
-            this.battleCalculationManager
+            this.battleCalculationManager,
+            this.stackEngine // ✨ 주입
         );
 
         this.battleCalculationManager.statusEffectManager = this.statusEffectManager;
@@ -901,4 +906,6 @@ export class GameEngine {
     getOneTwoThreeManager() { return this.oneTwoThreeManager; }
     getPassiveIsAlsoASkillManager() { return this.passiveIsAlsoASkillManager; }
     getModifierEngine() { return this.modifierEngine; }
+    // ✨ StackEngine getter 추가
+    getStackEngine() { return this.stackEngine; }
 }
