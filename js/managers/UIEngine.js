@@ -17,7 +17,6 @@ export class UIEngine {
         this.ctx = renderer.ctx;
 
         this._currentUIState = UI_STATES.MAP_SCREEN;
-        this.heroPanelVisible = false;
 
         this.recalculateUIDimensions();
 
@@ -54,9 +53,12 @@ export class UIEngine {
 
     // 영웅 패널 가시성 토글
     toggleHeroPanel() {
-        this.heroPanelVisible = !this.heroPanelVisible;
-        console.log(`[UIEngine] Hero Panel Visibility: ${this.heroPanelVisible ? 'Visible' : 'Hidden'}`);
-        // 필요에 따라 UI 상태를 변경할 수 있지만, 오버레이는 현재 UI 상태와 별개로 표시될 수 있습니다.
+        const heroPanel = document.getElementById('hero-panel');
+        if (heroPanel) {
+            heroPanel.classList.toggle('hidden');
+            this.mercenaryPanelManager.updatePanel();
+        }
+        console.log(`[UIEngine] Hero Panel Visibility toggled.`);
     }
 
 
@@ -73,21 +75,7 @@ export class UIEngine {
             // 전투 화면에서는 현재 별도의 상단 텍스트를 표시하지 않습니다.
         }
 
-        // 영웅 패널이 활성화되어 있으면 오버레이로 그립니다.
-        if (this.heroPanelVisible && this.mercenaryPanelManager) {
-            // 오버레이 배경 (반투명)
-            ctx.fillStyle = 'rgba(0, 0, 0, 0.7)';
-            ctx.fillRect(0, 0, this.canvas.width / (window.devicePixelRatio || 1), this.canvas.height / (window.devicePixelRatio || 1));
-
-            // 영웅 패널이 그려질 중앙 영역 계산
-            const panelWidth = this.measureManager.get('gameResolution.width') * 0.8; // 캔버스 너비의 80%
-            const panelHeight = this.measureManager.get('gameResolution.height') * 0.7; // 캔버스 높이의 70%
-            const panelX = (this.measureManager.get('gameResolution.width') - panelWidth) / 2;
-            const panelY = (this.measureManager.get('gameResolution.height') - panelHeight) / 2;
-
-            // MercenaryPanelManager의 draw 메서드를 호출하여 메인 캔버스에 그립니다.
-            this.mercenaryPanelManager.draw(ctx, panelX, panelY, panelWidth, panelHeight);
-        }
+        // DOM 기반 영웅 패널은 캔버스에 별도 그리기를 하지 않습니다.
     }
 
     getMapPanelDimensions() {

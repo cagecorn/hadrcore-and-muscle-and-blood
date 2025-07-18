@@ -62,9 +62,51 @@
             align-items: center;
         }
         /* #mercenaryPanelCanvas 스타일은 이제 필요 없습니다. */
-        #combatLogCanvas {
+        #battle-log-panel {
             margin-top: 10px;
             border: 2px solid #f00;
+            background-color: rgba(0,0,0,0.7);
+            color: white;
+            overflow-y: scroll;
+            padding: 10px;
+            width: 100%;
+            height: 15%;
+            box-sizing: border-box;
+        }
+        #hero-panel {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 80vw;
+            height: 70vh;
+            background-color: rgba(26,26,26,0.9);
+            border: 2px solid #fff;
+            border-radius: 10px;
+            z-index: 50;
+            display: grid;
+            grid-template-columns: repeat(6, 1fr);
+            grid-template-rows: repeat(2, 1fr);
+            gap: 10px;
+            padding: 20px;
+            box-sizing: border-box;
+        }
+        .hero-slot {
+            background-color: #333;
+            border: 1px solid #555;
+            border-radius: 5px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            padding: 5px;
+        }
+        .hero-slot img {
+            width: 70%;
+        }
+        .hidden {
+            display: none !important;
         }
     </style>
 </head>
@@ -139,9 +181,13 @@
         <button id="clearAllEffectsBtn">모든 효과 제거 (전체)</button>
     </div>
     <div id="gameContainer">
-        <canvas id="gameCanvas"></canvas>
-        <canvas id="combatLogCanvas"></canvas>
-        <img src="assets/territory/tavern-icon.png" id="tavern-icon-btn" alt="여관 아이콘">
+        <div id="territory-screen">
+            <div id="territory-grid"></div>
+            <img src="assets/territory/tavern-icon.png" id="tavern-icon-btn" alt="여관 아이콘">
+        </div>
+        <canvas id="gameCanvas" class="hidden"></canvas>
+        <div id="hero-panel" class="hidden"></div>
+        <div id="battle-log-panel" class="hidden"></div>
     </div>
     <!-- ✨ 전투 시작을 위한 별도의 HTML 버튼 -->
     <button id="battleStartHtmlBtn" class="game-button">전투 시작</button>
@@ -588,12 +634,6 @@
             const originalDraw = gameEngine._draw; // GameEngine의 원래 _draw 함수를 저장
             gameEngine._draw = function() { // GameEngine의 _draw를 오버라이드하여 FPS 로직 추가
                 originalDraw.apply(this, arguments); // 원래 _draw 함수 호출
-
-                // ✨ 전투 로그 패널 그리기 호출 추가
-                if (gameEngine.getPanelEngine()) {
-                    gameEngine.getPanelEngine().drawPanel('combatLog', gameEngine.getBattleLogManager().ctx);
-                }
-
                 // FPS 카운터 업데이트
                 frameCount++;
                 const currentTime = performance.now();

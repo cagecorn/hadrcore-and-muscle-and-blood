@@ -14,7 +14,7 @@ export class CompatibilityManager {
 
         // 캔버스 참조 보관
         // this.mercenaryPanelCanvas = mercenaryPanelManager ? mercenaryPanelManager.canvas : null; // 이제 필요 없음
-        this.combatLogCanvas = battleLogManager ? battleLogManager.canvas : null;
+        this.combatLogCanvas = battleLogManager ? battleLogManager.panel : null;
 
         this.baseGameWidth = this.measureManager.get('gameResolution.width');
         this.baseGameHeight = this.measureManager.get('gameResolution.height');
@@ -115,15 +115,12 @@ export class CompatibilityManager {
         this.renderer.resizeCanvas(mainGameCanvasWidth, mainGameCanvasHeight);
         console.log(`[CompatibilityManager] Main Canvas adjusted to: ${mainGameCanvasWidth}x${mainGameCanvasHeight}`);
 
-        // 2. 전투 로그 캔버스 해상도 업데이트
+        // 2. 전투 로그 패널 크기 업데이트
         if (this.combatLogCanvas) {
             const combatLogHeight = Math.floor(mainGameCanvasHeight * combatLogExpectedHeightRatio);
             this.combatLogCanvas.style.width = `${mainGameCanvasWidth}px`;
             this.combatLogCanvas.style.height = `${combatLogHeight}px`;
-            if (this.battleLogManager && this.battleLogManager.resizeCanvas) {
-                this.battleLogManager.resizeCanvas();
-            }
-            console.log(`[CompatibilityManager] Combat Log Canvas adjusted to: ${mainGameCanvasWidth}x${combatLogHeight}`);
+            console.log(`[CompatibilityManager] Combat Log Panel adjusted to: ${mainGameCanvasWidth}x${combatLogHeight}`);
         }
 
         // 모든 관련 매니저들의 내부 치수 재계산 호출

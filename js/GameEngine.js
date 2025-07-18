@@ -29,7 +29,6 @@ import { StatusIconManager } from './managers/StatusIconManager.js'; // ✨ Stat
 import { BindingManager } from './managers/BindingManager.js';
 import { BattleCalculationManager } from './managers/BattleCalculationManager.js';
 import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js'; // ✨ MercenaryPanelManager 추가
-import { PanelEngine } from './managers/PanelEngine.js'; // ✨ PanelEngine 추가
 import { RuleManager } from './managers/RuleManager.js'; // ✨ RuleManager 추가
 
 import { TurnEngine } from './managers/TurnEngine.js'; // ✨ TurnEngine 추가
@@ -240,23 +239,19 @@ export class GameEngine {
         // ✨ 클릭 가능한 UI 버튼을 관리하는 ButtonEngine 초기화
         this.buttonEngine = new ButtonEngine();
 
-        const combatLogCanvasElement = document.getElementById('combatLogCanvas');
-        if (!combatLogCanvasElement) {
-            console.error("GameEngine: Combat Log Canvas not found. Game cannot proceed without it.");
-            throw new Error("Combat Log Canvas initialization failed.");
+        const combatLogPanelElement = document.getElementById('battle-log-panel');
+        if (!combatLogPanelElement) {
+            console.error("GameEngine: Battle Log panel not found. Game cannot proceed without it.");
+            throw new Error("Battle Log panel initialization failed.");
         }
         this.battleLogManager = new BattleLogManager(
-            combatLogCanvasElement,
+            combatLogPanelElement,
             this.eventManager,
             this.measureManager
         );
         // 이벤트 리스너는 명시적으로 설정
         this.battleLogManager._setupEventListeners();
 
-        // PanelEngine 초기화 및 패널 등록
-        this.panelEngine = new PanelEngine();
-        // mercenaryPanel은 이제 메인 캔버스 위에 UIEngine이 직접 그릴 것이므로 PanelEngine에 등록하지 않습니다.
-        this.panelEngine.registerPanel('combatLog', this.battleLogManager);
 
         // UIEngine과 MapManager를 먼저 초기화
         this.mapManager = new MapManager(this.measureManager);
@@ -280,8 +275,8 @@ export class GameEngine {
         const mainGameCanvasElement = document.getElementById(canvasId);
         this.canvasBridgeManager = new CanvasBridgeManager(
             mainGameCanvasElement,
-            null, // mercenaryPanelCanvasElement는 이제 없습니다.
-            combatLogCanvasElement,
+            null,
+            null,
             this.eventManager,
             this.measureManager
         );
@@ -694,9 +689,14 @@ export class GameEngine {
             if (GAME_DEBUG_MODE) console.log(`[GameEngine] Battle started for map: ${data.mapId}, difficulty: ${data.difficulty}`);
             this.sceneEngine.setCurrentScene(UI_STATES.COMBAT_SCREEN);
             this.uiEngine.setUIState(UI_STATES.COMBAT_SCREEN);
+            this.domEngine.updateUIForScene(UI_STATES.COMBAT_SCREEN);
             this.cameraEngine.reset();
 
             await this.turnEngine.startBattleTurns();
+        });
+
+        this.eventManager.subscribe(GAME_EVENTS.BATTLE_END, (data) => {
+            this.domEngine.updateUIForScene(UI_STATES.MAP_SCREEN);
         });
 
         if (GAME_DEBUG_MODE) console.log("\u2699\ufe0f GameEngine initialized successfully. \u2699\ufe0f");
@@ -832,11 +832,7 @@ export class GameEngine {
 
     _draw() {
         this.layerEngine.draw();
-        // mercenaryPanelManager는 이제 UIEngine이 직접 그립니다.
-        // combatLogManager만 PanelEngine을 통해 그립니다.
-        if (this.panelEngine) {
-            this.panelEngine.drawPanel('combatLog', this.battleLogManager.ctx);
-        }
+        // DOM 기반 전투 로그는 캔버스 그리기가 필요 없습니다.
     }
 
     start() {
@@ -915,7 +911,6 @@ export class GameEngine {
     getBattleSimulationManager() { return this.battleSimulationManager; }
     getBattleCalculationManager() { return this.battleCalculationManager; }
     getMercenaryPanelManager() { return this.mercenaryPanelManager; }
-    getPanelEngine() { return this.panelEngine; }
     getBattleLogManager() { return this.battleLogManager; }
     getVFXManager() { return this.vfxManager; }
     getBindingManager() { return this.bindingManager; }

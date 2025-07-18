@@ -15,6 +15,10 @@ export class DOMEngine {
 
     _registerElements() {
         this.registerElement('tavern-icon-btn', document.getElementById('tavern-icon-btn'));
+        this.registerElement('territory-screen', document.getElementById('territory-screen'));
+        this.registerElement('gameCanvas', document.getElementById('gameCanvas'));
+        this.registerElement('battle-log-panel', document.getElementById('battle-log-panel'));
+        this.registerElement('hero-panel', document.getElementById('hero-panel'));
     }
 
     _setupEventListeners() {
@@ -35,11 +39,20 @@ export class DOMEngine {
     updateUIForScene(sceneName) {
         console.log(`[DOMEngine] Updating UI for scene: ${sceneName}`);
         const tavernIcon = this.getElement('tavern-icon-btn');
-        if (!tavernIcon) return;
+        const territory = this.getElement('territory-screen');
+        const gameCanvas = this.getElement('gameCanvas');
+        const logPanel = this.getElement('battle-log-panel');
+
         if (sceneName === UI_STATES.MAP_SCREEN) {
-            tavernIcon.classList.remove('hidden');
+            tavernIcon && tavernIcon.classList.remove('hidden');
+            territory && territory.classList.remove('hidden');
+            gameCanvas && gameCanvas.classList.add('hidden');
+            logPanel && logPanel.classList.add('hidden');
         } else {
-            tavernIcon.classList.add('hidden');
+            tavernIcon && tavernIcon.classList.add('hidden');
+            territory && territory.classList.add('hidden');
+            gameCanvas && gameCanvas.classList.remove('hidden');
+            logPanel && logPanel.classList.remove('hidden');
         }
     }
 
