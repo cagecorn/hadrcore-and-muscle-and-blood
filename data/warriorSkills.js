@@ -16,6 +16,8 @@ export const WARRIOR_SKILLS = {
         name: '전투의 외침',
         type: SKILL_TYPES.BUFF,
         icon: 'assets/icons/skills/battle_cry.png',
+        tags: ['전사'],
+        requiredUserTags: ['전사'],
         aiFunction: 'battleCry',
         description: '자신의 공격력을 일시적으로 증가시키고 일반 공격을 수행합니다.',
         effect: {
@@ -30,6 +32,8 @@ export const WARRIOR_SKILLS = {
         name: '찢어발기기',
         type: SKILL_TYPES.DEBUFF,
         icon: 'assets/icons/skills/rending_strike.png',
+        tags: ['전사'],
+        requiredUserTags: ['전사'],
         probability: 0, // 평타에 묻어나는 스킬이라 자체 발동 확률은 0
         description: '일반 공격 시 일정 확률로 적에게 출혈 디버프를 부여합니다.',
         effect: {
@@ -42,6 +46,8 @@ export const WARRIOR_SKILLS = {
         name: '반격',
         type: SKILL_TYPES.REACTION,
         icon: 'assets/icons/skills/retaliate.png',
+        tags: ['전사'],
+        requiredUserTags: ['전사'],
         description: '공격을 받을 시 일정 확률로 즉시 80%의 피해로 반격합니다.',
         effect: {
             damageModifier: 0.8, // 반격 시 피해량 80%
@@ -55,6 +61,8 @@ export const WARRIOR_SKILLS = {
         description: '일반 공격 시 대상이 3턴간 받는 피해를 10% 증가시킵니다.',
         type: SKILL_TYPES.DEBUFF,
         icon: 'assets/icons/skills/shield-break.png',
+        tags: ['전사'],
+        requiredUserTags: ['전사'],
         effect: {
             statusEffectId: 'status_shield_break'
         }
@@ -66,6 +74,8 @@ export const WARRIOR_SKILLS = {
         description: '한 대상에게 빠르게 일반 공격을 2회 가합니다.',
         type: SKILL_TYPES.ACTIVE,
         icon: 'assets/icons/skills/double-strike-icon.png',
+        tags: ['전사'],
+        requiredUserTags: ['전사'],
         aiFunction: 'doubleStrike',
         cost: 25,
         range: 1,
@@ -84,6 +94,8 @@ export const WARRIOR_SKILLS = {
         description: '3턴 동안 받는 모든 피해가 15% 감소합니다.',
         type: 'active',
         icon: 'assets/icons/skills/stone-skin-icon.png',
+        tags: ['전사'],
+        requiredUserTags: ['전사'],
         aiFunction: 'stoneSkin',
         cost: 20,
         range: 0,
@@ -100,6 +112,8 @@ export const WARRIOR_SKILLS = {
         name: '강철 의지',
         type: SKILL_TYPES.PASSIVE,
         icon: 'assets/icons/skills/iron_will.png',
+        tags: ['전사'],
+        requiredUserTags: ['전사'],
         description: '잃은 체력에 비례하여 받는 피해량이 최대 30%까지 감소합니다.',
         effect: {
             // 이 효과는 ConditionalManager가 실시간으로 계산하므로
