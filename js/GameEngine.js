@@ -96,6 +96,7 @@ import { OneTwoThreeManager } from './managers/OneTwoThreeManager.js';
 import { PassiveIsAlsoASkillManager } from './managers/PassiveIsAlsoASkillManager.js';
 import { ModifierEngine } from './managers/ModifierEngine.js';
 import { ModifierLogManager } from './managers/ModifierLogManager.js';
+import { DOMEngine } from './managers/DOMEngine.js'; // ✨ DOMEngine import
 // ✨ 상수 파일 임포트
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
@@ -120,6 +121,9 @@ export class GameEngine {
         this.eventManager = new EventManager();
         // ✨ CRITICAL_ERROR 이벤트 구독
         this.eventManager.subscribe(GAME_EVENTS.CRITICAL_ERROR, this._handleCriticalError.bind(this));
+
+        // ✨ DOMEngine 초기화 (EventManager 이후)
+        this.domEngine = new DOMEngine(this.eventManager);
         // JudgementManager는 EventManager 이후 초기화
         this.judgementManager = new JudgementManager(this.eventManager);
 
@@ -698,6 +702,9 @@ export class GameEngine {
         if (GAME_DEBUG_MODE) console.log("\u2699\ufe0f GameEngine initialized successfully. \u2699\ufe0f");
 
         this._setupEventListeners();
+
+        // ✨ 게임 시작 시 DOM UI 초기 상태 설정
+        this.domEngine.updateUIForScene(UI_STATES.MAP_SCREEN);
     }
 
     /**
@@ -992,5 +999,6 @@ export class GameEngine {
     getTerritoryUIManager() { return this.territoryUIManager; }
     getTerritorySceneManager() { return this.territorySceneManager; }
     getHideAndSeekManager() { return this.hideAndSeekManager; }
+    getDOMEngine() { return this.domEngine; }
 }
 
