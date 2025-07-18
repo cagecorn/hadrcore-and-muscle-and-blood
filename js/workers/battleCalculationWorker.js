@@ -7,13 +7,14 @@ self.onmessage = (event) => {
         case 'CALCULATE_DAMAGE': {
             // ✨ payload에서 defender's damage reduction 값을 추가로 받음
             // attackerUnitId도 함께 전달받아야 메인 스레드에서 사용 가능
-            const { attackerStats, targetStats, skillData, currentTargetHp, currentTargetBarrier, maxBarrier, preCalculatedDamageRoll, damageReduction, attackerUnitId } = payload; // attackerUnitId 추가
+            const { attackerStats, targetStats, skillData, currentTargetHp, currentTargetBarrier, maxBarrier, preCalculatedDamageRoll, damageReduction, attackerUnitId, targetUnitId } = payload;
 
             // 방어력 적용
-            let finalDamage = preCalculatedDamageRoll - targetStats.defense;
-            if (finalDamage < 0) finalDamage = 0;
+            let damageAfterDefense = preCalculatedDamageRoll - targetStats.defense;
+            if (damageAfterDefense < 0) damageAfterDefense = 0;
 
             // ✨ '강철 의지' 같은 패시브 스킬로 인한 최종 피해 감소 적용
+            let finalDamage = damageAfterDefense;
             if (damageReduction > 0) {
                 finalDamage *= (1 - damageReduction);
             }
@@ -43,12 +44,16 @@ self.onmessage = (event) => {
 
             self.postMessage({
                 type: 'DAMAGE_CALCULATED',
-                unitId: payload.targetUnitId,
-                attackerId: attackerUnitId, // 공격자 ID를 함께 전송
+                unitId: targetUnitId,
+                attackerId: attackerUnitId,
                 newHp: newHp,
-                newBarrier: newBarrier,          // ✨ 업데이트된 배리어 값 반환
-                hpDamageDealt: hpDamageDealt,    // ✨ HP로 들어간 데미지 반환
-                barrierDamageDealt: barrierDamageDealt // ✨ 배리어로 흡수된 데미지 반환
+                newBarrier: newBarrier,
+                hpDamageDealt: hpDamageDealt,
+                barrierDamageDealt: barrierDamageDealt,
+                preMitigationDamage: preCalculatedDamageRoll,
+                defense: targetStats.defense,
+                reduction: damageReduction,
+                finalDamage: finalDamage
             });
             break;
         }
