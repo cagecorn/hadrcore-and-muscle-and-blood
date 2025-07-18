@@ -14,6 +14,8 @@ export class UnitSpriteEngine {
         this.battleSimulationManager = battleSimulationManager;
         // 유닛의 상태별 스프라이트를 저장합니다. 구조: Map<unitId, Map<spriteState, HTMLImageElement>>
         this.unitSpriteMap = new Map();
+        // 반전된 이미지 캐시
+        this.flippedImageCache = new Map();
     }
 
     /**
@@ -63,6 +65,39 @@ export class UnitSpriteEngine {
         } else {
             if (GAME_DEBUG_MODE) console.warn(`[UnitSpriteEngine] Sprite for state '${spriteState}' not found for unit ${unitId}.`);
         }
+    }
+
+    /**
+     * 주어진 이미지를 수평으로 반전시킨 새 이미지를 반환합니다.
+     * 성능을 위해 반전된 이미지는 캐시됩니다.
+     * @param {HTMLImageElement} originalImage - 원본 이미지
+     * @returns {Promise<HTMLImageElement>} 수평으로 반전된 이미지
+     */
+    async getFlippedImage(originalImage) {
+        if (!originalImage || !originalImage.src) {
+            return originalImage;
+        }
+        if (this.flippedImageCache.has(originalImage.src)) {
+            return this.flippedImageCache.get(originalImage.src);
+        }
+
+        return new Promise((resolve) => {
+            const canvas = document.createElement('canvas');
+            const ctx = canvas.getContext('2d');
+            canvas.width = originalImage.width;
+            canvas.height = originalImage.height;
+
+            ctx.translate(originalImage.width, 0);
+            ctx.scale(-1, 1);
+            ctx.drawImage(originalImage, 0, 0);
+
+            const flippedImage = new Image();
+            flippedImage.onload = () => {
+                this.flippedImageCache.set(originalImage.src, flippedImage);
+                resolve(flippedImage);
+            };
+            flippedImage.src = canvas.toDataURL();
+        });
     }
 }
 

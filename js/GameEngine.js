@@ -74,6 +74,8 @@ import { PassiveIconManager } from './managers/PassiveIconManager.js';
 import { AttackManager } from './managers/AttackManager.js'; // <-- AttackManager 임포트
 import { BattleFormationManager } from './managers/BattleFormationManager.js';
 import { MonsterSpawnManager } from './managers/MonsterSpawnManager.js';
+import { EnemyEngine } from './managers/EnemyEngine.js';
+import { EnemySpawnManager } from './managers/EnemySpawnManager.js';
 import { UnitStatManager } from './managers/UnitStatManager.js';
 import { StageDataManager } from './managers/StageDataManager.js';
 import { RangeManager } from './managers/RangeManager.js';
@@ -456,6 +458,8 @@ export class GameEngine {
         // 12. Sprite & Action Managers
         // ------------------------------------------------------------------
         this.unitSpriteEngine = new UnitSpriteEngine(this.assetLoaderManager, this.battleSimulationManager);
+        // UnitSpriteEngine 초기화 이후 EnemyEngine을 준비합니다.
+        this.enemyEngine = new EnemyEngine(this.unitSpriteEngine);
         this.unitActionManager = new UnitActionManager(
             this.eventManager,
             this.unitSpriteEngine,
@@ -493,6 +497,8 @@ export class GameEngine {
 
         this.battleFormationManager = new BattleFormationManager(this.battleSimulationManager);
         this.monsterSpawnManager = new MonsterSpawnManager(this.idManager, this.assetLoaderManager, this.battleSimulationManager, this.stageDataManager);
+        // EnemySpawnManager 초기화
+        this.enemySpawnManager = new EnemySpawnManager(this.heroManager, this.enemyEngine, this.battleSimulationManager, this.idManager);
 
         // ------------------------------------------------------------------
         // 13. Conditional & Passive Visual Managers
@@ -709,8 +715,8 @@ export class GameEngine {
     }
 
     async _initBattleGrid() {
-        // 영웅은 이제 자동으로 생성되지 않습니다. 필요 시 recruitNewWarrior를 통해 고용하세요.
-        await this.monsterSpawnManager.spawnMonstersForStage('stage1');
+        // 영웅 데이터를 변환하여 적군 전사를 생성합니다.
+        await this.enemySpawnManager.spawnEnemyWarriors(5);
     }
 
     _update(deltaTime) {
@@ -861,6 +867,8 @@ export class GameEngine {
     getStatusIconManager() { return this.statusIconManager; }
     getBattleFormationManager() { return this.battleFormationManager; }
     getMonsterSpawnManager() { return this.monsterSpawnManager; }
+    getEnemyEngine() { return this.enemyEngine; }
+    getEnemySpawnManager() { return this.enemySpawnManager; }
     getShadowEngine() { return this.shadowEngine; } // ✨ ShadowEngine getter 추가
     getUnitSpriteEngine() { return this.unitSpriteEngine; }
     getUnitActionManager() { return this.unitActionManager; }
