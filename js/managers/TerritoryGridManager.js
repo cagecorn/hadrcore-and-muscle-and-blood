@@ -1,23 +1,14 @@
+/**
+ * Manages the placement grid for the territory screen.
+ * Currently renders a simple 3x2 layout of slots.
+ */
 export class TerritoryGridManager {
     constructor(measureManager) {
-        console.log("\u25a6 TerritoryGridManager initialized. Laying the foundations of your city.");
+        console.log("▦ TerritoryGridManager initialized. Laying the foundations of your city.");
         this.measureManager = measureManager;
         this.gridRows = 2;
         this.gridCols = 3;
-    }
-
-    getGridParameters() {
-        const canvasWidth = this.measureManager.get('gameResolution.width');
-        const canvasHeight = this.measureManager.get('gameResolution.height');
-        const tileSize = Math.min(
-            canvasWidth / (this.gridCols + 2),
-            canvasHeight / (this.gridRows + 2)
-        );
-        const totalWidth = tileSize * this.gridCols;
-        const totalHeight = tileSize * this.gridRows;
-        const offsetX = (canvasWidth - totalWidth) / 2;
-        const offsetY = (canvasHeight - totalHeight) / 2;
-        return { tileSize, offsetX, offsetY, totalWidth, totalHeight };
+        // tile size calculations can be updated via measureManager
     }
 
     draw(ctx) {
@@ -43,5 +34,19 @@ export class TerritoryGridManager {
             ctx.lineTo(offsetX + totalWidth, y);
             ctx.stroke();
         }
+    }
+
+    getGridParameters() {
+        const canvasWidth = this.measureManager.get('gameResolution.width');
+        const canvasHeight = this.measureManager.get('gameResolution.height');
+        const tileSize = Math.min(
+            canvasWidth / (this.gridCols + 2),
+            canvasHeight / (this.gridRows + 2)
+        );
+        const totalWidth = tileSize * this.gridCols;
+        const totalHeight = tileSize * this.gridRows;
+        const offsetX = (canvasWidth - totalWidth) / 2;
+        const offsetY = (canvasHeight - totalHeight) / 2;
+        return { tileSize, offsetX, offsetY, totalWidth, totalHeight };
     }
 }

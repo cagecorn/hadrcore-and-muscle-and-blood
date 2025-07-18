@@ -1,13 +1,17 @@
+/**
+ * Core logic engine for the territory system.
+ * Handles data updates but does no direct drawing.
+ */
 export class TerritoryEngine {
     constructor() {
-        console.log("\ud83c\udfe0 TerritoryEngine initialized. The heart of your domain.");
+        console.log("🏰 TerritoryEngine initialized. The heart of your domain.");
     }
 
     update(deltaTime) {
-        // Placeholder for future territory logic updates
+        // Process building construction, resource production, etc.
     }
 
     draw(ctx) {
-        // Drawing is delegated to specific managers like TerritoryBackgroundManager
+        // This engine delegates all drawing to other managers.
     }
 }

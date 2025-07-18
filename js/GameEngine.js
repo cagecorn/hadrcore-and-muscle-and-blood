@@ -57,7 +57,6 @@ import { BirthReportManager } from './managers/BirthReportManager.js';
 import { SynergyEngine } from './managers/SynergyEngine.js'; // ✨ SynergyEngine 추가
 import { STATUS_EFFECTS } from '../data/statusEffects.js';
 
-import { TerritoryManager } from './managers/TerritoryManager.js';
 import { TerritoryEngine } from './managers/TerritoryEngine.js';
 import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManager.js';
 import { TerritoryGridManager } from './managers/TerritoryGridManager.js';
@@ -280,15 +279,12 @@ export class GameEngine {
         this.territoryEngine = new TerritoryEngine();
         this.territoryBackgroundManager = new TerritoryBackgroundManager(this.assetLoaderManager);
         this.territoryGridManager = new TerritoryGridManager(this.measureManager);
-        this.territoryInputManager = new TerritoryInputManager(this.eventManager, this.territoryGridManager, this.renderer.canvas);
-        this.territorySceneManager = new TerritorySceneManager(this.sceneEngine);
-        this.territoryManager = new TerritoryManager(
-            this.assetLoaderManager,
-            this.measureManager,
+        this.territoryInputManager = new TerritoryInputManager(
             this.eventManager,
-            this.sceneEngine,
+            this.territoryGridManager,
             this.renderer.canvas
         );
+        this.territorySceneManager = new TerritorySceneManager(this.sceneEngine);
         this.battleStageManager = new BattleStageManager(this.assetLoaderManager); // ✨ assetLoaderManager 전달
         this.battleGridManager = new BattleGridManager(this.measureManager, this.logicManager);
         // ✨ CoordinateManager 초기화 - BattleSimulationManager 후
@@ -563,7 +559,11 @@ export class GameEngine {
         // 13. Scene Registrations & Layer Engine Setup
         // ------------------------------------------------------------------
         // ✨ sceneEngine에 UI_STATES 상수 사용
-        this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, [this.territoryManager]);
+        this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, [
+            this.territoryBackgroundManager,
+            this.territoryGridManager,
+            this.territoryEngine
+        ]);
         this.sceneEngine.registerScene(UI_STATES.COMBAT_SCREEN, [
             this.battleStageManager,    // 배경 그리기
             this.battleGridManager,     // 그리드 그리기
@@ -948,5 +948,4 @@ export class GameEngine {
     getTerritoryGridManager() { return this.territoryGridManager; }
     getTerritoryInputManager() { return this.territoryInputManager; }
     getTerritorySceneManager() { return this.territorySceneManager; }
-    getTerritoryManager() { return this.territoryManager; }
 }
