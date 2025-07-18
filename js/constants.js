@@ -1,6 +1,5 @@
 export const GAME_EVENTS = {
     UNIT_DEATH: 'unitDeath',
-    SKILL_EXECUTED: 'skillExecuted',
     DISPLAY_SKILL_NAME: 'displaySkillName', // 스킬 이름 표시 요청 이벤트
     BATTLE_START: 'battleStart',
     BATTLE_END: 'battleEnd',
@@ -19,6 +18,10 @@ export const GAME_EVENTS = {
     LOG_MESSAGE: 'logMessage',
     WEAPON_DROPPED: 'weaponDropped',
     UNIT_DISARMED: 'unitDisarmed',
+    UNIT_REMOVED_FROM_GRID: 'unitRemovedFromGrid',
+    SKILL_EXECUTED: 'skillExecuted', // 스킬이 실행됨
+    SKILL_SLOT_ACTIVATED: 'skillSlotActivated', // N번째 스킬 슬롯이 활성화됨
+    PASSIVE_SKILL_MAINTAINED: 'passiveSkillMaintained', // 패시브 스킬이 턴마다 유지됨
     REQUEST_STATUS_EFFECT_APPLICATION: 'requestStatusEffectApplication',
     DRAG_START: 'dragStart',
     DRAG_MOVE: 'dragMove',
