@@ -58,7 +58,7 @@ export function injectLogicManagerFaults(logicManager) {
         }
     };
     const mockSceneManagerTerritory = {
-        getCurrentSceneName: () => 'territoryScene'
+        getCurrentSceneName: () => 'mapScreen'
     };
     const faultyLogicManager2 = new logicManager.constructor(mockMeasureManagerNoResolution, mockSceneManagerTerritory);
     let warnCalled2 = false;
