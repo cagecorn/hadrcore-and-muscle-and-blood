@@ -63,16 +63,25 @@ export class WarriorSkillsAI {
 
             if (closestEnemy) {
                 const attackRange = userUnit.baseStats.attackRange || 1;
-                let distance = Math.abs(userUnit.gridX - closestEnemy.gridX) + Math.abs(userUnit.gridY - closestEnemy.gridY);
+                let inRange = this.managers.rangeManager.isTargetInRange(userUnit, closestEnemy);
 
                 // 사거리 밖이면 이동 시도
-                if (distance > attackRange) {
+                if (!inRange) {
                     const moveRange = userUnit.baseStats.moveRange || 1;
-                    await this.managers.movingManager.chargeMove(userUnit, closestEnemy.gridX, closestEnemy.gridY, moveRange);
-                    distance = Math.abs(userUnit.gridX - closestEnemy.gridX) + Math.abs(userUnit.gridY - closestEnemy.gridY);
+                    let moved = await this.managers.movingManager.chargeMove(userUnit, closestEnemy.gridX, closestEnemy.gridY, moveRange);
+
+                    if (!moved) {
+                        moved = await this.managers.movingManager.advanceTowards?.(userUnit, closestEnemy.gridX, closestEnemy.gridY, moveRange);
+                    }
+
+                    if (!moved && GAME_DEBUG_MODE) {
+                        console.log(`[WarriorSkillsAI] Could not move closer to target for additional attack.`);
+                    }
+
+                    inRange = this.managers.rangeManager.isTargetInRange(userUnit, closestEnemy);
                 }
 
-                if (distance <= attackRange) {
+                if (inRange) {
                     this.managers.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
                         attackerId: userUnit.id,
                         targetId: closestEnemy.id,
@@ -83,7 +92,7 @@ export class WarriorSkillsAI {
                     this.managers.battleCalculationManager.requestDamageCalculation(userUnit.id, closestEnemy.id, normalAttackData);
                     await this.managers.delayEngine.waitFor(500);
                 } else if (GAME_DEBUG_MODE) {
-                    console.log(`[WarriorSkillsAI] Additional attack skipped. Target still out of range (${distance} > ${attackRange}).`);
+                    console.log(`[WarriorSkillsAI] Additional attack skipped. Target still out of range.`);
                 }
             } else {
                 console.log(`[WarriorSkillsAI] No target found for additional attack.`);
