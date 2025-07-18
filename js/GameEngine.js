@@ -895,6 +895,7 @@ export class GameEngine {
     getMercenaryPanelManager() { return this.mercenaryPanelManager; }
     getPanelEngine() { return this.panelEngine; }
     getBattleLogManager() { return this.battleLogManager; }
+    getVFXManager() { return this.vfxManager; }
     getBindingManager() { return this.bindingManager; }
 
     // 새로운 엔진들에 대한 getter 메서드
