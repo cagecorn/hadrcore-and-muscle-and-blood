@@ -4,7 +4,7 @@ import { GAME_EVENTS, GAME_DEBUG_MODE, SKILL_TYPE_COLORS } from '../constants.js
 
 export class VFXManager {
     // animationManager를 추가로 받아 유닛의 애니메이션 위치를 참조합니다.
-    constructor(renderer, measureManager, cameraEngine, battleSimulationManager, animationManager, eventManager, particleEngine = null, domCoordinateManager) {
+    constructor(renderer, measureManager, cameraEngine, battleSimulationManager, animationManager, eventManager, particleEngine = null) { // ✨ particleEngine 추가
         if (GAME_DEBUG_MODE) console.log("\u2728 VFXManager initialized. Ready to render visual effects. \u2728");
         this.renderer = renderer;
         this.measureManager = measureManager;
@@ -13,9 +13,8 @@ export class VFXManager {
         this.animationManager = animationManager; // ✨ AnimationManager 저장
         this.eventManager = eventManager;
         this.particleEngine = particleEngine; // ✨ ParticleEngine 저장
-        this.domCoordinateManager = domCoordinateManager;
 
-        this.activeEffectsCount = 0;
+        this.activeDamageNumbers = [];
         this.activeSkillNames = []; // 스킬 이름 효과 배열
 
         this.activeWeaponDrops = new Map(); // unitId => animation data
@@ -71,20 +70,14 @@ export class VFXManager {
             return;
         }
 
-        const effectId = `vfx-damage-${this.activeEffectsCount++}`;
-        const element = document.createElement('div');
-        element.className = 'damage-number';
-        element.textContent = damageAmount;
-        element.style.color = color;
-
-        this.domCoordinateManager.trackElement(effectId, element, unitId, { offsetY: -40 });
-
-        element.style.animation = `floatUp 1s forwards`;
-
-        setTimeout(() => {
-            this.domCoordinateManager.untrackElement(effectId);
-        }, 1000);
-
+        this.activeDamageNumbers.push({
+            unitId: unitId,
+            damage: damageAmount,
+            startTime: performance.now(),
+            duration: this.measureManager.get('vfx.damageNumberDuration'),
+            floatSpeed: this.measureManager.get('vfx.damageNumberFloatSpeed'),
+            color: color
+        });
         if (GAME_DEBUG_MODE) console.log(`[VFXManager] Added damage number: ${damageAmount} (${color}) for ${unit.name}`);
     }
 
@@ -101,20 +94,15 @@ export class VFXManager {
         }
 
         const color = SKILL_TYPE_COLORS[skillType] || '#FFD700';
-        const effectId = `vfx-skill-${this.activeEffectsCount++}`;
-        const element = document.createElement('div');
-        element.className = 'skill-name';
-        element.textContent = skillName;
-        element.style.color = color;
 
-        this.domCoordinateManager.trackElement(effectId, element, unitId, { offsetY: -70 });
-
-        element.style.animation = `floatUpAndFade 1.5s forwards`;
-
-        setTimeout(() => {
-            this.domCoordinateManager.untrackElement(effectId);
-        }, 1500);
-
+        this.activeSkillNames.push({
+            unitId,
+            text: skillName,
+            startTime: performance.now(),
+            duration: 1500,
+            floatSpeed: 0.04,
+            color
+        });
         if (GAME_DEBUG_MODE) console.log(`[VFXManager] Added skill name: '${skillName}' for ${unit.name}`);
     }
 
@@ -193,6 +181,21 @@ export class VFXManager {
      */
     update(deltaTime) {
         const currentTime = performance.now();
+        let i = this.activeDamageNumbers.length;
+        while (i--) {
+            const dmgNum = this.activeDamageNumbers[i];
+            if (currentTime - dmgNum.startTime >= dmgNum.duration) {
+                this.activeDamageNumbers.splice(i, 1);
+            }
+        }
+
+        let j = this.activeSkillNames.length;
+        while (j--) {
+            const effect = this.activeSkillNames[j];
+            if (currentTime - effect.startTime >= effect.duration) {
+                this.activeSkillNames.splice(j, 1);
+            }
+        }
 
         // 무기 드롭 애니메이션 업데이트
         for (const [unitId, drop] of this.activeWeaponDrops.entries()) {
@@ -228,6 +231,7 @@ export class VFXManager {
     }
 
     clearEffects() {
+        this.activeDamageNumbers = [];
         this.activeSkillNames = [];
         this.activeWeaponDrops.clear();
         this.bleedingUnits.clear();
@@ -355,7 +359,74 @@ export class VFXManager {
             }
         }
 
+        // ✨ 데미지 숫자 그리기
         const currentTime = performance.now();
+        for (const dmgNum of this.activeDamageNumbers) {
+            const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === dmgNum.unitId);
+            if (!unit) continue;
+
+            const { drawX, drawY } = this.animationManager.getRenderPosition(
+                unit.id,
+                unit.gridX,
+                unit.gridY,
+                effectiveTileSize,
+                gridOffsetX,
+                gridOffsetY
+            );
+
+            const elapsed = currentTime - dmgNum.startTime;
+            const progress = elapsed / dmgNum.duration;
+
+            const currentYOffset = this.measureManager.get('vfx.damageNumberFloatSpeed') * elapsed; // ✨ 비율 사용
+            const alpha = Math.max(0, 1 - progress);
+
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = dmgNum.color || ((dmgNum.damage > 0) ? '#FF4500' : '#00FF00');
+            const baseFontSize = this.measureManager.get('vfx.damageNumberBaseFontSize');
+            const scaleFactor = this.measureManager.get('vfx.damageNumberScaleFactor');
+            ctx.font = `bold ${baseFontSize + (1 - progress) * scaleFactor}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(
+                dmgNum.damage.toString(),
+                drawX + effectiveTileSize / 2,
+                drawY - currentYOffset - this.measureManager.get('vfx.damageNumberVerticalOffset')
+            );
+            ctx.restore();
+        }
+
+        for (const effect of this.activeSkillNames) {
+            const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === effect.unitId);
+            if (!unit) continue;
+
+            const { drawX, drawY } = this.animationManager.getRenderPosition(
+                unit.id,
+                unit.gridX,
+                unit.gridY,
+                effectiveTileSize,
+                gridOffsetX,
+                gridOffsetY
+            );
+
+            const elapsed = currentTime - effect.startTime;
+            const progress = elapsed / effect.duration;
+            const currentYOffset = effect.floatSpeed * elapsed;
+            const alpha = Math.max(0, 1 - progress);
+
+            ctx.save();
+            ctx.globalAlpha = alpha;
+            ctx.fillStyle = effect.color;
+            ctx.font = `bold ${effectiveTileSize * 0.25}px Arial`;
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'bottom';
+            ctx.fillText(
+                effect.text,
+                drawX + effectiveTileSize / 2,
+                drawY - currentYOffset - (effectiveTileSize * 0.2)
+            );
+            ctx.restore();
+        }
 
         // ✨ 무기 드롭 애니메이션 그리기
         for (const [unitId, drop] of this.activeWeaponDrops.entries()) {
