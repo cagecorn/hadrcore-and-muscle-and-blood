@@ -1,68 +1,47 @@
-import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES } from '../constants.js';
+// js/managers/ClassAIManager.js
 
+import { ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
+
+/**
+ * \uC720\uB2C8\uD2B8\uC758 \ud0c0\uc785(\uc544\uad70/\uc801\uad70)\uc5d0 \ub530\ub77c \uc801\uc808\ud55c AI \uba54\ub2c8\uc800\ub97c \ud638\ucd9c\ud558\ub294 \ucd1d\uAD00 AI \uba54\ub2c8\uc800\uc785\uB2C8\uB2E4.
+ */
 export class ClassAIManager {
-    constructor(idManager, battleSimulationManager, basicAIManager, warriorSkillsAI, targetingManager, monsterAI, slotMachineManager, eventManager) {
-        console.log("\u2694\uFE0F ClassAIManager initialized. Ready to command units based on class.");
-        this.idManager = idManager;
-        this.battleSimulationManager = battleSimulationManager;
-        this.basicAIManager = basicAIManager;
-        this.warriorSkillsAI = warriorSkillsAI;
-        this.targetingManager = targetingManager;
+    constructor(heroAIManager, monsterAI, warriorSkillsAI) {
+        console.log("\u2694\ufe0f ClassAIManager initialized. Ready to delegate commands.");
+        this.heroAIManager = heroAIManager;
         this.monsterAI = monsterAI;
-        this.slotMachineManager = slotMachineManager; // 슬롯 머신 매니저 저장
-        this.eventManager = eventManager;
+        this.warriorSkillsAI = warriorSkillsAI; // \uc2a4\ud0ac \uc2e4\ud589 \ub85c\uc9c1\uc740 \uc5c4\ucd0c\ud788 \ud544\uc694\ud569\ub2c8\ub2e4.
     }
 
+    /**
+     * \uC720\uB2C8\uD2B8\uc758 \ud0c0\uc785\uc5d0 \ub530\ub77c \ud589\ub3d9 \uACB0\uc815\uc744 \uc704\uc784\ud569\ub2c8\ub2e4.
+     * @param {object} unit - \ud589\ub3d9\ud560 \uc720\ub2c8\ud2b8
+     * @param {object[]} allUnits - \uc804\uc7c1\uc758 \ubaa8\ub4e0 \uc720\ub2c8\ud2b8 \ubc30\uc5f4
+     * @returns {Promise<object|null>} \uACB0\uc815\ub41c \ud589\ub3d9 \uac1d\uccb4
+     */
     async getBasicClassAction(unit, allUnits) {
-        // 적 유닛은 몬스터 AI를 사용
         if (unit.type === ATTACK_TYPES.ENEMY) {
+            // \uc801 \uc720\ub2c8\ud2b8\ub294 MonsterAI\ub97c \uc0ac\uc6a9\ud569\ub2c8\ub2e4.
             return this.monsterAI.getMeleeAIAction(unit, allUnits);
+        } else {
+            // \uc544\uAD70 \uc601\uC6C5 \uC720\uB2C8\uD2B8\ub294 \uc0c8\ub85c\uc6b4 HeroAIManager\ub97c \uc0ac\uc6a9\ud569\ub2c8\ub2e4.
+            return this.heroAIManager.determineAction(unit, allUnits);
         }
-
-        // \uD83C\uDFB0 슬롯 머신을 돌려 스킬을 결정합니다!
-        const skillToUse = await this.slotMachineManager.spin(unit);
-
-        // 슬롯 머신에서 스킬이 당첨되었다면,
-        if (skillToUse) {
-            let targetUnit = null;
-            // 버프 스킬이나 사거리가 0인 스킬은 자신을 대상으로 합니다.
-            if (skillToUse.type === 'buff' || skillToUse.range === 0) {
-                targetUnit = unit;
-            } else { // 그 외에는 가장 가까운 적을 대상으로 합니다.
-                targetUnit = this.targetingManager.findBestTarget('enemy', 'closest', unit);
-            }
-
-            // 스킬 사용에 타겟이 필요했는데 못 찾은 경우만 제외
-            if (targetUnit) {
-                return {
-                    actionType: 'skill',
-                    skillId: skillToUse.id,
-                    targetId: targetUnit.id,
-                    execute: () => this.executeSkillAI(unit, skillToUse, targetUnit)
-                };
-            }
-        }
-
-        // 스킬이 당첨되지 않았거나, 타겟을 못 찾았다면 기본 행동(이동 및 공격)을 합니다.
-        if (GAME_DEBUG_MODE) console.log(`[ClassAIManager] No skill was chosen for ${unit.name}, proceeding with basic AI.`);
-        const defaultMoveRange = unit.baseStats.moveRange || 1;
-        const defaultAttackRange = unit.baseStats.attackRange || 1;
-        return this.basicAIManager.determineMoveAndTarget(unit, allUnits, defaultMoveRange, defaultAttackRange);
     }
-    
+
+    /**
+     * \uC2A4\ud0ac AI \uc2e4\ud589 \ud568\uc218\ub294 \uacc4\uc18d \uc720\uc9c0\ud569\ub2c8\ub2e4.
+     * HeroAIManager\uc640 \uac19\uc740 \uACF3\uc5D0\uc11c \uc774 \ud568\uc218\ub97c \ud638\ucd9c\ud574 \uc2A4\ud0ac\uc744 \uc2e4\ud589\ud569\ub2c8\ub2e4.
+     * @param {object} userUnit - \uc2A4\ud0ac \uc0ac\uc6A9\uc790
+     * @param {object} skillData - \uc2A4\ud0ac \ub370\uc774\ud130
+     * @param {object} targetUnit - \uc2A4\ud0ac \ub300\uc0c1
+     */
     async executeSkillAI(userUnit, skillData, targetUnit) {
-        this.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, { unitId: userUnit.id, skillId: skillData.id });
-        if (!skillData.aiFunction) {
-            if (GAME_DEBUG_MODE) console.warn(`[ClassAIManager] Skill '${skillData.name}' has no 'aiFunction' property to execute.`);
-            return;
-        }
-
         const aiFunction = this.warriorSkillsAI[skillData.aiFunction];
-
         if (typeof aiFunction === 'function') {
             await aiFunction.call(this.warriorSkillsAI, userUnit, targetUnit, skillData);
         } else {
-            if (GAME_DEBUG_MODE) console.warn(`[ClassAIManager] AI function '${skillData.aiFunction}' not found in WarriorSkillsAI for skill '${skillData.name}'.`);
+            if (GAME_DEBUG_MODE) console.warn(`[ClassAIManager] AI function '${skillData.aiFunction}' not found for skill '${skillData.name}'.`);
         }
     }
 }

@@ -49,11 +49,11 @@ import { TurnCountManager } from './managers/TurnCountManager.js';
 import { StatusEffectManager } from './managers/StatusEffectManager.js';
 import { WorkflowManager } from './managers/WorkflowManager.js';
 import { HeroEngine } from "./managers/HeroEngine.js"; // HeroEngine 추가
-import { MicrocosmHeroEngine } from './managers/MicrocosmHeroEngine.js'; // ✨ microcosm hero engine
 import { HeroManager } from './managers/HeroManager.js'; // ✨ HeroManager import
 import { BirthReportManager } from './managers/BirthReportManager.js';
 import { SynergyEngine } from './managers/SynergyEngine.js'; // ✨ SynergyEngine 추가
 import { STATUS_EFFECTS } from '../data/statusEffects.js';
+import { HeroAIManager } from './managers/HeroAIManager.js';
 
 import { TerritoryManager } from './managers/TerritoryManager.js';
 import { BattleStageManager } from './managers/BattleStageManager.js';
@@ -302,16 +302,12 @@ export class GameEngine {
         // ------------------------------------------------------------------
         // 9. Game Content & Feature Engines
         // ------------------------------------------------------------------
-        // ✨ 9-1. Microcosm Hero Engine
-        this.microcosmHeroEngine = new MicrocosmHeroEngine(this.idManager);
-
-        // HeroEngine 초기화
+        // HeroEngine \ucd08\uae30\ud654
         this.heroEngine = new HeroEngine(
             this.idManager,
             this.assetLoaderManager,
             this.diceEngine,
-            this.diceBotEngine,
-            this.microcosmHeroEngine
+            this.diceBotEngine
         );
 
         // ✨ SynergyEngine 초기화
@@ -440,7 +436,14 @@ export class GameEngine {
         this.basicAIManager = this.aiModule.basicAIManager;
         this.monsterAI = this.aiModule.monsterAI;
         this.warriorSkillsAI = this.aiModule.warriorSkillsAI;
-        this.classAIManager = this.aiModule.classAIManager;
+        // \uC0c8\ub85c\uc6b4 HeroAIManager \uc0dd\uc131
+        this.heroAIManager = new HeroAIManager(this.slotMachineManager, this.basicAIManager, this.targetingManager, null);
+
+        // ClassAIManager\ub97c \ub2e4\uc2dc \uc0dd\uc131\ud558\uBA70 HeroAIManager\ub97c \uc8fc\uc785\ud569\ub2c8\ub2e4.
+        this.classAIManager = new ClassAIManager(this.heroAIManager, this.monsterAI, this.warriorSkillsAI);
+
+        // HeroAIManager\uAC00 ClassAIManager\ub97c \ucc38\uc870\ud560 \uc218 \uc788\ub3c4\ub85d \uc124\uc815
+        this.heroAIManager.classAIManager = this.classAIManager;
         this.monsterEngine = new MonsterEngine(this.monsterAI);
         this.oneTwoThreeManager = new OneTwoThreeManager(this.eventManager, this.battleSimulationManager);
         this.passiveIsAlsoASkillManager = new PassiveIsAlsoASkillManager(this.eventManager, this.battleSimulationManager, this.idManager);
@@ -450,7 +453,6 @@ export class GameEngine {
             this.eventManager,
             this.battleSimulationManager,
             this.turnOrderManager,
-            this.microcosmHeroEngine,
             this.classAIManager,
             this.delayEngine,
             this.timingEngine,
@@ -852,7 +854,6 @@ export class GameEngine {
     getDiceEngine() { return this.diceEngine; }
     getDiceRollManager() { return this.diceRollManager; }
     getHeroEngine() { return this.heroEngine; }
-    getMicrocosmHeroEngine() { return this.microcosmHeroEngine; }
     // ✨ HeroManager getter 추가
     getHeroManager() { return this.heroManager; }
     // ✨ SynergyEngine getter 추가

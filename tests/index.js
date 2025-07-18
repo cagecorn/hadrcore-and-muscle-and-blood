@@ -13,7 +13,6 @@ export { runStatusIconManagerUnitTests } from './unit/statusIconManagerUnitTests
 export { runMovingManagerUnitTests } from './unit/movingManagerUnitTests.js'; // ✨ MovingManager 단위 테스트 추가
 export { runWarriorSkillsAIUnitTests } from './unit/warriorSkillsAIUnitTests.js'; // ✨ WarriorSkillsAI 테스트 임포트 확인
 export { runShadowEngineUnitTests } from './unit/shadowEngineUnitTests.js'; // ✨ ShadowEngine 단위 테스트 추가
-export { runMicrocosmHeroEngineUnitTests } from './unit/microcosmHeroEngineUnitTests.js'; // 👈 추가
 export { runSoundEngineUnitTests } from './unit/soundEngineUnitTests.js'; // <-- 이 줄 추가
 
 // new unit tests

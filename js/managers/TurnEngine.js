@@ -4,12 +4,11 @@
 import { GAME_EVENTS, UI_STATES, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 
 export class TurnEngine {
-    constructor(eventManager, battleSimulationManager, turnOrderManager, microcosmHeroEngine, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager, statusEffectManager, rangeManager) {
+    constructor(eventManager, battleSimulationManager, turnOrderManager, classAIManager, delayEngine, timingEngine, animationManager, battleCalculationManager, statusEffectManager, rangeManager) {
         if (GAME_DEBUG_MODE) console.log("\uD83D\uDD01 TurnEngine initialized. Ready to manage game turns. \uD83D\uDD01");
         this.eventManager = eventManager;
         this.battleSimulationManager = battleSimulationManager;
         this.turnOrderManager = turnOrderManager;
-        this.microcosmHeroEngine = microcosmHeroEngine;
         this.classAIManager = classAIManager;
         this.delayEngine = delayEngine;
         this.timingEngine = timingEngine;
@@ -109,20 +108,8 @@ export class TurnEngine {
             if (!canUnitAct) {
                 await this.delayEngine.waitFor(500);
             } else {
-                const battleState = {
-                    enemies: this.battleSimulationManager.unitsOnGrid.filter(u => u.type !== unit.type),
-                    allies: this.battleSimulationManager.unitsOnGrid.filter(u => u.type === unit.type)
-                };
-                if (this.microcosmHeroEngine.hasHeroMicrocosm(unit.id)) {
-                    try {
-                        action = await this.microcosmHeroEngine.determineHeroAction(unit.id, battleState);
-                    } catch (e) {
-                        if (GAME_DEBUG_MODE) console.warn(`[TurnEngine] Microcosm action failed for ${unit.name}:`, e);
-                    }
-                }
-                if (!action) {
-                    action = await this.classAIManager.getBasicClassAction(unit, this.battleSimulationManager.unitsOnGrid);
-                }
+                // ClassAIManager\uAC00 \ubaa8\ub4e0 \uc720\ub2c8\ud2b8\uc758 \ud589\ub3d9\uc744 \uacb0\uc815\ud569\ub2c8\ub2e4.
+                action = await this.classAIManager.getBasicClassAction(unit, this.battleSimulationManager.unitsOnGrid);
             }
 
             // JudgementManager가 AI 결정을 감시할 수 있도록 알림
