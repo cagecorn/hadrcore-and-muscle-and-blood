@@ -6,21 +6,34 @@ export class TerritoryInputManager {
         this.territoryUIManager = territoryUIManager;
         this.hoveredTile = null;
 
-        if (this.canvas) {
-            this.canvas.addEventListener('mousemove', (event) => {
-                const rect = this.canvas.getBoundingClientRect();
-                const mouseX = event.clientX - rect.left;
-                const mouseY = event.clientY - rect.top;
-                this.handleMouseMove(mouseX, mouseY, this.canvas.width, this.canvas.height);
-            });
+        this._onMouseMove = (event) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+            this.handleMouseMove(mouseX, mouseY, this.canvas.width, this.canvas.height);
+        };
 
-            this.canvas.addEventListener('mousedown', (event) => {
-                const rect = this.canvas.getBoundingClientRect();
-                const mouseX = event.clientX - rect.left;
-                const mouseY = event.clientY - rect.top;
-                this.handleMouseClick(mouseX, mouseY, this.canvas.width, this.canvas.height);
-            });
+        this._onMouseDown = (event) => {
+            const rect = this.canvas.getBoundingClientRect();
+            const mouseX = event.clientX - rect.left;
+            const mouseY = event.clientY - rect.top;
+            this.handleMouseClick(mouseX, mouseY, this.canvas.width, this.canvas.height);
+        };
+
+        if (this.canvas) {
+            this.canvas.addEventListener('mousemove', this._onMouseMove);
+            this.canvas.addEventListener('mousedown', this._onMouseDown);
         }
+    }
+
+    cleanup() {
+        if (this.canvas) {
+            this.canvas.removeEventListener('mousemove', this._onMouseMove);
+            this.canvas.removeEventListener('mousedown', this._onMouseDown);
+        }
+        this.territoryUIManager.hideTooltip();
+        this.territoryUIManager.stopAnimation('tavern-icon');
+        console.log('[TerritoryInputManager] Event listeners removed.');
     }
 
     handleMouseClick(mouseX, mouseY, canvasWidth, canvasHeight) {
