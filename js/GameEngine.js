@@ -22,6 +22,7 @@ import { VFXManager } from './managers/VFXManager.js';
 import { ParticleEngine } from './managers/ParticleEngine.js'; // ✨ ParticleEngine 임포트
 import { ShadowEngine } from './managers/ShadowEngine.js'; // ✨ ShadowEngine 추가
 import { MovingManager } from './managers/MovingManager.js'; // ✨ MovingManager 추가
+import { DOMCoordinateManager } from './managers/DOMCoordinateManager.js'; // ✨ DOMCoordinateManager 추가
 import { DisarmManager } from './managers/DisarmManager.js'; // ✨ DisarmManager 임포트
 import { CanvasBridgeManager } from './managers/CanvasBridgeManager.js'; // ✨ CanvasBridgeManager 추가
 import { SkillIconManager } from './managers/SkillIconManager.js'; // ✨ SkillIconManager 추가
@@ -198,6 +199,9 @@ export class GameEngine {
         // 2. CameraEngine 초기화 (ParticleEngine에서 사용)
         this.cameraEngine = new CameraEngine(this.renderer, this.logicManager, this.sceneEngine);
 
+        // ✨ DOMCoordinateManager 초기화
+        this.domCoordinateManager = new DOMCoordinateManager(this.cameraEngine, this.battleSimulationManager);
+
         // 3. ParticleEngine 초기화 (battleSimulationManager와 cameraEngine 의존)
         this.particleEngine = new ParticleEngine(
             this.measureManager,
@@ -309,7 +313,8 @@ export class GameEngine {
             this.battleSimulationManager,
             this.animationManager,
             this.eventManager,
-            this.particleEngine
+            this.particleEngine,
+            this.domCoordinateManager
         );
         this.vfxManager.assetLoaderManager = this.assetLoaderManager;
         this.vfxManager.statusEffectManager = this.statusEffectManager;
@@ -809,6 +814,7 @@ export class GameEngine {
         this.animationManager.update(deltaTime);
         this.statusEffectManager.update(deltaTime);
         this.vfxManager.update(deltaTime);
+        this.domCoordinateManager.update();
         this.particleEngine.update(deltaTime); // ✨ ParticleEngine 업데이트 호출
         // ✨ DetailInfoManager 업데이트 호출
         this.detailInfoManager.update(deltaTime);

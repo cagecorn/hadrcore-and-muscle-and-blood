@@ -71,4 +71,16 @@ export class CameraEngine {
         const worldY = (screenY - this.y) / this.zoom;
         return { x: worldX, y: worldY };
     }
+
+    /**
+     * 게임 월드 좌표를 화면 좌표로 변환합니다.
+     * @param {number} worldX - 게임 월드상의 X 좌표
+     * @param {number} worldY - 게임 월드상의 Y 좌표
+     * @returns {{x:number, y:number}} 변환된 화면 좌표
+     */
+    worldToScreen(worldX, worldY) {
+        const screenX = (worldX * this.zoom) + this.x;
+        const screenY = (worldY * this.zoom) + this.y;
+        return { x: screenX, y: screenY };
+    }
 }
