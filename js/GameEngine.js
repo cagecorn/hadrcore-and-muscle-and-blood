@@ -87,6 +87,7 @@ import { StackEngine } from './managers/StackEngine.js'; // ✨ StackEngine 임�
 import { OneTwoThreeManager } from './managers/OneTwoThreeManager.js';
 import { PassiveIsAlsoASkillManager } from './managers/PassiveIsAlsoASkillManager.js';
 import { ModifierEngine } from './managers/ModifierEngine.js';
+import { ModifierLogManager } from './managers/ModifierLogManager.js';
 // ✨ 상수 파일 임포트
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
@@ -121,6 +122,9 @@ export class GameEngine {
         this.measureManager = new MeasureManager();
         this.ruleManager = new RuleManager();
         this.soundEngine = new SoundEngine(); // <-- SoundEngine 인스턴스 생성
+
+        // 1. ModifierLogManager 초기화
+        this.modifierLogManager = new ModifierLogManager();
 
         // ------------------------------------------------------------------
         // 2. Scene & Logic Managers
@@ -347,7 +351,7 @@ export class GameEngine {
         // ------------------------------------------------------------------
         this.conditionalManager = new ConditionalManager(this.battleSimulationManager, this.idManager);
 
-        this.modifierEngine = new ModifierEngine(this.statusEffectManager, this.conditionalManager);
+        this.modifierEngine = new ModifierEngine(this.statusEffectManager, this.conditionalManager, this.modifierLogManager);
 
         // ------------------------------------------------------------------
         // 12. Combat Flow & AI Managers
@@ -378,9 +382,10 @@ export class GameEngine {
         this.modifierEngine.statusEffectManager = this.statusEffectManager;
         
         // 이제 StatusEffectManager가 준비되었으므로 DiceRollManager를 생성
-        this.diceRollManager = new DiceRollManager(this.diceEngine, this.valorEngine, this.statusEffectManager, this.modifierEngine);
+        this.diceRollManager = new DiceRollManager(this.diceEngine, this.valorEngine, this.statusEffectManager, this.modifierEngine, this.modifierLogManager);
         this.battleCalculationManager.diceRollManager = this.diceRollManager;
         this.battleCalculationManager.modifierEngine = this.modifierEngine;
+        this.battleCalculationManager.modifierLogManager = this.modifierLogManager;
         this.workflowManager = new WorkflowManager(
             this.eventManager,
             this.statusEffectManager,
@@ -912,6 +917,7 @@ export class GameEngine {
     getOneTwoThreeManager() { return this.oneTwoThreeManager; }
     getPassiveIsAlsoASkillManager() { return this.passiveIsAlsoASkillManager; }
     getModifierEngine() { return this.modifierEngine; }
+    getModifierLogManager() { return this.modifierLogManager; }
     // ✨ StackEngine getter 추가
     getStackEngine() { return this.stackEngine; }
 }

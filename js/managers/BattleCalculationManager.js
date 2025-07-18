@@ -13,6 +13,7 @@ export class BattleCalculationManager {
         this.unitStatManager = unitStatManager;
         this.statusEffectManager = statusEffectManager;
         this.modifierEngine = modifierEngine;
+        this.modifierLogManager = null; // GameEngine에서 주입됨
         this.worker = new Worker('./js/workers/battleCalculationWorker.js');
 
         this.worker.onmessage = this._handleWorkerMessage.bind(this);
@@ -28,9 +29,18 @@ export class BattleCalculationManager {
     }
 
     async _handleWorkerMessage(event) {
-        const { type, unitId, attackerId, hpDamageDealt, barrierDamageDealt } = event.data; // attackerId 추가
+        const { type, unitId, attackerId, hpDamageDealt, barrierDamageDealt, preMitigationDamage, defense, reduction, finalDamage } = event.data;
 
         if (type === GAME_EVENTS.DAMAGE_CALCULATED) {
+            this.modifierLogManager.log(`'${unitId}' Final Damage Calculation`, {
+                baseValue: preMitigationDamage,
+                modifiers: [
+                    { source: 'Defense', value: defense, operation: '-' },
+                    { source: 'Damage Reduction', value: `${(reduction * 100).toFixed(1)}%`, operation: '×' }
+                ],
+                formula: `(Damage[${preMitigationDamage}] - Defense[${defense}]) * (1 - Reduction[${reduction.toFixed(2)}])`,
+                finalValue: finalDamage
+            });
             console.log(`[BattleCalculationManager] Damage result for ${unitId}: HP Damage = ${hpDamageDealt}, Barrier Damage = ${barrierDamageDealt}`);
 
             const unitToUpdate = this.battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);

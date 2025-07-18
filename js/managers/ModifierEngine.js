@@ -4,10 +4,11 @@ import { GAME_DEBUG_MODE } from '../constants.js';
  * 게임 내 모든 유닛의 스탯 및 수치 변동(증가, 감소)을 중앙에서 계산하는 엔진입니다.
  */
 export class ModifierEngine {
-    constructor(statusEffectManager, conditionalManager) {
+    constructor(statusEffectManager, conditionalManager, modifierLogManager) {
         if (GAME_DEBUG_MODE) console.log("\u2699\uFE0F ModifierEngine initialized. Calculating all bonuses and penalties.");
         this.statusEffectManager = statusEffectManager;
         this.conditionalManager = conditionalManager;
+        this.modifierLogManager = modifierLogManager;
     }
 
     /**
@@ -17,17 +18,28 @@ export class ModifierEngine {
      */
     getAttackMultiplier(unitId) {
         let multiplier = 1.0;
+        const modifiers = [];
+        let formula = "1.0";
         const activeEffects = this.statusEffectManager?.getUnitActiveEffects(unitId);
 
         if (activeEffects) {
             for (const [effectId, effectWrapper] of activeEffects.entries()) {
-                if (effectWrapper.effectData.effect.attackModifier) {
-                    multiplier *= effectWrapper.effectData.effect.attackModifier;
-                    if (GAME_DEBUG_MODE) console.log(`[ModifierEngine] Applying '${effectId}' attack modifier: ${effectWrapper.effectData.effect.attackModifier}. New multiplier: ${multiplier.toFixed(2)}`);
+                const modValue = effectWrapper.effectData.effect.attackModifier;
+                if (modValue) {
+                    multiplier *= modValue;
+                    modifiers.push({ source: effectId, value: modValue, operation: '×' });
+                    formula += ` * Status[${modValue}]`;
                 }
             }
         }
-        // 향후 장비나 퍽으로 인한 증폭 로직도 여기에 추가할 수 있습니다.
+
+        this.modifierLogManager.log(`'${unitId}' Attack Multiplier`, {
+            baseValue: 1.0,
+            modifiers,
+            formula,
+            finalValue: multiplier
+        });
+
         return multiplier;
     }
 
@@ -38,27 +50,35 @@ export class ModifierEngine {
      */
     getDamageReduction(unitId) {
         let totalReduction = 0;
+        const modifiers = [];
+        let formula = "0";
 
-        // 1. '아이언 윌' 같은 조건부 패시브로 인한 피해 감소
         const conditionalReduction = this.conditionalManager.getDamageReduction(unitId);
         if (conditionalReduction > 0) {
             totalReduction += conditionalReduction;
-            if (GAME_DEBUG_MODE) console.log(`[ModifierEngine] Applying conditional reduction (Iron Will): ${conditionalReduction.toFixed(2)}. Total: ${totalReduction.toFixed(2)}`);
+            modifiers.push({ source: 'Iron Will', value: conditionalReduction, operation: '+' });
+            formula += ` + Passive[${conditionalReduction.toFixed(2)}]`;
         }
 
-        // 2. '스톤 스킨' 같은 상태 효과로 인한 피해 감소
         const activeEffects = this.statusEffectManager?.getUnitActiveEffects(unitId);
         if (activeEffects) {
             for (const [effectId, effectWrapper] of activeEffects.entries()) {
                 const effectReduction = effectWrapper.effectData.effect?.statModifiers?.damageReduction;
                 if (effectReduction) {
                     totalReduction += effectReduction;
-                    if (GAME_DEBUG_MODE) console.log(`[ModifierEngine] Applying '${effectId}' reduction: ${effectReduction}. Total: ${totalReduction.toFixed(2)}`);
+                    modifiers.push({ source: effectId, value: effectReduction, operation: '+' });
+                    formula += ` + Status[${effectReduction}]`;
                 }
             }
         }
-        
-        // 향후 장비나 퍽으로 인한 감소 로직도 여기에 추가할 수 있습니다.
+
+        this.modifierLogManager.log(`'${unitId}' Damage Reduction`, {
+            baseValue: 0,
+            modifiers,
+            formula,
+            finalValue: totalReduction
+        });
+
         return totalReduction;
     }
 }

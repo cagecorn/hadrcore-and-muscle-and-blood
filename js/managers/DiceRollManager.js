@@ -6,12 +6,13 @@ export class DiceRollManager {
      * @param {ValorEngine} valorEngine
      * @param {StatusEffectManager} statusEffectManager - \u2728 상태 효과 확인을 위해 추가
      */
-    constructor(diceEngine, valorEngine, statusEffectManager, modifierEngine) {
+    constructor(diceEngine, valorEngine, statusEffectManager, modifierEngine, modifierLogManager) {
         console.log("\u2694\uFE0F DiceRollManager initialized. Ready for D&D-based rolls. \u2694\uFE0F");
         this.diceEngine = diceEngine;
         this.valorEngine = valorEngine;
         this.statusEffectManager = statusEffectManager; // \u2728 인스턴스 저장
         this.modifierEngine = modifierEngine;
+        this.modifierLogManager = modifierLogManager; // <-- 로거 저장
     }
 
     /**
@@ -65,9 +66,13 @@ export class DiceRollManager {
      */
     performDamageRoll(attackerUnit, skillData = { type: 'physical', dice: { num: 1, sides: 6 } }) {
         const attackerStats = attackerUnit.baseStats;
+        const modifiers = [];
+        let formula = "";
+
         let damageRoll = 0;
         if (skillData.dice) {
             damageRoll = this.rollDice(skillData.dice.num, skillData.dice.sides);
+            formula += `Dice[${damageRoll}]`;
         }
 
         let attackBonus = 0;
@@ -76,29 +81,47 @@ export class DiceRollManager {
         } else if (skillData.type === 'magic') {
             attackBonus = attackerStats.magic;
         }
+        if (attackBonus > 0) {
+            formula += ` + Stat[${attackBonus}]`;
+        }
 
-        let finalAttackModifier = 1.0;
+        let preMultipliedDamage = damageRoll + attackBonus;
+        let finalMultiplier = 1.0;
 
-        // 1. \uC6A9\uBA85\uC5D0 \uC758\uD55C \uB370\uBBF8\uC9C0 \uC99D\uD3ED
         const valorAmplification = this.valorEngine.calculateDamageAmplification(
             attackerUnit.currentBarrier || 0,
             attackerUnit.maxBarrier || 0
         );
-        finalAttackModifier *= valorAmplification;
-
-        // 2. \uC0C1\uD0DC \ud6a8\uacfc\ub294 ModifierEngine\uc5d0\uc11c \uacc4\uc0b0
-        const statusEffectMultiplier = this.modifierEngine.getAttackMultiplier(attackerUnit.id);
-        finalAttackModifier *= statusEffectMultiplier;
-
-        let finalDamage = (damageRoll + attackBonus) * finalAttackModifier;
-
-        // ✨ 반격 등 스킬 자체의 피해량 조절자 적용
-        if (skillData.damageModifier) {
-            finalDamage *= skillData.damageModifier;
-            console.log(`[DiceRollManager] Applying skill damage modifier: ${skillData.damageModifier}`);
+        if (valorAmplification !== 1.0) {
+            finalMultiplier *= valorAmplification;
+            modifiers.push({ source: 'Valor', value: valorAmplification, operation: '×' });
         }
 
-        console.log(`[DiceRollManager] Performed damage roll (${skillData.dice.num}d${skillData.dice.sides} + ${attackBonus}) * ${finalAttackModifier.toFixed(2)} (Modifiers) = ${finalDamage.toFixed(0)}`);
+        const statusEffectMultiplier = this.modifierEngine.getAttackMultiplier(attackerUnit.id);
+        if (statusEffectMultiplier !== 1.0) {
+            finalMultiplier *= statusEffectMultiplier;
+        }
+
+        if (skillData.damageModifier) {
+            finalMultiplier *= skillData.damageModifier;
+            modifiers.push({ source: 'Skill Modifier', value: skillData.damageModifier, operation: '×' });
+        }
+
+        let finalDamage = preMultipliedDamage * finalMultiplier;
+
+        let formulaString = `(${formula}) * ${finalMultiplier.toFixed(2)}`;
+
+        this.modifierLogManager.log(`'${attackerUnit.id}' Pre-Mitigation Damage`, {
+            baseValue: 0,
+            modifiers: [
+                { source: 'Dice Roll', value: damageRoll, operation: '+' },
+                { source: 'Stat Bonus', value: attackBonus, operation: '+' },
+                ...modifiers
+            ],
+            formula: formulaString,
+            finalValue: Math.floor(finalDamage)
+        });
+
         return Math.max(0, Math.floor(finalDamage));
     }
 
