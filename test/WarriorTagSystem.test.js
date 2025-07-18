@@ -1,9 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import { TagManager } from '../js/managers/TagManager.js';
-import { CLASSES } from '../data/class.js';
-import { UNITS } from '../data/unit.js';
-import { WARRIOR_SKILLS } from '../data/warriorSkills.js';
+import { TagManager, CLASSES, UNITS, WARRIOR_SKILLS } from '../js/managers/warriormanager.js';
 
 const tagManager = new TagManager({});
 

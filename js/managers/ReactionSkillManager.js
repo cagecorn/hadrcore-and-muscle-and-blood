@@ -1,7 +1,7 @@
 // js/managers/ReactionSkillManager.js
 
 import { GAME_EVENTS, GAME_DEBUG_MODE, ATTACK_TYPES } from '../constants.js';
-import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
+import { WARRIOR_SKILLS } from './warriormanager.js';
 
 export class ReactionSkillManager {
     /**

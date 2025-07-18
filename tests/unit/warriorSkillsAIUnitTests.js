@@ -1,7 +1,6 @@
 // tests/unit/warriorSkillsAIUnitTests.js
 
-import { WarriorSkillsAI } from '../../js/managers/warriorSkillsAI.js';
-import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
+import { WarriorSkillsAI, WARRIOR_SKILLS } from '../../js/managers/warriormanager.js';
 import { GAME_EVENTS, ATTACK_TYPES, GAME_DEBUG_MODE } from '../../js/constants.js';
 
 export function runWarriorSkillsAIUnitTests() {

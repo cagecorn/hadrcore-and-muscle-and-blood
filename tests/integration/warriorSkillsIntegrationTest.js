@@ -1,7 +1,7 @@
 // tests/integration/warriorSkillsIntegrationTest.js
 
 import { GAME_DEBUG_MODE, ATTACK_TYPES } from '../../js/constants.js';
-import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
+import { WARRIOR_SKILLS } from '../../js/managers/warriormanager.js';
 
 /**
  * 전사 스킬의 통합 테스트를 실행합니다.
