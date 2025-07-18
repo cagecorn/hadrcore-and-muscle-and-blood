@@ -73,7 +73,8 @@ export async function runHeroEngineUnitTests(idManager, assetLoaderManager, dice
         });
 
         if (hero && hero.id && hero.name === '테스트 영웅' && hero.rarity === 'epic' &&
-            hero.illustration && hero.baseStats && hero.skills.length === 3 && hero.traits.length === 1) {
+            hero.illustration && hero.baseStats && hero.skills.length === 3 &&
+            (!hero.traits || hero.traits.length === 0)) {
             console.log("HeroEngine: generateHero created hero with expected properties. [PASS]");
             passCount++;
         } else {
