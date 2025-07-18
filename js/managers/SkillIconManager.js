@@ -37,16 +37,15 @@ export class SkillIconManager {
      */
     async _loadAllIcons() {
         if (GAME_DEBUG_MODE) console.log("[SkillIconManager] Loading all defined skill and status icons...");
-        const allSkillsAndEffects = {
-            ...WARRIOR_SKILLS,
-            ...STATUS_EFFECTS
+        const allSkillsAndEffects = [
+            ...Object.values(WARRIOR_SKILLS),
+            ...Object.values(STATUS_EFFECTS)
             // 나중에 다른 직업 스킬도 여기에 추가: ...MAGE_SKILLS
-        };
+        ];
 
         const loadPromises = [];
 
-        for (const key in allSkillsAndEffects) {
-            const item = allSkillsAndEffects[key];
+        for (const item of allSkillsAndEffects) {
             if (item.icon && !this.skillIcons.has(item.id)) {
                 const url = item.icon;
                 const assetId = `icon_${item.id}`;
