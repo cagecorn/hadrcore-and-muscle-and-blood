@@ -32,11 +32,14 @@ export class PassiveSkillManager {
      */
     async _onUnitAttackAttempt({ attackerId, targetId }) {
         const attacker = this.battleSimulationManager.unitsOnGrid.find(u => u.id === attackerId);
-        if (!attacker) return;
+        if (!attacker || !attacker.skillSlots) return; // 공격자나 스킬 슬롯이 없으면 중단
 
         const classData = await this.idManager.get(attacker.classId);
         if (!classData || !classData.skills || !classData.skills.includes(WARRIOR_SKILLS.RENDING_STRIKE.id)) {
-            return;
+            // 🔎 변경점: 클래스 데이터(classData)가 아닌 유닛의 실제 스킬 슬롯(skillSlots)을 확인합니다.
+            if (!attacker.skillSlots.includes(WARRIOR_SKILLS.RENDING_STRIKE.id)) {
+                return;
+            }
         }
 
         const skillData = WARRIOR_SKILLS.RENDING_STRIKE;
