@@ -147,10 +147,17 @@ export class WarriorSkillsAI {
         if (!inRange) {
             if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Target out of range. Moving closer...`);
             const moveRange = userUnit.baseStats.moveRange || 1;
-            const moved = await this.managers.movingManager.chargeMove(userUnit, targetUnit.gridX, targetUnit.gridY, moveRange);
+            let moved = await this.managers.movingManager.chargeMove(userUnit, targetUnit.gridX, targetUnit.gridY, moveRange);
+
+            // chargeMove가 실패하면 가능한 한 목표 방향으로 이동 시도
             if (!moved) {
-                if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Could not move to target. Double Strike cancelled.`);
-                return; // 이동에 실패하면 스킬 취소
+                moved = await this.managers.movingManager.advanceTowards?.(userUnit, targetUnit.gridX, targetUnit.gridY, moveRange);
+            }
+
+            // 이동 후에도 사거리 밖이면 스킬 취소
+            if (!moved || !this.managers.rangeManager.isTargetInRange(userUnit, targetUnit)) {
+                if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] Could not reach target this turn. Double Strike cancelled.`);
+                return;
             }
         }
 
