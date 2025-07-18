@@ -1,7 +1,9 @@
 // js/managers/HeroManager.js
 
 import { ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
-import { UNITS, CLASSES, WARRIOR_SKILLS } from './warriormanager.js';
+import { UNITS } from '../../data/unit.js';
+import { CLASSES } from '../../data/class.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class HeroManager {
     constructor(idManager, diceEngine, assetLoaderManager, battleSimulationManager, unitSpriteEngine, diceBotEngine, birthReportManager, heroEngine) {

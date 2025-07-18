@@ -1,7 +1,7 @@
 // js/managers/SkillIconManager.js
 
 import { GAME_DEBUG_MODE } from '../constants.js';
-import { WARRIOR_SKILLS } from './warriormanager.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 import { STATUS_EFFECTS } from '../../data/statusEffects.js';
 
 export class SkillIconManager {

@@ -1,7 +1,7 @@
 // js/managers/PassiveSkillManager.js
 
 import { GAME_EVENTS, GAME_DEBUG_MODE } from '../constants.js';
-import { WARRIOR_SKILLS } from './warriormanager.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class PassiveSkillManager {
     /**
