@@ -33,6 +33,63 @@ export class TurnEngine {
         });
     }
 
+    async _executeAction(unit, action) {
+        if (!action) return;
+
+        if (
+            action.actionType === 'move' ||
+            action.actionType === 'moveAndAttack' ||
+            action.actionType === 'moveAndSkill'
+        ) {
+            const startGridX = unit.gridX;
+            const startGridY = unit.gridY;
+            if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attempts to move from (${startGridX},${startGridY}) to (${action.moveTargetX}, ${action.moveTargetY}).`);
+
+            const moved = this.battleSimulationManager.moveUnit(unit.id, action.moveTargetX, action.moveTargetY);
+            if (moved) {
+                this.eventManager.emit(GAME_EVENTS.UNIT_MOVED, { unitId: unit.id, from: { x: startGridX, y: startGridY }, to: { x: action.moveTargetX, y: action.moveTargetY } });
+                await this.animationManager.queueMoveAnimation(
+                    unit.id,
+                    startGridX,
+                    startGridY,
+                    action.moveTargetX,
+                    action.moveTargetY
+                );
+            }
+        }
+
+        if (action.actionType === 'attack' || action.actionType === 'moveAndAttack') {
+            if (action.targetId) {
+                const targetUnit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === action.targetId);
+                if (targetUnit && targetUnit.currentHp > 0 && this.rangeManager.isTargetInRange(unit, targetUnit)) {
+                    if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attacks ${targetUnit.name}!`);
+                    this.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
+                        attackerId: unit.id,
+                        targetId: targetUnit.id,
+                        attackType: ATTACK_TYPES.MELEE
+                    });
+                    const defaultAttackSkillData = { type: ATTACK_TYPES.PHYSICAL, dice: { num: 1, sides: 6 } };
+                    this.battleCalculationManager.requestDamageCalculation(unit.id, targetUnit.id, defaultAttackSkillData);
+                    await this.delayEngine.waitFor(500);
+                } else if (GAME_DEBUG_MODE) {
+                    console.log(`[TurnEngine] Target ${action.targetId} is no longer valid or out of range.`);
+                }
+            }
+        } else if (action.actionType === 'skill' || action.actionType === 'moveAndSkill') {
+            if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attempts to use skill.`);
+            if (typeof action.execute === 'function') {
+                await action.execute();
+            } else if (GAME_DEBUG_MODE) {
+                console.error(`[TurnEngine] Skill action for ${unit.name} is missing the 'execute' function.`);
+            }
+            await this.delayEngine.waitFor(800);
+        }
+
+        if (action.followUp) {
+            await this._executeAction(unit, action.followUp);
+        }
+    }
+
     /**
      * 턴 순서를 초기화하거나 재계산합니다.
      */
@@ -142,55 +199,7 @@ export class TurnEngine {
 
             if (action) {
                 this.timingEngine.addTimedAction(async () => {
-                    if (
-                        action.actionType === 'move' ||
-                        action.actionType === 'moveAndAttack' ||
-                        action.actionType === 'moveAndSkill'
-                    ) {
-                        const startGridX = unit.gridX;
-                        const startGridY = unit.gridY;
-                        if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attempts to move from (${startGridX},${startGridY}) to (${action.moveTargetX}, ${action.moveTargetY}).`);
-
-                        const moved = this.battleSimulationManager.moveUnit(unit.id, action.moveTargetX, action.moveTargetY);
-                        if (moved) {
-                            // ✨ 이동 성공 시 이벤트 발생
-                            this.eventManager.emit(GAME_EVENTS.UNIT_MOVED, { unitId: unit.id, from: { x: startGridX, y: startGridY }, to: { x: action.moveTargetX, y: action.moveTargetY } });
-                            await this.animationManager.queueMoveAnimation(
-                                unit.id,
-                                startGridX,
-                                startGridY,
-                                action.moveTargetX,
-                                action.moveTargetY
-                            );
-                        }
-                    }
-
-                    if (action.actionType === 'attack' || action.actionType === 'moveAndAttack') {
-                        if (action.targetId) {
-                            const targetUnit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === action.targetId);
-                            if (targetUnit && targetUnit.currentHp > 0 && this.rangeManager.isTargetInRange(unit, targetUnit)) {
-                                if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attacks ${targetUnit.name}!`);
-                                this.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, { // ✨ 상수 사용
-                                    attackerId: unit.id,
-                                    targetId: targetUnit.id,
-                                    attackType: ATTACK_TYPES.MELEE // ✨ 상수 사용
-                                });
-                                const defaultAttackSkillData = { type: ATTACK_TYPES.PHYSICAL, dice: { num: 1, sides: 6 } }; // ✨ 상수 사용
-                                this.battleCalculationManager.requestDamageCalculation(unit.id, targetUnit.id, defaultAttackSkillData);
-                                await this.delayEngine.waitFor(500);
-                            } else {
-                                if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Target ${action.targetId} is no longer valid or out of range.`);
-                            }
-                        }
-                    } else if (action.actionType === 'skill' || action.actionType === 'moveAndSkill') {
-                        if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attempts to use skill.`);
-                        if (typeof action.execute === 'function') {
-                            await action.execute();
-                        } else {
-                            if (GAME_DEBUG_MODE) console.error(`[TurnEngine] Skill action for ${unit.name} is missing the 'execute' function.`);
-                        }
-                        await this.delayEngine.waitFor(800);
-                    }
+                    await this._executeAction(unit, action);
                 }, 10, `${unit.name}'s Primary Action`);
             } else {
                 if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} has no determined action for this turn.`);

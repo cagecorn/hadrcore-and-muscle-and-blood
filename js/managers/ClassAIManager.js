@@ -34,11 +34,21 @@ export class ClassAIManager {
 
             // 스킬 사용에 타겟이 필요했는데 못 찾은 경우만 제외
             if (targetUnit) {
+                const defaultMoveRange = unit.baseStats.moveRange || 1;
+                const defaultAttackRange = unit.baseStats.attackRange || 1;
+                let followUp = null;
+
+                // 버프 스킬 사용 시, 추가 공격 옵션이 없다면 기본 행동을 이어서 수행
+                if (skillToUse.type === 'buff' && !skillToUse.effect?.allowAdditionalAttack) {
+                    followUp = this.basicAIManager.determineMoveAndTarget(unit, allUnits, defaultMoveRange, defaultAttackRange);
+                }
+
                 return {
                     actionType: 'skill',
                     skillId: skillToUse.id,
                     targetId: targetUnit.id,
-                    execute: () => this.executeSkillAI(unit, skillToUse, targetUnit)
+                    execute: () => this.executeSkillAI(unit, skillToUse, targetUnit),
+                    followUp
                 };
             }
         }
