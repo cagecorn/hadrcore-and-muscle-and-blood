@@ -90,5 +90,19 @@ export const STATUS_EFFECTS = {
             canAttack: false,
             canMove: false
         }
+    },
+
+    STATUS_SHIELD_BREAK: {
+        id: 'status_shield_break',
+        name: '쉴드 브레이크',
+        description: '받는 모든 피해가 10% 증가합니다.',
+        icon: 'assets/icons/status_effects/shield-break.png',
+        duration: 3,
+        type: STATUS_EFFECT_TYPES.DEBUFF,
+        effect: {
+            statModifiers: {
+                damageTakenMultiplier: 1.10
+            }
+        }
     }
 };

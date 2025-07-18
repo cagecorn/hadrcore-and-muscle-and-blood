@@ -105,17 +105,13 @@ export class WarriorSkillsAI {
         }
         if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${userUnit.name} attempts ${skillData.name} on ${targetUnit.name}!`);
 
-        if (skillData.effect.applyChance && this.managers.diceEngine.getRandomFloat() < skillData.effect.applyChance) {
-            this.managers.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
-                unitId: userUnit.id,
-                skillName: skillData.name
-            });
-            this.managers.workflowManager.triggerStatusEffectApplication(targetUnit.id, skillData.effect.statusEffectId);
-            await this.managers.delayEngine.waitFor(100);
-            if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${targetUnit.name} is now bleeding!`);
-        } else {
-            if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${skillData.name} failed to apply to ${targetUnit.name}.`);
-        }
+        this.managers.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
+            unitId: userUnit.id,
+            skillName: skillData.name
+        });
+        this.managers.workflowManager.triggerStatusEffectApplication(targetUnit.id, skillData.effect.statusEffectId);
+        await this.managers.delayEngine.waitFor(100);
+        if (GAME_DEBUG_MODE) console.log(`[WarriorSkillsAI] ${targetUnit.name} is now affected by ${skillData.name}!`);
 
         this.managers.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, {
             skillId: skillData.id,

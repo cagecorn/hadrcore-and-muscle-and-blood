@@ -242,6 +242,8 @@ export class DetailInfoManager {
         // ✨ 수정된 부분: heroDetails.skillSlots을 먼저 확인하도록 변경
         if (heroDetails && heroDetails.skillSlots && heroDetails.skillSlots.length > 0) {
             skillsToList = heroDetails.skillSlots;
+        } else if (this.hoveredUnit.skillSlots && this.hoveredUnit.skillSlots.length > 0) {
+            skillsToList = this.hoveredUnit.skillSlots;
         } else if (classData && classData.skills && classData.skills.length > 0) {
             skillsToList = classData.skills;
         }
