@@ -19,7 +19,8 @@ export class BirthReportManager {
         console.group(`%c\ud83d\udcdc \uCD9C\uC0DD \uC2E0\uACE0: ${heroData.name} (ID: ${heroData.id})`, "color: #4CAF50; font-size: 1.2em; font-weight: bold;");
 
         console.log("\uc774 \uc601\uc6b4\uc740 [\ubbf8\uc2dc\uc138\uacc4 \uc601\uc6b4 \uc5d4\uc9c4]\uc5d0 \uc758\ud574 \ub3d9\ub9f9\ub41c \uac1d\uccb4\ub85c \uc0dd\uc131\ub418\uc5c8\uc2b5\ub2c8\ub2e4.");
-        console.log("\uace0\uc720\ud55c AI Worker\uc640 \uc601\uad6c\uc801\uc778 \ub370\uc774\ud130 \uc800\uc7a5\uc18c\ub97c \uac00\uc9c0\uace0 \uc788\uc2b5\ub2c8\ub2e4.");
+        // 웹 워커가 제거되어 관련 안내 문구를 수정했습니다.
+        console.log("\uc601\uad6c\uc801\uc778 \ub370\uc774\ud130 \uc800\uc7a5\uc18c\ub97c \uac00\uc9c0\uace0 \uc788\uc2b5\ub2c8\ub2e4.");
 
         console.group("\uae30\ubcf8 \uc815\ubcf4");
         console.log(`\ud074\ub798\uc2a4: ${heroData.classId}`);

@@ -3,35 +3,7 @@
 import { MicrocosmHeroEngine } from '../../js/managers/MicrocosmHeroEngine.js';
 import { GAME_DEBUG_MODE } from '../../js/constants.js';
 
-// Web Worker는 Node.js 환경에서 사용할 수 없으므로, 테스트를 위한 Mock Worker를 만듭니다.
-class MockWorker {
-    constructor(script) {
-        if (GAME_DEBUG_MODE) console.log(`[MockWorker] Created for script: ${script}`);
-        this.onmessage = null;
-        this.onerror = null;
-    }
-
-    postMessage(message) {
-        if (GAME_DEBUG_MODE) console.log(`[MockWorker] Received message:`, message);
-        // 'DETERMINE_ACTION' 메시지를 받으면, 잠시 후 'ACTION_DECIDED' 응답을 시뮬레이션합니다.
-        if (message.type === 'DETERMINE_ACTION') {
-            setTimeout(() => {
-                if (this.onmessage) {
-                    const mockAction = {
-                        actionType: 'skill',
-                        skillId: message.heroState.skillSlots[0],
-                        targetId: message.battleState.enemies[0]?.id || 'mock_enemy',
-                        logMessage: `${message.heroState.name}\uAC00 \uC790\uC2E0\uC758 \uC2A4\uD0AC '${message.heroState.skillSlots[0]}'(\uC744) \uC0AC\uC6A9\uD588\uB2E4!`
-                    };
-                    this.onmessage({ data: { type: 'ACTION_DECIDED', action: mockAction } });
-                }
-            }, 10); // 비동기 동작을 시뮬레이션하기 위해 약간의 딜레이를 줍니다.
-        }
-    }
-}
-
-// 실제 Worker를 MockWorker로 대체합니다.
-globalThis.Worker = MockWorker;
+// 웹 워커가 제거되었으므로, 더 이상 MockWorker가 필요하지 않습니다.
 
 
 export function runMicrocosmHeroEngineUnitTests() {
@@ -68,7 +40,7 @@ export function runMicrocosmHeroEngineUnitTests() {
         if (GAME_DEBUG_MODE) console.error("MicrocosmHeroEngine: Error during initialization. [FAIL]", e);
     }
 
-    // 테스트 2: createHeroMicrocosm - 영웅 미시세계 생성
+    // 테스트 2: createHeroMicrocosm - 영웅 미시세계 생성 (No Worker)
     testCount++;
     (async () => {
         try {
@@ -78,8 +50,9 @@ export function runMicrocosmHeroEngineUnitTests() {
             const instance = engine.heroInstances.get(mockHeroData.id);
             const storedData = await mockIdManager.get(mockHeroData.id);
 
-            if (instance && instance.worker instanceof MockWorker && storedData.name === '그롬마쉬') {
-                if (GAME_DEBUG_MODE) console.log("MicrocosmHeroEngine: createHeroMicrocosm created instance and stored data. [PASS]");
+            // worker 인스턴스가 없는지 확인합니다.
+            if (instance && instance.worker === undefined && storedData.name === '그롬마쉬') {
+                if (GAME_DEBUG_MODE) console.log("MicrocosmHeroEngine: createHeroMicrocosm created instance without worker. [PASS]");
                 passCount++;
             } else {
                 if (GAME_DEBUG_MODE) console.error("MicrocosmHeroEngine: createHeroMicrocosm failed. [FAIL]", { instance, storedData });
@@ -89,7 +62,7 @@ export function runMicrocosmHeroEngineUnitTests() {
         }
     })();
 
-    // 테스트 3: determineHeroAction - AI Worker와 상호작용
+    // 테스트 3: determineHeroAction - 이제 null을 반환해야 합니다.
     testCount++;
     (async () => {
         try {
@@ -103,11 +76,11 @@ export function runMicrocosmHeroEngineUnitTests() {
 
             const action = await engine.determineHeroAction(mockHeroData.id, mockBattleState);
 
-            if (action && action.actionType === 'skill' && action.skillId === mockHeroData.skillSlots[0] && action.logMessage.includes('그롬마쉬')) {
-                if (GAME_DEBUG_MODE) console.log("MicrocosmHeroEngine: determineHeroAction received correct action from worker. [PASS]");
+            if (action === null) {
+                if (GAME_DEBUG_MODE) console.log("MicrocosmHeroEngine: determineHeroAction returned null as expected. [PASS]");
                 passCount++;
             } else {
-                if (GAME_DEBUG_MODE) console.error("MicrocosmHeroEngine: determineHeroAction failed. [FAIL]", action);
+                if (GAME_DEBUG_MODE) console.error("MicrocosmHeroEngine: determineHeroAction failed. Expected null. [FAIL]", action);
             }
         } catch (e) {
             if (GAME_DEBUG_MODE) console.error("MicrocosmHeroEngine: Error during determineHeroAction test. [FAIL]", e);
