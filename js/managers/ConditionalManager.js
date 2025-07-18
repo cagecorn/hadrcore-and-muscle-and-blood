@@ -26,7 +26,9 @@ export class ConditionalManager {
             }
 
             const classData = await this.idManager.get(unit.classId);
-            if (classData && classData.skills && classData.skills.includes(WARRIOR_SKILLS.IRON_WILL.id)) {
+            const hasIronWill = (unit.skillSlots && unit.skillSlots.includes(WARRIOR_SKILLS.IRON_WILL.id)) ||
+                (classData && classData.skills && classData.skills.includes(WARRIOR_SKILLS.IRON_WILL.id));
+            if (hasIronWill) {
                 const lostHpRatio = 1 - (unit.currentHp / unit.baseStats.hp);
                 const damageReduction = WARRIOR_SKILLS.IRON_WILL.effect.maxReduction * lostHpRatio;
                 this.damageReductionMap.set(unit.id, damageReduction);

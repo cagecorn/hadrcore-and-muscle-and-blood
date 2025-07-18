@@ -18,7 +18,6 @@ export const WARRIOR_SKILLS = {
         icon: 'assets/icons/skills/battle_cry.png',
         aiFunction: 'battleCry',
         description: '자신의 공격력을 일시적으로 증가시키고 일반 공격을 수행합니다.',
-        requiredUserTags: ['전사_클래스'],
         effect: {
             dice: { num: 1, sides: 6 },
             statusEffectId: 'status_battle_cry', // 적용할 상태이상 ID
@@ -33,7 +32,6 @@ export const WARRIOR_SKILLS = {
         icon: 'assets/icons/skills/rending_strike.png',
         probability: 0, // 평타에 묻어나는 스킬이라 자체 발동 확률은 0
         description: '일반 공격 시 50% 확률로 적에게 출혈 디버프를 부여합니다.',
-        requiredUserTags: ['근접'],
         effect: {
             statusEffectId: 'status_bleed', // 적용할 출혈 상태이상 ID
             applyChance: 0.5 // 기본 적용 확률 50%
@@ -46,7 +44,6 @@ export const WARRIOR_SKILLS = {
         type: SKILL_TYPES.REACTION,
         icon: 'assets/icons/skills/retaliate.png',
         description: '공격을 받을 시 일정 확률로 즉시 80%의 피해로 반격합니다.',
-        requiredUserTags: ['방어'],
         effect: {
             probability: 0.4, // 기본 발동 확률 40% (슬롯에 따라 조정될 수 있음)
             damageModifier: 0.8, // 반격 시 피해량 80%
@@ -95,7 +92,6 @@ export const WARRIOR_SKILLS = {
         type: SKILL_TYPES.PASSIVE,
         icon: 'assets/icons/skills/iron_will.png',
         description: '잃은 체력에 비례하여 받는 피해량이 최대 30%까지 감소합니다.',
-        requiredUserTags: ['방어'],
         effect: {
             // 이 효과는 ConditionalManager가 실시간으로 계산하므로
             // 여기에는 패시브 식별용 정보만 남겨둡니다.
