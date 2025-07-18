@@ -63,7 +63,6 @@ import { BattleGridManager } from './managers/BattleGridManager.js';
 import { CoordinateManager } from './managers/CoordinateManager.js';
 import { ButtonEngine } from './managers/ButtonEngine.js'; // ✨ ButtonEngine 임포트
 import { DetailInfoManager } from './managers/DetailInfoManager.js'; // ✨ DetailInfoManager 추가
-import { TagManager } from './managers/TagManager.js'; // ✨ TagManager 추가
 import { WarriorSkillsAI } from './managers/warriorSkillsAI.js'; // ✨ WarriorSkillsAI 추가
 import { UnitSpriteEngine } from './managers/UnitSpriteEngine.js';
 import { UnitActionManager } from './managers/UnitActionManager.js';
@@ -338,8 +337,6 @@ export class GameEngine {
             this.skillIconManager
         );
 
-        // ✨ TagManager 초기화
-        this.tagManager = new TagManager(this.idManager);
 
         // ------------------------------------------------------------------
         // 11. Conditional Manager
@@ -876,8 +873,6 @@ export class GameEngine {
     getCoordinateManager() { return this.coordinateManager; }
     // ✨ TargetingManager getter 추가
     getTargetingManager() { return this.targetingManager; }
-    // ✨ TagManager getter 추가
-    getTagManager() { return this.tagManager; }
     // ✨ 워리어 스킬 AI getter 추가
     getWarriorSkillsAI() { return this.warriorSkillsAI; }
     // ✨ SkillIconManager getter 추가

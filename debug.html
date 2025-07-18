@@ -103,7 +103,6 @@
         <button id="runWorkflowManagerUnitTestsBtn">WorkflowManager 유닛 테스트</button>
         <button id="runDisarmManagerUnitTestsBtn">DisarmManager 유닛 테스트</button>
         <button id="runCoordinateManagerUnitTestsBtn">CoordinateManager 유닛 테스트</button> <button id="runTargetingManagerUnitTestsBtn">TargetingManager 유닛 테스트</button> <button id="runHeroEngineUnitTestsBtn">HeroEngine 유닛 테스트</button> <button id="runSynergyEngineUnitTestsBtn">SynergyEngine 유닛 테스트</button> <button id="runDetailInfoManagerUnitTestsBtn">DetailInfoManager 유닛 테스트</button>
-        <button id="runTagManagerUnitTestsBtn">TagManager 유닛 테스트</button>
         <button id="runSkillIconManagerUnitTestsBtn">SkillIconManager 유닛 테스트</button>
         <button id="runStatusIconManagerUnitTestsBtn">StatusIconManager 유닛 테스트</button>
         <button id="runMovingManagerUnitTestsBtn">MovingManager 유닛 테스트</button>
@@ -197,7 +196,6 @@
             runHeroEngineUnitTests,
             runSynergyEngineUnitTests,
             runDetailInfoManagerUnitTests,
-            runTagManagerUnitTests,
             runSkillIconManagerUnitTests,
             runStatusIconManagerUnitTests,
             runShadowEngineUnitTests,
@@ -431,10 +429,6 @@
             // ✨ DetailInfoManager 단위 테스트 버튼 리스너 추가
             document.getElementById('runDetailInfoManagerUnitTestsBtn').addEventListener('click', () => {
                 runDetailInfoManagerUnitTests(); // 목업 사용
-            });
-            // ✨ TagManager 단위 테스트 버튼 리스너 추가
-            document.getElementById('runTagManagerUnitTestsBtn').addEventListener('click', () => {
-                runTagManagerUnitTests(idManager);
             });
             // ✨ SkillIconManager 단위 테스트 버튼 리스너
             document.getElementById('runSkillIconManagerUnitTestsBtn').addEventListener('click', () => {

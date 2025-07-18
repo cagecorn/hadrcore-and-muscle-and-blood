@@ -31,8 +31,7 @@ export const UNITS = {
             weight: 30,
             attackRange: 1 // 기본 근접 사거리
         },
-        spriteId: 'sprite_warrior_default',
-        tags: ['용병', '남자'] // ✨ 유닛 자체의 태그
+        spriteId: 'sprite_warrior_default'
     }
     // 다른 유닛들이 여기에 추가됩니다.
     // ARCHER: { id: 'unit_archer_001', ... }

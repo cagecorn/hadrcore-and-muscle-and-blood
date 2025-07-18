@@ -21,8 +21,7 @@ export const CLASSES = {
         description: '강력한 근접 공격과 방어력을 겸비한 병종.',
         // 개별 영웅 생성 시 WarriorSkills 전체 목록에서 무작위로 부여됩니다.
         skills: [],
-        moveRange: 3, // 전사의 이동 거리
-        tags: ['근접', '방어', '용병_클래스'] // ✨ 태그 추가
+        moveRange: 3 // 전사의 이동 거리
     },
     // ✨ 전사 상위 클래스 추가
     WARRIOR_VALIANT: {
@@ -32,8 +31,7 @@ export const CLASSES = {
         description: '전사의 전투 경험을 극대화한 고급 병종으로, 방어와 리더십이 뛰어납니다.',
         // 상위 클래스 또한 스킬은 무작위로 결정됩니다.
         skills: [],
-        moveRange: 3,
-        tags: ['근접', '방어', '용병_클래스', '고급']
+        moveRange: 3
     },
     // 다른 클래스들이 여기에 추가됩니다.
     // MAGE: { id: 'class_mage', ... }

@@ -7,7 +7,6 @@ export { runMapManagerUnitTests } from './unit/mapManagerUnitTests.js';
 export { runUIEngineUnitTests } from './unit/uiEngineUnitTests.js';
 export { runButtonEngineUnitTests } from './unit/buttonEngineUnitTests.js';
 export { runDetailInfoManagerUnitTests } from './unit/detailInfoManagerUnitTests.js'; // ✨ DetailInfoManager 단위 테스트 추가
-export { runTagManagerUnitTests } from './unit/tagManagerUnitTests.js'; // ✨ TagManager 단위 테스트 추가
 export { runSkillIconManagerUnitTests } from './unit/skillIconManagerUnitTests.js'; // ✨ SkillIconManager 단위 테스트 추가
 export { runStatusIconManagerUnitTests } from './unit/statusIconManagerUnitTests.js'; // ✨ StatusIconManager 단위 테스트 추가
 export { runMovingManagerUnitTests } from './unit/movingManagerUnitTests.js'; // ✨ MovingManager 단위 테스트 추가
@@ -90,7 +89,6 @@ export function runEngineTests(
         runSynergyEngineUnitTests(idManager, eventManager);
     }
     runDetailInfoManagerUnitTests(); // 목업 사용
-    runTagManagerUnitTests(idManager);
     runSkillIconManagerUnitTests(assetLoaderManager, idManager);
     runStatusIconManagerUnitTests(); // 목업 사용
     runMovingManagerUnitTests();

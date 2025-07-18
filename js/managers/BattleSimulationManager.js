@@ -15,6 +15,15 @@ export class BattleSimulationManager {
     }
 
     /**
+     * ID로 유닛을 조회합니다.
+     * @param {string} unitId
+     * @returns {object|undefined}
+     */
+    getUnitById(unitId) {
+        return this.unitsOnGrid.find(unit => unit.id === unitId);
+    }
+
+    /**
      * 유닛을 특정 그리드 타일에 배치합니다.
      * @param {object} fullUnitData - IdManager로부터 완전히 로드된 유닛 데이터
      * @param {HTMLImageElement} unitImage - 로드된 유닛의 스프라이트 이미지

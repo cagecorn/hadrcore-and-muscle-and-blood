@@ -44,8 +44,7 @@ export const WARRIOR_SKILLS = {
         icon: 'assets/icons/skills/retaliate.png',
         description: '공격을 받을 시 일정 확률로 즉시 80%의 피해로 반격합니다.',
         effect: {
-            damageModifier: 0.8, // 반격 시 피해량 80%
-            tags: ['일반공격'] // 이 공격이 평타 판정임을 명시
+            damageModifier: 0.8 // 반격 시 피해량 80%
         }
     },
 
@@ -71,7 +70,6 @@ export const WARRIOR_SKILLS = {
         range: 1,
         cooldown: 2,
         effect: {
-            tags: ['공격', '단일대상']
             // 이 스킬로 발생한 두 번의 공격은 평타 판정을 받습니다.
         },
         ai: {
@@ -89,7 +87,6 @@ export const WARRIOR_SKILLS = {
         range: 0,
         cooldown: 4,
         effect: {
-            tags: ['방어', '버프'],
             appliesEffect: 'status_stone_skin'
         },
         ai: {}

@@ -72,7 +72,6 @@ export const STATUS_EFFECTS = {
         duration: 3,
         icon: 'assets/icons/skills/stone-skin-icon.png',
         effect: {
-            tags: ['방어', '피해감소'],
             statModifiers: {
                 damageReduction: 0.15
             }

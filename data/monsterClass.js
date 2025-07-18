@@ -9,7 +9,6 @@ export const MONSTER_CLASSES = {
         description: '다수로 몰려오는 기본적인 언데드 적.',
         skills: ['skill_melee_attack'],
         moveRange: 2,
-        tags: ['근접', '언데드', '적_클래스'],
         baseStats: {
             hp: 60,
             attack: 10,
@@ -33,7 +32,6 @@ export const MONSTER_CLASSES = {
         description: '느릿느릿 움직이는 언데드.',
         skills: ['skill_melee_attack'],
         moveRange: 2,
-        tags: ['근접', '언데드', '적_클래스'],
         baseStats: {
             hp: 80,
             attack: 15,
