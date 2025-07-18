@@ -17,7 +17,6 @@ export const WARRIOR_SKILLS = {
         type: SKILL_TYPES.BUFF,
         icon: 'assets/icons/skills/battle_cry.png',
         aiFunction: 'battleCry',
-        probability: 30,
         description: '자신의 공격력을 일시적으로 증가시키고 일반 공격을 수행합니다.',
         requiredUserTags: ['전사_클래스'],
         effect: {
@@ -70,7 +69,6 @@ export const WARRIOR_SKILLS = {
             // 이 스킬로 발생한 두 번의 공격은 평타 판정을 받습니다.
         },
         ai: {
-            usageChance: 0.4,
             condition: (user, target) => target && user.getDistanceTo && user.getDistanceTo(target) <= 1
         }
     },
@@ -88,10 +86,7 @@ export const WARRIOR_SKILLS = {
             tags: ['방어', '버프'],
             appliesEffect: 'status_stone_skin'
         },
-        ai: {
-            usageChance: 0.3,
-            condition: (user, target) => user.currentHp / user.baseStats.hp <= 0.5
-        }
+        ai: {}
     },
     // 패시브 스킬 (상시 발동 예시)
     IRON_WILL: {
