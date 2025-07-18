@@ -620,67 +620,65 @@ export class GameEngine {
         const expectedDataAndAssetCount = 10 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4; // 10(기존 + 영지 배경) + 6(워리어 스킬) + 5(기본 상태 아이콘) + 5(워리어 스킬 아이콘) + 4(전사 상태 스프라이트)
         this.assetLoaderManager.setTotalAssetsToLoad(expectedDataAndAssetCount);
 
-        // 초기화 과정의 비동기 처리
-        this._initAsyncManagers().then(() => {
-            const initialGameData = {
-                units: [
-                    { id: 'u1', name: 'Knight', hp: 100 },
-                    { id: 'u2', name: 'Archer', hp: 70 }
-                ],
-                config: {
-                    resolution: this.measureManager.get('gameResolution'),
-                    difficulty: 'normal'
-                }
-            };
+        // async initialization will be performed via the init() method
+    }
 
-            try {
-                this.guardianManager.enforceRules(initialGameData);
-                if (GAME_DEBUG_MODE) console.log("[GameEngine] Initial game data passed GuardianManager rules. \u2728");
-            } catch (e) {
-                if (e.name === "ImmutableRuleViolationError") {
-                    console.error("[GameEngine] CRITICAL ERROR: Game initialization failed due to immutable rule violation!", e.message);
-                    throw e;
-                } else {
-                    console.error("[GameEngine] An unexpected error occurred during rule enforcement:", e);
-                    throw e;
-                }
+    // ✨ asynchronous initialization separated from constructor
+    async init() {
+        await this._initAsyncManagers();
+
+        const initialGameData = {
+            units: [
+                { id: 'u1', name: 'Knight', hp: 100 },
+                { id: 'u2', name: 'Archer', hp: 70 }
+            ],
+            config: {
+                resolution: this.measureManager.get('gameResolution'),
+                difficulty: 'normal'
             }
+        };
 
-            // 초기 카메라 위치와 줌을 설정하여 모든 콘텐츠가 화면에 들어오도록 합니다.
-            this.cameraEngine.reset();
-            // ✨ 추가: 카메라 엔진의 초기 상태 확인
-            if (GAME_DEBUG_MODE) console.log(`[GameEngine Debug] Camera Initial State: X=${this.cameraEngine.x}, Y=${this.cameraEngine.y}, Zoom=${this.cameraEngine.zoom}`);
+        try {
+            this.guardianManager.enforceRules(initialGameData);
+            if (GAME_DEBUG_MODE) console.log("[GameEngine] Initial game data passed GuardianManager rules. \u2728");
+        } catch (e) {
+            if (e.name === "ImmutableRuleViolationError") {
+                console.error("[GameEngine] CRITICAL ERROR: Game initialization failed due to immutable rule violation!", e.message);
+                throw e;
+            } else {
+                console.error("[GameEngine] An unexpected error occurred during rule enforcement:", e);
+                throw e;
+            }
+        }
 
-            // ✨ 이벤트 구독에 GAME_EVENTS 상수 사용
-            this.eventManager.subscribe(GAME_EVENTS.UNIT_DEATH, (data) => {
-                if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Unit ${data.unitId} (${data.unitName}) has died.`);
-            });
-            this.eventManager.subscribe(GAME_EVENTS.SKILL_EXECUTED, async (data) => {
-                // data.skillName이 있으면 바로 사용, 없으면 data.skillId를 기반으로 경고
-                if (data.skillName) {
-                    if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${data.skillName}' was executed by ${data.userId}.`);
-                } else {
-                    if (GAME_DEBUG_MODE) console.warn(`[GameEngine] Notification: Skill with ID '${data.skillId}' was executed, but skillName was not provided in the event data.`);
-                    const skillData = await this.idManager.get(data.skillId);
-                    const resolvedName = skillData ? skillData.name : 'Unknown Skill';
-                    if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${resolvedName}' was executed by ${data.userId}.`);
-                }
-            });
-            this.eventManager.subscribe(GAME_EVENTS.BATTLE_START, async (data) => {
-                if (GAME_DEBUG_MODE) console.log(`[GameEngine] Battle started for map: ${data.mapId}, difficulty: ${data.difficulty}`);
-                this.sceneEngine.setCurrentScene(UI_STATES.COMBAT_SCREEN); // ✨ UI_STATES 상수 사용
-                this.uiEngine.setUIState(UI_STATES.COMBAT_SCREEN); // ✨ UI_STATES 상수 사용
-                this.cameraEngine.reset();
+        this.cameraEngine.reset();
+        if (GAME_DEBUG_MODE) console.log(`[GameEngine Debug] Camera Initial State: X=${this.cameraEngine.x}, Y=${this.cameraEngine.y}, Zoom=${this.cameraEngine.zoom}`);
 
-                // 전투 시작 후 TurnEngine 구동
-                await this.turnEngine.startBattleTurns();
-            });
-
-            if (GAME_DEBUG_MODE) console.log("\u2699\ufe0f GameEngine initialized successfully. \u2699\ufe0f");
-        }).catch(error => {
-            console.error("Fatal Error: Async manager initialization failed.", error);
-            alert("\uAC8C\uC784 \uC2DC\uC791 \uC911 \uCE58\uBA85\uC801\uC778 \uC624\uB958\uAC00 \uBC1C\uC0DD\uD588\uC2B5\uB2C8\uB2E4. \uCF58\uC194\uC744 \uD655\uC778\uD574\uC8FC\uC138\uC694.");
+        this.eventManager.subscribe(GAME_EVENTS.UNIT_DEATH, (data) => {
+            if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Unit ${data.unitId} (${data.unitName}) has died.`);
         });
+
+        this.eventManager.subscribe(GAME_EVENTS.SKILL_EXECUTED, async (data) => {
+            if (data.skillName) {
+                if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${data.skillName}' was executed by ${data.userId}.`);
+            } else {
+                if (GAME_DEBUG_MODE) console.warn(`[GameEngine] Notification: Skill with ID '${data.skillId}' was executed, but skillName was not provided in the event data.`);
+                const skillData = await this.idManager.get(data.skillId);
+                const resolvedName = skillData ? skillData.name : 'Unknown Skill';
+                if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${resolvedName}' was executed by ${data.userId}.`);
+            }
+        });
+
+        this.eventManager.subscribe(GAME_EVENTS.BATTLE_START, async (data) => {
+            if (GAME_DEBUG_MODE) console.log(`[GameEngine] Battle started for map: ${data.mapId}, difficulty: ${data.difficulty}`);
+            this.sceneEngine.setCurrentScene(UI_STATES.COMBAT_SCREEN);
+            this.uiEngine.setUIState(UI_STATES.COMBAT_SCREEN);
+            this.cameraEngine.reset();
+
+            await this.turnEngine.startBattleTurns();
+        });
+
+        if (GAME_DEBUG_MODE) console.log("\u2699\ufe0f GameEngine initialized successfully. \u2699\ufe0f");
 
         this._setupEventListeners();
     }
