@@ -6,7 +6,8 @@ self.onmessage = (event) => {
     switch (type) {
         case 'CALCULATE_DAMAGE': {
             // ✨ payload에서 defender's damage reduction 값을 추가로 받음
-            const { attackerStats, targetStats, skillData, currentTargetHp, currentTargetBarrier, maxBarrier, preCalculatedDamageRoll, damageReduction } = payload;
+            // attackerUnitId도 함께 전달받아야 메인 스레드에서 사용 가능
+            const { attackerStats, targetStats, skillData, currentTargetHp, currentTargetBarrier, maxBarrier, preCalculatedDamageRoll, damageReduction, attackerUnitId } = payload; // attackerUnitId 추가
 
             // 방어력 적용
             let finalDamage = preCalculatedDamageRoll - targetStats.defense;
@@ -43,6 +44,7 @@ self.onmessage = (event) => {
             self.postMessage({
                 type: 'DAMAGE_CALCULATED',
                 unitId: payload.targetUnitId,
+                attackerId: attackerUnitId, // 공격자 ID를 함께 전송
                 newHp: newHp,
                 newBarrier: newBarrier,          // ✨ 업데이트된 배리어 값 반환
                 hpDamageDealt: hpDamageDealt,    // ✨ HP로 들어간 데미지 반환

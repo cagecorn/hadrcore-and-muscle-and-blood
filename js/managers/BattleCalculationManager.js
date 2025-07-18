@@ -28,7 +28,7 @@ export class BattleCalculationManager {
     }
 
     async _handleWorkerMessage(event) {
-        const { type, unitId, hpDamageDealt, barrierDamageDealt } = event.data;
+        const { type, unitId, attackerId, hpDamageDealt, barrierDamageDealt } = event.data; // attackerId 추가
 
         if (type === GAME_EVENTS.DAMAGE_CALCULATED) {
             console.log(`[BattleCalculationManager] Damage result for ${unitId}: HP Damage = ${hpDamageDealt}, Barrier Damage = ${barrierDamageDealt}`);
@@ -38,13 +38,13 @@ export class BattleCalculationManager {
                 this.unitStatManager.dealDamage(unitId, hpDamageDealt + barrierDamageDealt);
 
                 if (barrierDamageDealt > 0) {
-                    this.eventManager.emit(GAME_EVENTS.DISPLAY_DAMAGE, { unitId: unitId, damage: barrierDamageDealt, color: 'yellow' });
+                    this.eventManager.emit(GAME_EVENTS.DISPLAY_DAMAGE, { unitId: unitId, attackerId: attackerId, damage: barrierDamageDealt, color: 'yellow' }); // 공격자 ID 포함
                     if (hpDamageDealt > 0) {
                         await this.delayEngine.waitFor(100);
                     }
                 }
                 if (hpDamageDealt > 0) {
-                    this.eventManager.emit(GAME_EVENTS.DISPLAY_DAMAGE, { unitId: unitId, damage: hpDamageDealt, color: 'red' });
+                    this.eventManager.emit(GAME_EVENTS.DISPLAY_DAMAGE, { unitId: unitId, attackerId: attackerId, damage: hpDamageDealt, color: 'red' }); // 공격자 ID 포함
                 }
 
                 if (unitToUpdate.currentHp <= 0) {
@@ -82,8 +82,7 @@ export class BattleCalculationManager {
         const damageReduction = this.modifierEngine.getDamageReduction(targetUnitId);
 
         const payload = {
-            attackerStats: attackerUnit.fullUnitData ? attackerUnit.fullUnitData.baseStats : attackerUnit.baseStats,
-            targetStats: targetUnit.fullUnitData ? targetUnit.fullUnitData.baseStats : targetUnit.baseStats,
+            attackerUnitId: attackerUnitId, // 워커에 공격자 ID 전달
             attackerStats: attackerUnit.fullUnitData ? attackerUnit.fullUnitData.baseStats : attackerUnit.baseStats,
             targetStats: targetUnit.fullUnitData ? targetUnit.fullUnitData.baseStats : targetUnit.baseStats,
             currentTargetHp: targetUnit.currentHp,
