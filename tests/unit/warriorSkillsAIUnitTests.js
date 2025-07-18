@@ -53,7 +53,7 @@ export function runWarriorSkillsAIUnitTests() {
 
         try {
             const warriorSkillsAI = new WarriorSkillsAI(mockManagers);
-            await warriorSkillsAI.battleCry(mockUserUnit, WARRIOR_SKILLS.BATTLE_CRY);
+            await warriorSkillsAI.battleCry(mockUserUnit, mockUserUnit, WARRIOR_SKILLS.BATTLE_CRY);
 
             const skillNameEvent = mockManagers.eventManager.emittedEvents.find(e => e.eventName === GAME_EVENTS.DISPLAY_SKILL_NAME);
             const effectApplied = mockManagers.workflowManager.triggeredEffects.some(e => e.statusEffectId === 'status_battle_cry');
@@ -105,7 +105,7 @@ export function runWarriorSkillsAIUnitTests() {
 
         try {
             const warriorSkillsAI = new WarriorSkillsAI(mockManagers);
-            await warriorSkillsAI.stoneSkin(mockUserUnit, WARRIOR_SKILLS.STONE_SKIN);
+            await warriorSkillsAI.stoneSkin(mockUserUnit, mockUserUnit, WARRIOR_SKILLS.STONE_SKIN);
 
             const skillNameEvent = mockManagers.eventManager.emittedEvents.find(e => e.eventName === GAME_EVENTS.DISPLAY_SKILL_NAME && e.data.skillName === '스톤 스킨');
             const effectApplied = mockManagers.workflowManager.triggeredEffects.some(e => e.statusEffectId === 'status_stone_skin' && e.unitId === 'w1');

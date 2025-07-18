@@ -28,10 +28,11 @@ export class WarriorSkillsAI {
     /**
      * '전투의 외침' 스킬의 AI 및 효과를 실행합니다.
      * @param {object} userUnit - 스킬을 사용하는 유닛 객체
+     * @param {object} targetUnit - 스킬 대상 유닛 객체 (버프이므로 보통 자기 자신)
      * @param {object} skillData - 스킬 데이터 (WARRIOR_SKILLS.BATTLE_CRY)
      * @returns {Promise<void>} 스킬 실행 완료 Promise
      */
-    async battleCry(userUnit, skillData) {
+    async battleCry(userUnit, targetUnit, skillData) {
         if (!userUnit || userUnit.currentHp <= 0) {
             if (GAME_DEBUG_MODE) console.warn("[WarriorSkillsAI] Battle Cry skill failed: Invalid user unit.");
             return;
@@ -183,9 +184,10 @@ export class WarriorSkillsAI {
     /**
      * 스톤 스킨 스킬을 실행합니다. 자신에게 피해 감소 버프를 적용합니다.
      * @param {object} userUnit - 스킬 시전자
+     * @param {object} targetUnit - 스킬 대상 유닛 객체 (버프라면 자기 자신)
      * @param {object} skillData - 스킬 데이터
      */
-    async stoneSkin(userUnit, skillData) {
+    async stoneSkin(userUnit, targetUnit, skillData) {
         if (!userUnit || userUnit.currentHp <= 0) {
             if (GAME_DEBUG_MODE) console.warn("[WarriorSkillsAI] Stone Skin failed: Invalid user unit.");
             return;
