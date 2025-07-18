@@ -1,37 +1,54 @@
-/**
- * Handles player input on the territory screen.
- * For now it simply converts canvas clicks into grid coordinates.
- */
 export class TerritoryInputManager {
-    constructor(eventManager, territoryGridManager, canvas) {
+    constructor(canvas, territoryGridManager, territoryUIManager) {
         console.log("🖱️ TerritoryInputManager initialized. Awaiting your command.");
-        this.eventManager = eventManager;
-        this.territoryGridManager = territoryGridManager;
         this.canvas = canvas;
+        this.territoryGridManager = territoryGridManager;
+        this.territoryUIManager = territoryUIManager;
+        this.hoveredTile = null;
+
         if (this.canvas) {
-            this.canvas.addEventListener('click', (e) => this._onClick(e));
+            this.canvas.addEventListener('mousemove', (event) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = event.clientY - rect.top;
+                this.handleMouseMove(mouseX, mouseY, this.canvas.width, this.canvas.height);
+            });
+
+            this.canvas.addEventListener('mousedown', (event) => {
+                const rect = this.canvas.getBoundingClientRect();
+                const mouseX = event.clientX - rect.left;
+                const mouseY = event.clientY - rect.top;
+                this.handleMouseClick(mouseX, mouseY, this.canvas.width, this.canvas.height);
+            });
         }
-        this.onTileClick = null;
     }
 
-    _onClick(e) {
-        const rect = this.canvas.getBoundingClientRect();
-        const x = e.clientX - rect.left;
-        const y = e.clientY - rect.top;
-        this.handleGridClick(x, y);
+    handleMouseClick(mouseX, mouseY, canvasWidth, canvasHeight) {
+        const clickedCell = this.territoryGridManager.getCellAtPosition(mouseX, mouseY, canvasWidth, canvasHeight);
+        if (clickedCell && this.territoryGridManager.getBuildingAt(clickedCell.row, clickedCell.col)?.id === 'tavern') {
+            console.log("여관 타일 클릭!");
+            // 여관 클릭 시 로직 (추후 구현)
+        }
     }
 
-    handleGridClick(mouseX, mouseY) {
-        const { tileSize, offsetX, offsetY, totalWidth, totalHeight } = this.territoryGridManager.getGridParameters();
-        if (mouseX < offsetX || mouseX > offsetX + totalWidth || mouseY < offsetY || mouseY > offsetY + totalHeight) {
-            return;
-        }
-        const col = Math.floor((mouseX - offsetX) / tileSize);
-        const row = Math.floor((mouseY - offsetY) / tileSize);
-        const tileId = row * this.territoryGridManager.gridCols + col;
-        console.log(`[TerritoryInputManager] Tile clicked: ${tileId}`);
-        if (typeof this.onTileClick === 'function') {
-            this.onTileClick(tileId);
+    handleMouseMove(mouseX, mouseY, canvasWidth, canvasHeight) {
+        const hoveredCell = this.territoryGridManager.getCellAtPosition(mouseX, mouseY, canvasWidth, canvasHeight);
+        if (hoveredCell) {
+            const building = this.territoryGridManager.getBuildingAt(hoveredCell.row, hoveredCell.col);
+            if (building?.id === 'tavern') {
+                this.hoveredTile = { row: hoveredCell.row, col: hoveredCell.col };
+                this.territoryUIManager.showTooltip('여관', mouseX, mouseY);
+                this.territoryUIManager.animateIcon('tavern-icon');
+            } else {
+                this.hoveredTile = null;
+                this.territoryUIManager.hideTooltip();
+                this.territoryUIManager.stopAnimation('tavern-icon');
+            }
+        } else {
+            this.hoveredTile = null;
+            this.territoryUIManager.hideTooltip();
+            this.territoryUIManager.stopAnimation('tavern-icon');
         }
     }
 }
+

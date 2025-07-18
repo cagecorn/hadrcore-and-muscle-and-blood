@@ -61,6 +61,7 @@ import { TerritoryEngine } from './managers/TerritoryEngine.js';
 import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManager.js';
 import { TerritoryGridManager } from './managers/TerritoryGridManager.js';
 import { TerritoryInputManager } from './managers/TerritoryInputManager.js';
+import { TerritoryUIManager } from './managers/TerritoryUIManager.js';
 import { TerritorySceneManager } from './managers/TerritorySceneManager.js';
 import { BattleStageManager } from './managers/BattleStageManager.js';
 import { BattleGridManager } from './managers/BattleGridManager.js';
@@ -279,10 +280,11 @@ export class GameEngine {
         this.territoryEngine = new TerritoryEngine();
         this.territoryBackgroundManager = new TerritoryBackgroundManager(this.assetLoaderManager);
         this.territoryGridManager = new TerritoryGridManager(this.measureManager);
+        this.territoryUIManager = new TerritoryUIManager();
         this.territoryInputManager = new TerritoryInputManager(
-            this.eventManager,
+            this.renderer.canvas,
             this.territoryGridManager,
-            this.renderer.canvas
+            this.territoryUIManager
         );
         this.territorySceneManager = new TerritorySceneManager(this.sceneEngine);
         this.battleStageManager = new BattleStageManager(this.assetLoaderManager); // ✨ assetLoaderManager 전달
@@ -562,7 +564,8 @@ export class GameEngine {
         this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, [
             this.territoryBackgroundManager,
             this.territoryGridManager,
-            this.territoryEngine
+            this.territoryEngine,
+            this.territoryUIManager
         ]);
         this.sceneEngine.registerScene(UI_STATES.COMBAT_SCREEN, [
             this.battleStageManager,    // 배경 그리기
@@ -727,6 +730,7 @@ export class GameEngine {
         await this.assetLoaderManager.loadImage('sprite_battle_stage_forest', 'assets/images/battle-stage-forest.png');
         // ✨ 영지 배경 이미지 로드
         await this.assetLoaderManager.loadImage('territory_background', 'assets/images/city-1.png');
+        await this.assetLoaderManager.loadImage('tavern-icon', 'assets/territory/tavern-icon.png');
 
         console.log(`[GameEngine] Registered unit ID: ${UNITS.WARRIOR.id}`);
         console.log(`[GameEngine] Loaded warrior sprite: ${UNITS.WARRIOR.spriteId}`);
@@ -947,5 +951,7 @@ export class GameEngine {
     getTerritoryBackgroundManager() { return this.territoryBackgroundManager; }
     getTerritoryGridManager() { return this.territoryGridManager; }
     getTerritoryInputManager() { return this.territoryInputManager; }
+    getTerritoryUIManager() { return this.territoryUIManager; }
     getTerritorySceneManager() { return this.territorySceneManager; }
 }
+
