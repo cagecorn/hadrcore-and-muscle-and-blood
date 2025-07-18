@@ -56,8 +56,12 @@ export class ClassAIManager {
             buffAction.followUp = subsequentAction;
             return buffAction;
         }
+
         if (buffAction) {
-            if (!subsequentAction) {
+            if (
+                !subsequentAction &&
+                !(activatedBuff.effect && activatedBuff.effect.allowAdditionalAttack)
+            ) {
                 buffAction.followUp = this.basicAIManager.determineMoveAndTarget(
                     unit,
                     allUnits,
