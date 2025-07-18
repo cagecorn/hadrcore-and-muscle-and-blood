@@ -95,6 +95,7 @@ import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManage
 import { TerritoryUIManager } from './managers/TerritoryUIManager.js';
 import { TerritorySceneManager } from './managers/TerritorySceneManager.js';
 import { TerritoryGridManager } from './managers/TerritoryGridManager.js';
+import { TavernManager } from './managers/TavernManager.js';
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
 import { UNITS } from '../data/unit.js';
@@ -257,6 +258,7 @@ export class GameEngine {
         // 13. Scene Registrations & Layer Engine Setup
         // this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, []); // TerritorySceneManager handles this scene
         this.sceneEngine.registerScene(UI_STATES.COMBAT_SCREEN, [this.battleStageManager, this.battleGridManager, (ctx) => { this.shadowEngine.draw(ctx); }, this.battleSimulationManager, this.vfxManager]);
+        this.sceneEngine.registerScene(UI_STATES.TAVERN_SCREEN, []);
         this.sceneEngine.setCurrentScene(UI_STATES.MAP_SCREEN);
 
         // Initialize territory-related managers
@@ -264,6 +266,7 @@ export class GameEngine {
         this.territoryBackgroundManager = new TerritoryBackgroundManager(this.domEngine);
         this.territoryUIManager = new TerritoryUIManager(this.eventManager, this.domEngine);
         this.territoryGridManager = new TerritoryGridManager(this.domEngine);
+        this.tavernManager = new TavernManager(this.domEngine, this.sceneEngine, this.uiEngine, this.heroManager);
 
         // --- LAYER REGISTRATION ---
         this.layerEngine.registerLayer('combatScene', (ctx) => {
@@ -533,4 +536,5 @@ export class GameEngine {
     getStackEngine() { return this.stackEngine; }
     getHideAndSeekManager() { return this.hideAndSeekManager; }
     getDOMEngine() { return this.domEngine; }
+    getTavernManager() { return this.tavernManager; }
 }

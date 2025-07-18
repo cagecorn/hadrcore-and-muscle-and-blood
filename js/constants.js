@@ -39,6 +39,7 @@ export const GAME_EVENTS = {
 export const UI_STATES = {
     MAP_SCREEN: 'mapScreen',
     COMBAT_SCREEN: 'combatScreen',
+    TAVERN_SCREEN: 'tavernScreen',
     HERO_PANEL_OVERLAY: 'heroPanelOverlay'
 };
 

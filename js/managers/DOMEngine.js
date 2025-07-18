@@ -17,6 +17,9 @@ export class DOMEngine {
         this.registerElement('tavern-icon-btn', document.getElementById('tavern-icon-btn'));
         this.registerElement('territory-screen', document.getElementById('territory-screen'));
         this.registerElement('territory-grid', document.getElementById('territory-grid'));
+        this.registerElement('tavern-screen', document.getElementById('tavern-screen'));
+        this.registerElement('tavern-grid', document.getElementById('tavern-grid'));
+        this.registerElement('hire-hero-btn', document.getElementById('hire-hero-btn'));
         this.registerElement('gameCanvas', document.getElementById('gameCanvas'));
         this.registerElement('battle-log-panel', document.getElementById('battle-log-panel'));
         this.registerElement('hero-panel', document.getElementById('hero-panel'));
@@ -25,15 +28,6 @@ export class DOMEngine {
     }
 
     _setupEventListeners() {
-        const tavernIcon = this.getElement('tavern-icon-btn');
-        if (tavernIcon) {
-            tavernIcon.addEventListener('click', () => {
-                if (!tavernIcon.classList.contains('hidden')) {
-                    console.log('여관 아이콘(HTML 버튼)이 클릭되었습니다!');
-                }
-            });
-        }
-
         this.eventManager.subscribe(GAME_EVENTS.BATTLE_START, () => this.updateUIForScene(UI_STATES.COMBAT_SCREEN));
         this.eventManager.subscribe(GAME_EVENTS.BATTLE_END, () => this.updateUIForScene(UI_STATES.MAP_SCREEN));
     }
@@ -42,6 +36,7 @@ export class DOMEngine {
         console.log(`[DOMEngine] Updating UI for scene: ${sceneName}`);
         const tavernIcon = this.getElement('tavern-icon-btn');
         const territory = this.getElement('territory-screen');
+        const tavernScreen = this.getElement('tavern-screen');
         const gameCanvas = this.getElement('gameCanvas');
         const logPanel = this.getElement('battle-log-panel');
         const battleStartBtn = this.getElement('battleStartHtmlBtn');
@@ -55,6 +50,18 @@ export class DOMEngine {
             recruitBtn?.classList.remove('hidden');
             heroPanelBtn?.classList.remove('hidden');
 
+            tavernScreen?.classList.add('hidden');
+            gameCanvas?.classList.add('hidden');
+            logPanel?.classList.add('hidden');
+        } else if (sceneName === UI_STATES.TAVERN_SCREEN) {
+            tavernScreen?.classList.remove('hidden');
+
+            territory?.classList.add('hidden');
+            tavernIcon?.classList.add('hidden');
+            battleStartBtn?.classList.add('hidden');
+            recruitBtn?.classList.add('hidden');
+            heroPanelBtn?.classList.add('hidden');
+
             gameCanvas?.classList.add('hidden');
             logPanel?.classList.add('hidden');
         } else { // COMBAT_SCREEN
@@ -64,6 +71,7 @@ export class DOMEngine {
             recruitBtn?.classList.add('hidden');
             heroPanelBtn?.classList.add('hidden');
 
+            tavernScreen?.classList.add('hidden');
             gameCanvas?.classList.remove('hidden');
             logPanel?.classList.remove('hidden');
         }
