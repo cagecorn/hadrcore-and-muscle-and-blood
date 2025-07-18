@@ -83,6 +83,17 @@ export class TurnCountManager {
     }
 
     /**
+     * 특정 유닛의 모든 지속 효과를 제거합니다.
+     * @param {string} unitId
+     */
+    clearEffectsOfUnit(unitId) {
+        if (this.activeEffects.has(unitId)) {
+            this.activeEffects.delete(unitId);
+            console.log(`[TurnCountManager] All effects removed from unit '${unitId}'.`);
+        }
+    }
+
+    /**
      * 모든 유닛의 모든 지속 효과를 초기화합니다.
      */
     clearAllEffects() {

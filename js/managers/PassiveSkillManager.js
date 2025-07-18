@@ -23,18 +23,19 @@ export class PassiveSkillManager {
     }
 
     _setupEventListeners() {
-        // \uD83D\uDCA1 \uBCC0\uACBD\uC810: 'UNIT_ATTACK_ATTEMPT' \uB300\uC2E0 'BASIC_ATTACK_LANDED'\uB97C \uAD6C\uB3C4\uD569\uB2C8\uB2E4.
-        // \uC774\uC81C "\uD3C9\uD0C0 \uC2EC\uD310"\uC758 \uD310\uC815\uC774 \uB05D\uB09C \uACF5\uACA9\uC5D0 \uB300\uD574\uC11C\uB9CC \uBC18\uC751\uD569\uB2C8\uB2E4.
-        this.eventManager.subscribe(GAME_EVENTS.BASIC_ATTACK_LANDED, this._onUnitAttackAttempt.bind(this));
+        // \uD83D\uDCA1 \uBCC0\uACBD\uC810: \uACF5\uACA9 \uD53C\uD574 \uACC4\uC0B0\uC774 \uB9CC\uB4E0 \uD6C4 \uD589\uB3D9\uD558\uB294 \uD504\uB85C\uC138\uC2A4\uB294
+        // 'DAMAGE_CALCULATED' \uC774\uBCA4\uD2B8\uB97C \uCC38\uC870\uD569\uB2C8\uB2E4.
+        this.eventManager.subscribe(GAME_EVENTS.DAMAGE_CALCULATED, this._onDamageCalculated.bind(this));
     }
 
     /**
-     * 유닛이 공격을 시도할 때 호출되어 '찢어발기기' 같은 스킬을 처리합니다.
-     * @param {{ attackerId: string, targetId: string }} data
+     * \uB370\uBBF8\uC9C0 \uACC4\uC0B0 \uD6C4 \uD638\uCD9C\uB418\uC5B4 \uB300\uC0C1\uC5D0\uAC8C \uC0C1\uD604\uC544\uC2DC\uB97C \uCC98\uB9AC\uD569\uB2C8\uB2E4.
+     * @param {{ attackerId: string, targetId: string, newHp: number }} data
      */
-    async _onUnitAttackAttempt({ attackerId, targetId }) {
+    async _onDamageCalculated({ attackerId, targetId, newHp }) {
         const attacker = this.battleSimulationManager.getUnitById(attackerId);
         if (!attacker || !attacker.skillSlots) return;
+        if (newHp !== undefined && newHp <= 0) return;
 
         const slotProb = [0.4, 0.3, 0.2];
 
