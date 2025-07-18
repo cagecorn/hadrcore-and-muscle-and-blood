@@ -372,7 +372,7 @@ export class VFXManager {
 
             ctx.save();
             ctx.globalAlpha = alpha;
-            ctx.fillStyle = dmgNum.color || ((dmgNum.damage > 0) ? '#FF4500' : '#ADFF2F');
+            ctx.fillStyle = dmgNum.color || ((dmgNum.damage > 0) ? '#FF4500' : '#00FF00');
             const baseFontSize = this.measureManager.get('vfx.damageNumberBaseFontSize');
             const scaleFactor = this.measureManager.get('vfx.damageNumberScaleFactor');
             ctx.font = `bold ${baseFontSize + (1 - progress) * scaleFactor}px Arial`;
