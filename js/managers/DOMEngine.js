@@ -16,6 +16,7 @@ export class DOMEngine {
     _registerElements() {
         this.registerElement('tavern-icon-btn', document.getElementById('tavern-icon-btn'));
         this.registerElement('territory-screen', document.getElementById('territory-screen'));
+        this.registerElement('territory-grid', document.getElementById('territory-grid'));
         this.registerElement('gameCanvas', document.getElementById('gameCanvas'));
         this.registerElement('battle-log-panel', document.getElementById('battle-log-panel'));
         this.registerElement('hero-panel', document.getElementById('hero-panel'));

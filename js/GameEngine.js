@@ -90,6 +90,11 @@ import { PassiveIsAlsoASkillManager } from './managers/PassiveIsAlsoASkillManage
 import { ModifierEngine } from './managers/ModifierEngine.js';
 import { ModifierLogManager } from './managers/ModifierLogManager.js';
 import { DOMEngine } from './managers/DOMEngine.js';
+import { TerritoryEngine } from './managers/TerritoryEngine.js';
+import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManager.js';
+import { TerritoryUIManager } from './managers/TerritoryUIManager.js';
+import { TerritorySceneManager } from './managers/TerritorySceneManager.js';
+import { TerritoryGridManager } from './managers/TerritoryGridManager.js';
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
 import { UNITS } from '../data/unit.js';
@@ -125,6 +130,7 @@ export class GameEngine {
         // 2. Scene & Logic Managers
         this.sceneEngine = new SceneEngine(this.eraserEngine, this.hideAndSeekManager);
         this.logicManager = new LogicManager(this.measureManager, this.sceneEngine);
+        this.territorySceneManager = new TerritorySceneManager(this.sceneEngine);
 
         // 3. ID & Asset Loading
         this.idManager = new IdManager();
@@ -249,9 +255,15 @@ export class GameEngine {
         this.attackManager = new AttackManager(this.eventManager, this.idManager);
 
         // 13. Scene Registrations & Layer Engine Setup
-        this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, []); // DOM only, no canvas managers
+        // this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, []); // TerritorySceneManager handles this scene
         this.sceneEngine.registerScene(UI_STATES.COMBAT_SCREEN, [this.battleStageManager, this.battleGridManager, (ctx) => { this.shadowEngine.draw(ctx); }, this.battleSimulationManager, this.vfxManager]);
         this.sceneEngine.setCurrentScene(UI_STATES.MAP_SCREEN);
+
+        // Initialize territory-related managers
+        this.territoryEngine = new TerritoryEngine(this.eventManager, this.domEngine);
+        this.territoryBackgroundManager = new TerritoryBackgroundManager(this.domEngine);
+        this.territoryUIManager = new TerritoryUIManager(this.eventManager, this.domEngine);
+        this.territoryGridManager = new TerritoryGridManager(this.domEngine);
 
         // --- LAYER REGISTRATION ---
         this.layerEngine.registerLayer('combatScene', (ctx) => {
