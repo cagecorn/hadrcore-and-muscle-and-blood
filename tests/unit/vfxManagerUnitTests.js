@@ -17,7 +17,7 @@ export function runVFXManagerUnitTests() {
     const mockRenderer = { canvas: { width: 800, height: 600 }, ctx: {} };
     const mockMeasureManager = new MeasureManager();
     const mockCameraEngine = {};
-    const mockLogicManager = new LogicManager(mockMeasureManager, { getCurrentSceneName: () => 'battleScene' });
+    const mockLogicManager = new LogicManager(mockMeasureManager, { getCurrentSceneName: () => 'combatScreen' });
     const mockEventManager = new EventManager();
 
     const mockAnimationManager = new AnimationManager(mockMeasureManager);
