@@ -208,11 +208,12 @@
     // ✨ 상수 파일 임포트
     import { BUTTON_IDS } from './js/constants.js';
 
-        document.addEventListener('DOMContentLoaded', () => {
+        document.addEventListener('DOMContentLoaded', async () => {
             let gameEngine; // gameEngine 인스턴스를 스코프 밖으로 뺍니다.
 
             try {
                 gameEngine = new GameEngine('gameCanvas'); // GameEngine 인스턴스 생성
+                await gameEngine.init(); // 비동기 초기화 완료 대기
                 gameEngine.eventManager.setGameRunningState(true); // ✨ 디버그 모드에서도 게임 시작 시 상태 설정
                 gameEngine.start(); // 게임 엔진 시작
             } catch (error) {
