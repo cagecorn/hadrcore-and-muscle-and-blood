@@ -35,7 +35,7 @@ export class LogicManager {
             // 영지 씬은 캔버스와 동일한 크기를 사용
             contentWidth = canvasWidth;
             contentHeight = canvasHeight;
-        } else if (currentSceneName === 'combatScreen') {
+        } else if (currentSceneName === 'battleScene') {
             // 전투 씬의 경우, 전체 캔버스 영역을 콘텐츠로 간주합니다.
             // BattleStageManager가 배경을 전체 캔버스에 그리므로
             // 카메라가 이 전체 영역을 프레임해야 합니다.
