@@ -29,6 +29,18 @@ export function runWarriorSkillsAIUnitTests() {
         delayEngine: {
             async waitFor(ms) { /* 테스트에서는 즉시 완료 */ }
         },
+        rangeManager: {
+            isTargetInRange() { return true; }
+        },
+        movingManager: {
+            async chargeMove() { return true; }
+        },
+        battleCalculationManager: {
+            requests: [],
+            requestDamageCalculation(attackerId, targetId, data) {
+                this.requests.push({ attackerId, targetId, data });
+            }
+        },
         // 다른 필요한 목업 매니저들...
     });
 
@@ -71,8 +83,9 @@ export function runWarriorSkillsAIUnitTests() {
 
             const skillNameEvent = mockManagers.eventManager.emittedEvents.find(e => e.eventName === GAME_EVENTS.DISPLAY_SKILL_NAME && e.data.skillName === '더블 스트라이크');
             const attackEvents = mockManagers.eventManager.emittedEvents.filter(e => e.eventName === GAME_EVENTS.UNIT_ATTACK_ATTEMPT && e.data.skillId === null);
+            const damageRequests = mockManagers.battleCalculationManager.requests;
 
-            if (skillNameEvent && attackEvents.length === 2) {
+            if (skillNameEvent && attackEvents.length === 2 && damageRequests.length === 2) {
                 if (GAME_DEBUG_MODE) console.log("WarriorSkillsAI: Double Strike executed two basic attacks correctly. [PASS]");
                 passCount++;
             } else {
