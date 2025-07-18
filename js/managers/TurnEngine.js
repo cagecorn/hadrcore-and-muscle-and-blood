@@ -142,7 +142,11 @@ export class TurnEngine {
 
             if (action) {
                 this.timingEngine.addTimedAction(async () => {
-                    if (action.actionType === 'move' || action.actionType === 'moveAndAttack') {
+                    if (
+                        action.actionType === 'move' ||
+                        action.actionType === 'moveAndAttack' ||
+                        action.actionType === 'moveAndSkill'
+                    ) {
                         const startGridX = unit.gridX;
                         const startGridY = unit.gridY;
                         if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attempts to move from (${startGridX},${startGridY}) to (${action.moveTargetX}, ${action.moveTargetY}).`);
@@ -178,7 +182,7 @@ export class TurnEngine {
                                 if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Target ${action.targetId} is no longer valid or out of range.`);
                             }
                         }
-                    } else if (action.actionType === 'skill') {
+                    } else if (action.actionType === 'skill' || action.actionType === 'moveAndSkill') {
                         if (GAME_DEBUG_MODE) console.log(`[TurnEngine] Unit ${unit.name} attempts to use skill.`);
                         if (typeof action.execute === 'function') {
                             await action.execute();
