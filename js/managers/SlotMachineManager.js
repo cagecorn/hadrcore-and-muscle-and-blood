@@ -48,13 +48,28 @@ export class SlotMachineManager {
                 continue;
             }
 
+            // AI 함수가 없으면 선택하지 않음
+            if (!skillData.aiFunction) {
+                continue;
+            }
+
             // 원본 스킬 슬롯에서 이 스킬의 인덱스를 찾아 확률을 결정합니다.
             const originalSlotIndex = unit.skillSlots.indexOf(skillData.id);
             if (originalSlotIndex === -1) continue;
 
-            const chance = this.probabilities[originalSlotIndex];
-            if (this.diceEngine.getRandomFloat() < chance) {
-                if (GAME_DEBUG_MODE) console.log(`[SlotMachine] \uD83C\uDFB0 Success! Slot ${originalSlotIndex + 1} skill '${skillData.name}' triggered (Chance: ${chance * 100}%).`);
+            const baseChance = this.probabilities[originalSlotIndex];
+            const skillChance =
+                typeof skillData.probability === 'number' ? skillData.probability : 1;
+            const finalChance = baseChance * skillChance;
+
+            if (this.diceEngine.getRandomFloat() < finalChance) {
+                if (GAME_DEBUG_MODE) {
+                    console.log(
+                        `[SlotMachine] \uD83C\uDFB0 Success! Slot ${
+                            originalSlotIndex + 1
+                        } skill '${skillData.name}' triggered (Chance: ${finalChance * 100}%).`
+                    );
+                }
                 return skillData;
             }
         }
