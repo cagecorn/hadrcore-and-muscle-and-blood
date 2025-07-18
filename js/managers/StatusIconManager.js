@@ -25,7 +25,8 @@ export class StatusIconManager {
         this.turnCountManager = turnCountManager;
 
         this.iconSizeRatio = 0.2;
-        this.iconOffsetYRatio = 0.6;
+        // 아이콘은 HP 바 아래 한 곳에만 표시되도록 오프셋을 낮춥니다.
+        this.iconOffsetYRatio = 0.1;
         this.iconSpacing = 5;
     }
 

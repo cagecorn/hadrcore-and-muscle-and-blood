@@ -32,6 +32,7 @@ export const STATUS_EFFECTS = {
         id: 'status_bleed',
         name: '출혈',
         type: STATUS_EFFECT_TYPES.DEBUFF,
+        icon: 'assets/icons/status_effects/bleed.png',
         description: '이동하거나 공격할 때 추가 피해를 입습니다. 이 효과는 중첩될 수 있습니다.',
         duration: 3, // 스택이 쌓일 때마다 지속시간이 초기화됩니다.
         stackable: true, // ✨ 스택 가능 여부

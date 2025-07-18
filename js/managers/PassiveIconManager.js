@@ -36,16 +36,6 @@ export class PassiveIconManager {
                 if (icon) icons.push(icon);
             }
 
-            if (this.statusEffectManager) {
-                const effects = this.statusEffectManager.getUnitActiveEffects(unit.id);
-                if (effects) {
-                    for (const [effectId] of effects.entries()) {
-                        const icon = this.skillIconManager.getSkillIcon(effectId);
-                        if (icon && icon.width > 1) icons.push(icon);
-                    }
-                }
-            }
-
             icons.forEach((icon, idx) => {
                 const baseIconSize = effectiveTileSize * this.iconSizeRatio;
                 const iconX = drawX + idx * (baseIconSize + 2);
