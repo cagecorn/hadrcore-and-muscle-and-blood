@@ -57,12 +57,16 @@ export class TagManager {
      * @returns {boolean} 유닛이 아이템을 장착할 수 있으면 true
      */
     canEquipItem(unitOrClassData, itemData) {
+        // [태그 디버그 콘솔 로그]
+        console.log(`[TagManager DEBUG]  echipaj-echipare: '${unitOrClassData?.id}' echipând '${itemData?.id}'`);
+
         if (!unitOrClassData || !Array.isArray(unitOrClassData.tags)) {
             console.warn(`[TagManager] Unit/Class data missing or invalid tags for equip check:`, unitOrClassData);
             return false;
         }
         if (!itemData || !Array.isArray(itemData.requiredUnitTags)) {
-            console.warn(`[TagManager] Item data missing or invalid requiredUnitTags for equip check:`, itemData);
+            // [태그 디버그 콘솔 로그]
+            console.log(`[TagManager DEBUG] Rezultat: false (item-ul nu are requiredUnitTags)`);
             return false; // 아이템에 필요한 태그 정보가 없으면 장착 불가
         }
 
@@ -71,10 +75,12 @@ export class TagManager {
             unitOrClassData.tags.includes(requiredTag)
         );
 
+        // [태그 디버그 콘솔 로그]
+        console.log(`[TagManager DEBUG] Tag-uri unitate: [${unitOrClassData.tags.join(', ')}], Tag-uri necesare item: [${itemData.requiredUnitTags.join(', ')}]`);
+        console.log(`[TagManager DEBUG] Rezultat: ${canEquip}`);
+
         if (!canEquip) {
             console.log(`[TagManager] Cannot equip '${itemData.id}'. Unit '${unitOrClassData.id}' tags [${unitOrClassData.tags.join(',')}] do not match required item tags [${itemData.requiredUnitTags.join(',')}]`);
-        } else {
-            console.log(`[TagManager] Unit '${unitOrClassData.id}' can equip '${itemData.id}'.`);
         }
         return canEquip;
     }
@@ -87,12 +93,16 @@ export class TagManager {
      * @returns {boolean} 유닛이 스킬을 사용할 수 있으면 true
      */
     canUseSkill(unitOrClassData, skillData) {
+        // [태그 디버그 콘솔 로그]
+        console.log(`[TagManager DEBUG] verificare-utilizare-skill: '${unitOrClassData?.id}' folosind '${skillData?.id}'`);
+
         if (!unitOrClassData || !Array.isArray(unitOrClassData.tags)) {
             console.warn(`[TagManager] Unit/Class data missing or invalid tags for skill check:`, unitOrClassData);
             return false;
         }
         if (!skillData || !Array.isArray(skillData.requiredUserTags)) {
-            // 스킬에 사용자 요구 태그 정보가 없으면 기본적으로 사용 가능
+            // [태그 디버그 콘솔 로그]
+            console.log(`[TagManager DEBUG] Rezultat: true (skill-ul nu are requiredUserTags)`);
             return true;
         }
 
@@ -101,10 +111,12 @@ export class TagManager {
             unitOrClassData.tags.includes(requiredTag)
         );
 
+        // [태그 디버그 콘솔 로그]
+        console.log(`[TagManager DEBUG] Tag-uri unitate: [${unitOrClassData.tags.join(', ')}], Tag-uri necesare skill: [${skillData.requiredUserTags.join(', ')}]`);
+        console.log(`[TagManager DEBUG] Rezultat: ${canUse}`);
+
         if (!canUse) {
             console.log(`[TagManager] Cannot use skill '${skillData.id}'. Unit '${unitOrClassData.id}' tags [${unitOrClassData.tags.join(',')}] do not match required skill tags [${skillData.requiredUserTags.join(',')}]`);
-        } else {
-            console.log(`[TagManager] Unit '${unitOrClassData.id}' can use skill '${skillData.id}'.`);
         }
         return canUse;
     }
