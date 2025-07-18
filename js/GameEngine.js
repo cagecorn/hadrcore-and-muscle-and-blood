@@ -59,12 +59,6 @@ import { BirthReportManager } from './managers/BirthReportManager.js';
 import { SynergyEngine } from './managers/SynergyEngine.js'; // ✨ SynergyEngine 추가
 import { STATUS_EFFECTS } from '../data/statusEffects.js';
 
-import { TerritoryEngine } from './managers/TerritoryEngine.js';
-import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManager.js';
-import { TerritoryGridManager } from './managers/TerritoryGridManager.js';
-import { TerritoryInputManager } from './managers/TerritoryInputManager.js';
-import { TerritoryUIManager } from './managers/TerritoryUIManager.js';
-import { TerritorySceneManager } from './managers/TerritorySceneManager.js';
 import { BattleStageManager } from './managers/BattleStageManager.js';
 import { BattleGridManager } from './managers/BattleGridManager.js';
 import { CoordinateManager } from './managers/CoordinateManager.js';
@@ -286,17 +280,6 @@ export class GameEngine {
         );
 
         this.layerEngine = new LayerEngine(this.renderer, this.cameraEngine);
-
-        this.territoryEngine = new TerritoryEngine();
-        this.territoryBackgroundManager = new TerritoryBackgroundManager(this.assetLoaderManager);
-        this.territoryGridManager = new TerritoryGridManager(this.measureManager, this.assetLoaderManager);
-        this.territoryUIManager = new TerritoryUIManager();
-        this.territoryInputManager = new TerritoryInputManager(
-            this.renderer.canvas,
-            this.territoryGridManager,
-            this.territoryUIManager
-        );
-        this.territorySceneManager = new TerritorySceneManager(this.sceneEngine);
         this.battleStageManager = new BattleStageManager(this.assetLoaderManager); // ✨ assetLoaderManager 전달
         this.battleGridManager = new BattleGridManager(this.measureManager, this.logicManager);
         // ✨ CoordinateManager 초기화 - BattleSimulationManager 후
@@ -571,11 +554,7 @@ export class GameEngine {
         // 13. Scene Registrations & Layer Engine Setup
         // ------------------------------------------------------------------
         // ✨ sceneEngine에 UI_STATES 상수 사용
-        this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, [
-            this.territoryEngine,
-            this.territoryInputManager,
-            this.territoryUIManager
-        ]);
+        this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, []);
         this.sceneEngine.registerScene(UI_STATES.COMBAT_SCREEN, [
             this.battleStageManager,    // 배경 그리기
             this.battleGridManager,     // 그리드 그리기
@@ -588,21 +567,6 @@ export class GameEngine {
         this.sceneEngine.setCurrentScene(UI_STATES.MAP_SCREEN);
 
         // --- LAYER REGISTRATION ---
-
-        // ✨ [새로운 영지 레이어 1] 배경 레이어 (가장 아래)
-        this.layerEngine.registerLayer('territoryBackground', (ctx) => {
-            if (this.sceneEngine.getCurrentSceneName() === UI_STATES.MAP_SCREEN) {
-                this.territoryBackgroundManager.draw(ctx);
-            }
-        }, 5, true);
-
-        // ✨ [새로운 영지 레이어 2] 그리드/아이콘 레이어 (배경 위)
-        this.layerEngine.registerLayer('territoryGrid', (ctx) => {
-            if (this.sceneEngine.getCurrentSceneName() === UI_STATES.MAP_SCREEN) {
-                const { width, height } = this.measureManager.get('gameResolution');
-                this.territoryGridManager.draw(ctx, width, height);
-            }
-        }, 10, true);
 
         // ✨ [전투용 씬 레이어] 전투 씬의 모든 요소를 그립니다.
         this.layerEngine.registerLayer('combatScene', (ctx) => {
@@ -638,7 +602,7 @@ export class GameEngine {
         this.gameLoop = new GameLoop(this._update, this._draw);
 
         // ✨ _initAsyncManagers에서 로드할 총 에셋 및 데이터 수를 수동으로 계산
-        const expectedDataAndAssetCount = 10 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4; // 10(기존 + 영지 배경) + 6(워리어 스킬) + 5(기본 상태 아이콘) + 5(워리어 스킬 아이콘) + 4(전사 상태 스프라이트)
+        const expectedDataAndAssetCount = 8 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4; // 8(기존) + 6(워리어 스킬) + 5(기본 상태 아이콘) + 5(워리어 스킬 아이콘) + 4(전사 상태 스프라이트)
         this.assetLoaderManager.setTotalAssetsToLoad(expectedDataAndAssetCount);
 
         // async initialization will be performed via the init() method
@@ -762,9 +726,6 @@ export class GameEngine {
         await this.assetLoaderManager.loadImage('sprite_warrior_panel', 'assets/images/warrior-panel-1.png');
         // ✨ 전투 배경 이미지 로드
         await this.assetLoaderManager.loadImage('sprite_battle_stage_forest', 'assets/images/battle-stage-forest.png');
-        // ✨ 영지 배경 이미지 로드
-        await this.assetLoaderManager.loadImage('territory_background', 'assets/images/city-1.png');
-        await this.assetLoaderManager.loadImage('tavern-icon', 'assets/territory/tavern-icon.png');
 
         console.log(`[GameEngine] Registered unit ID: ${UNITS.WARRIOR.id}`);
         console.log(`[GameEngine] Loaded warrior sprite: ${UNITS.WARRIOR.spriteId}`);
@@ -881,11 +842,7 @@ export class GameEngine {
             this.turnCountManager.clearAllEffects();
         });
 
-        this.eraserEngine.registerCleanupTask(UI_STATES.MAP_SCREEN, () => {
-            if (this.territoryUIManager) {
-                this.territoryUIManager.cleanup();
-            }
-        });
+        this.eraserEngine.registerCleanupTask(UI_STATES.MAP_SCREEN, () => {});
     }
 
     /**
@@ -992,13 +949,13 @@ export class GameEngine {
     getModifierLogManager() { return this.modifierLogManager; }
     // ✨ StackEngine getter 추가
     getStackEngine() { return this.stackEngine; }
-    // ✨ Territory 관련 매니저 getter 추가
-    getTerritoryEngine() { return this.territoryEngine; }
-    getTerritoryBackgroundManager() { return this.territoryBackgroundManager; }
-    getTerritoryGridManager() { return this.territoryGridManager; }
-    getTerritoryInputManager() { return this.territoryInputManager; }
-    getTerritoryUIManager() { return this.territoryUIManager; }
-    getTerritorySceneManager() { return this.territorySceneManager; }
+    // Territory system removed
+    getTerritoryEngine() { return null; }
+    getTerritoryBackgroundManager() { return null; }
+    getTerritoryGridManager() { return null; }
+    getTerritoryInputManager() { return null; }
+    getTerritoryUIManager() { return null; }
+    getTerritorySceneManager() { return null; }
     getHideAndSeekManager() { return this.hideAndSeekManager; }
     getDOMEngine() { return this.domEngine; }
 }
