@@ -55,6 +55,7 @@ export const STATUS_EFFECTS = {
         id: 'status_battle_cry',
         name: '전투의 외침',
         type: STATUS_EFFECT_TYPES.BUFF,
+        icon: 'assets/icons/skills/battle_cry.png',
         description: '공격력이 3턴간 10% 증가합니다.',
         duration: 3,
         effect: {
@@ -81,6 +82,7 @@ export const STATUS_EFFECTS = {
         id: 'status_disarmed',
         name: '무장해제',
         type: STATUS_EFFECT_TYPES.DISABLED,
+        icon: 'assets/icons/skills/disarmed.png',
         description: '무기를 잃어 아무런 행동도 할 수 없습니다.',
         duration: -1, // -1은 영구 지속
         effect: {
