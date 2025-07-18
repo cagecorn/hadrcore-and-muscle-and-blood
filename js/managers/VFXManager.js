@@ -1,6 +1,6 @@
 // js/managers/VFXManager.js
 
-import { GAME_EVENTS, GAME_DEBUG_MODE } from '../constants.js';
+import { GAME_EVENTS, GAME_DEBUG_MODE, SKILL_TYPE_COLORS } from '../constants.js';
 
 export class VFXManager {
     // animationManager를 추가로 받아 유닛의 애니메이션 위치를 참조합니다.
@@ -52,7 +52,7 @@ export class VFXManager {
         });
 
         this.eventManager.subscribe(GAME_EVENTS.DISPLAY_SKILL_NAME, (data) => {
-            this.addSkillName(data.unitId, data.skillName);
+            this.addSkillName(data.unitId, data.skillName, data.skillType);
         });
         if (GAME_DEBUG_MODE) console.log("[VFXManager] Subscribed to 'displaySkillName' event.");
     }
@@ -86,12 +86,14 @@ export class VFXManager {
      * @param {string} unitId - 스킬을 사용한 유닛의 ID
      * @param {string} skillName - 표시할 스킬 이름
      */
-    addSkillName(unitId, skillName) {
+    addSkillName(unitId, skillName, skillType) {
         const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);
         if (!unit) {
             if (GAME_DEBUG_MODE) console.warn(`[VFXManager] Cannot show skill name for unknown unit: ${unitId}`);
             return;
         }
+
+        const color = SKILL_TYPE_COLORS[skillType] || '#FFD700';
 
         this.activeSkillNames.push({
             unitId,
@@ -99,7 +101,7 @@ export class VFXManager {
             startTime: performance.now(),
             duration: 1500,
             floatSpeed: 0.04,
-            color: '#FFD700'
+            color
         });
         if (GAME_DEBUG_MODE) console.log(`[VFXManager] Added skill name: '${skillName}' for ${unit.name}`);
     }

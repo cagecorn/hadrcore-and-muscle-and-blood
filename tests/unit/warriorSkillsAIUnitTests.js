@@ -58,7 +58,7 @@ export function runWarriorSkillsAIUnitTests() {
             const skillNameEvent = mockManagers.eventManager.emittedEvents.find(e => e.eventName === GAME_EVENTS.DISPLAY_SKILL_NAME);
             const effectApplied = mockManagers.workflowManager.triggeredEffects.some(e => e.statusEffectId === 'status_battle_cry');
 
-            if (skillNameEvent && effectApplied) {
+            if (skillNameEvent && skillNameEvent.data.skillType === WARRIOR_SKILLS.BATTLE_CRY.type && effectApplied) {
                 if (GAME_DEBUG_MODE) console.log("WarriorSkillsAI: Battle Cry executed correctly. [PASS]");
                 passCount++;
             } else {
@@ -85,7 +85,7 @@ export function runWarriorSkillsAIUnitTests() {
             const attackEvents = mockManagers.eventManager.emittedEvents.filter(e => e.eventName === GAME_EVENTS.UNIT_ATTACK_ATTEMPT && e.data.skillId === null);
             const damageRequests = mockManagers.battleCalculationManager.requests;
 
-            if (skillNameEvent && attackEvents.length === 2 && damageRequests.length === 2) {
+            if (skillNameEvent && skillNameEvent.data.skillType === WARRIOR_SKILLS.DOUBLE_STRIKE.type && attackEvents.length === 2 && damageRequests.length === 2) {
                 if (GAME_DEBUG_MODE) console.log("WarriorSkillsAI: Double Strike executed two basic attacks correctly. [PASS]");
                 passCount++;
             } else {
@@ -110,7 +110,7 @@ export function runWarriorSkillsAIUnitTests() {
             const skillNameEvent = mockManagers.eventManager.emittedEvents.find(e => e.eventName === GAME_EVENTS.DISPLAY_SKILL_NAME && e.data.skillName === '스톤 스킨');
             const effectApplied = mockManagers.workflowManager.triggeredEffects.some(e => e.statusEffectId === 'status_stone_skin' && e.unitId === 'w1');
 
-            if (skillNameEvent && effectApplied) {
+            if (skillNameEvent && skillNameEvent.data.skillType === WARRIOR_SKILLS.STONE_SKIN.type && effectApplied) {
                 if (GAME_DEBUG_MODE) console.log("WarriorSkillsAI: Stone Skin applied buff to self correctly. [PASS]");
                 passCount++;
             } else {

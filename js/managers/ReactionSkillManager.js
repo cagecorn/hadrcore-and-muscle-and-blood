@@ -51,7 +51,8 @@ export class ReactionSkillManager {
 
                 this.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
                     unitId: defenderId,
-                    skillName: skillData.name
+                    skillName: skillData.name,
+                    skillType: skillData.type
                 });
 
                 await this.delayEngine.waitFor(250);
@@ -85,7 +86,8 @@ export class ReactionSkillManager {
 
                 this.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
                     unitId: defenderId,
-                    skillName: skillData.name
+                    skillName: skillData.name,
+                    skillType: skillData.type
                 });
 
                 const healAmount = Math.floor(defender.baseStats.hp * skillData.effect.healPercent);
