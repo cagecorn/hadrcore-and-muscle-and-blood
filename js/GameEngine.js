@@ -15,6 +15,7 @@ import { CompatibilityManager } from './managers/CompatibilityManager.js';
 import { IdManager } from './managers/IdManager.js';
 import { AssetLoaderManager } from './managers/AssetLoaderManager.js';
 import { EraserEngine } from './managers/EraserEngine.js';
+import { HideAndSeekManager } from './managers/HideAndSeekManager.js';
 import { BattleSimulationManager } from './managers/BattleSimulationManager.js';
 import { AnimationManager } from './managers/AnimationManager.js';
 import { VFXManager } from './managers/VFXManager.js';
@@ -131,6 +132,7 @@ export class GameEngine {
         this.soundEngine = new SoundEngine(); // <-- SoundEngine 인스턴스 생성
 
         this.eraserEngine = new EraserEngine();
+        this.hideAndSeekManager = new HideAndSeekManager(this);
 
         // 1. ModifierLogManager 초기화
         this.modifierLogManager = new ModifierLogManager();
@@ -138,7 +140,7 @@ export class GameEngine {
         // ------------------------------------------------------------------
         // 2. Scene & Logic Managers
         // ------------------------------------------------------------------
-        this.sceneEngine = new SceneEngine(this.eraserEngine);
+        this.sceneEngine = new SceneEngine(this.eraserEngine, this.hideAndSeekManager);
         this.logicManager = new LogicManager(this.measureManager, this.sceneEngine);
 
         // ------------------------------------------------------------------
@@ -157,6 +159,8 @@ export class GameEngine {
         });
         this.eventManager.subscribe(GAME_EVENTS.ASSETS_LOADED, () => {
             if (GAME_DEBUG_MODE) console.log("[GameEngine] All initial assets are loaded! Game ready.");
+            // Now that all assets are available, load VFX images such as bleed icons
+            this.vfxManager.loadVisualEffects();
         });
 
         // ------------------------------------------------------------------
@@ -310,7 +314,6 @@ export class GameEngine {
         );
         this.vfxManager.assetLoaderManager = this.assetLoaderManager;
         this.vfxManager.statusEffectManager = this.statusEffectManager;
-        this.vfxManager.loadVisualEffects();
 
         this.bindingManager = new BindingManager();
 
@@ -972,5 +975,6 @@ export class GameEngine {
     getTerritoryInputManager() { return this.territoryInputManager; }
     getTerritoryUIManager() { return this.territoryUIManager; }
     getTerritorySceneManager() { return this.territorySceneManager; }
+    getHideAndSeekManager() { return this.hideAndSeekManager; }
 }
 

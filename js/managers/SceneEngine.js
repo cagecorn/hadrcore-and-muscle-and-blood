@@ -1,11 +1,12 @@
 // js/managers/SceneEngine.js
 
 export class SceneEngine {
-    constructor(eraserEngine = null) {
+    constructor(eraserEngine = null, hideAndSeekManager = null) {
         console.log("\uD83C\uDFAC SceneEngine initialized. Ready to manage game scenes. \uD83C\uDFAC");
         this.scenes = new Map();
         this.currentSceneName = null;
         this.eraserEngine = eraserEngine;
+        this.hideAndSeekManager = hideAndSeekManager;
     }
 
     /**
@@ -24,8 +25,16 @@ export class SceneEngine {
      */
     setCurrentScene(sceneName) {
         if (this.scenes.has(sceneName)) {
+            if (this.currentSceneName && this.hideAndSeekManager) {
+                this.hideAndSeekManager.scanScene(this.currentSceneName, '정리 전');
+            }
+
             if (this.currentSceneName && this.eraserEngine) {
                 this.eraserEngine.cleanupScene(this.currentSceneName);
+            }
+
+            if (this.currentSceneName && this.hideAndSeekManager) {
+                this.hideAndSeekManager.scanScene(this.currentSceneName, '정리 후');
             }
             this.currentSceneName = sceneName;
             console.log(`[SceneEngine] Current scene set to: ${sceneName}`);
