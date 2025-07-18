@@ -32,10 +32,12 @@ export const STATUS_EFFECTS = {
         id: 'status_bleed',
         name: '출혈',
         type: STATUS_EFFECT_TYPES.DEBUFF,
-        description: '이동하거나 공격할 때 추가 피해를 입습니다.',
-        duration: 2,
+        description: '이동하거나 공격할 때 추가 피해를 입습니다. 이 효과는 중첩될 수 있습니다.',
+        duration: 3, // 스택이 쌓일 때마다 지속시간이 초기화됩니다.
+        stackable: true, // ✨ 스택 가능 여부
+        maxStacks: 5,    // ✨ 최대 스택 수
         effect: {
-            damageOnAction: 5
+            damageOnAction: 5 // 스택당 피해량
         },
         visualEffect: 'bleed'
     },

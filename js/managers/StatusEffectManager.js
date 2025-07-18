@@ -4,12 +4,14 @@ import { STATUS_EFFECTS } from '../../data/statusEffects.js';
 import { GAME_EVENTS, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js';
 
 export class StatusEffectManager {
-    constructor(eventManager, idManager, turnCountManager, battleCalculationManager) {
+    // 생성자에 stackEngine 추가
+    constructor(eventManager, idManager, turnCountManager, battleCalculationManager, stackEngine) {
         console.log("\u2728 StatusEffectManager initialized. Managing unit status effects. \u2728");
         this.eventManager = eventManager;
         this.idManager = idManager;
         this.turnCountManager = turnCountManager;
         this.battleCalculationManager = battleCalculationManager;
+        this.stackEngine = stackEngine; // ✨ StackEngine 주입
         // timed status effects stored per unitId
         this.activeTimedEffects = {}; // { unitId: [{ effectId, duration, startTime }] }
         this._setupEventListeners();
@@ -52,8 +54,17 @@ export class StatusEffectManager {
     applyStatusEffect(unitId, statusEffectId) {
         const effectData = Object.values(STATUS_EFFECTS).find(effect => effect.id === statusEffectId);
         if (effectData) {
-            this.turnCountManager.addEffect(unitId, effectData);
-            this.eventManager.emit(GAME_EVENTS.STATUS_EFFECT_APPLIED, { unitId, statusEffectId, effectData }); // ✨ 상수 사용
+            // ✨ 스택 가능 효과 처리 로직 추가
+            if (effectData.stackable) {
+                this.stackEngine.addStack(unitId, effectData);
+                // 스택 가능 효과도 TurnCountManager에 등록하여 지속시간을 관리합니다.
+                // 이미 효과가 있다면 지속시간만 초기화됩니다.
+                this.turnCountManager.addEffect(unitId, effectData);
+            } else {
+                // 기존 로직 (스택 불가능한 효과)
+                this.turnCountManager.addEffect(unitId, effectData);
+            }
+            this.eventManager.emit(GAME_EVENTS.STATUS_EFFECT_APPLIED, { unitId, statusEffectId, effectData });
             console.log(`[StatusEffectManager] Applied status effect '${effectData.name}' to unit '${unitId}'.`);
         } else {
             console.warn(`[StatusEffectManager] Status effect with ID '${statusEffectId}' not found.`);
