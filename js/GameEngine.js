@@ -43,7 +43,6 @@ import { PositionManager } from './managers/PositionManager.js'; // ✨ Position
 import { JudgementManager } from './managers/JudgementManager.js'; // JudgementManager 임포트
 import { ValorEngine } from './managers/ValorEngine.js';   // ✨ ValorEngine 추가
 import { WeightEngine } from './managers/WeightEngine.js'; // ✨ WeightEngine 추가
-import { StatManager } from './managers/StatManager.js'; // ✨ StatManager 추가
 import { DiceEngine } from './managers/DiceEngine.js';
 import { DiceRollManager } from './managers/DiceRollManager.js';
 import { DiceBotEngine } from './managers/DiceBotEngine.js';
@@ -63,8 +62,7 @@ import { BattleGridManager } from './managers/BattleGridManager.js';
 import { CoordinateManager } from './managers/CoordinateManager.js';
 import { ButtonEngine } from './managers/ButtonEngine.js'; // ✨ ButtonEngine 임포트
 import { DetailInfoManager } from './managers/DetailInfoManager.js'; // ✨ DetailInfoManager 추가
-import { TagManager } from './managers/TagManager.js'; // ✨ TagManager 추가
-import { WarriorSkillsAI } from './managers/warriorSkillsAI.js'; // ✨ WarriorSkillsAI 추가
+import { TagManager, WarriorSkillsAI, StatManager, UNITS, CLASSES, WARRIOR_SKILLS } from './managers/warriormanager.js';
 import { UnitSpriteEngine } from './managers/UnitSpriteEngine.js';
 import { UnitActionManager } from './managers/UnitActionManager.js';
 import { PassiveSkillManager } from './managers/PassiveSkillManager.js';
@@ -90,10 +88,7 @@ import { ModifierEngine } from './managers/ModifierEngine.js';
 // ✨ 상수 파일 임포트
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
-import { UNITS } from '../data/unit.js';
-import { CLASSES } from '../data/class.js';
 import { MONSTER_CLASSES } from '../data/monsterClass.js';
-import { WARRIOR_SKILLS } from '../data/warriorSkills.js';
 
 export class GameEngine {
     constructor(canvasId) {

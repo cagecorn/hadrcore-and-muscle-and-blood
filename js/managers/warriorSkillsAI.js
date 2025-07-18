@@ -10,7 +10,7 @@
 // import { TargetingManager } from './TargetingManager.js';
 // import { VFXManager } from './VFXManager.js';
 import { GAME_EVENTS, ATTACK_TYPES, GAME_DEBUG_MODE } from '../constants.js'; // ✨ GAME_DEBUG_MODE 임포트
-import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
+import { WARRIOR_SKILLS } from './warriormanager.js';
 import { STATUS_EFFECTS } from '../../data/statusEffects.js';
 
 export class WarriorSkillsAI {
