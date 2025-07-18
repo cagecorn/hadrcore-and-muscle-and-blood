@@ -879,6 +879,9 @@ export class GameEngine {
             if (this.territoryUIManager) {
                 this.territoryUIManager.cleanup();
             }
+            if (this.territoryInputManager) {
+                this.territoryInputManager.cleanup();
+            }
         });
     }
 
