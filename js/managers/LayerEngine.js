@@ -8,16 +8,17 @@ export class LayerEngine {
         this.layers = [];
     }
 
-    registerLayer(name, drawFunction, zIndex) {
+    // 'useCamera' determines whether camera transformations are applied when drawing this layer
+    registerLayer(name, drawFunction, zIndex, useCamera = false) {
         const existingLayerIndex = this.layers.findIndex(layer => layer.name === name);
         if (existingLayerIndex !== -1) {
             console.warn(`[LayerEngine] Layer '${name}' already exists. Overwriting.`);
-            this.layers[existingLayerIndex] = { name, drawFunction, zIndex };
+            this.layers[existingLayerIndex] = { name, drawFunction, zIndex, useCamera };
         } else {
-            this.layers.push({ name, drawFunction, zIndex });
+            this.layers.push({ name, drawFunction, zIndex, useCamera });
         }
         this.layers.sort((a, b) => a.zIndex - b.zIndex);
-        console.log(`[LayerEngine] Registered layer: ${name} with zIndex: ${zIndex}`);
+        console.log(`[LayerEngine] Registered layer: ${name} with zIndex: ${zIndex}, useCamera: ${useCamera}`);
     }
 
     draw() {
@@ -27,7 +28,8 @@ export class LayerEngine {
         for (const layer of this.layers) {
             this.renderer.ctx.save();
 
-            if (layer.name === 'sceneLayer' && this.cameraEngine) {
+            // Apply camera transformations only if this layer opts in
+            if (layer.useCamera && this.cameraEngine) {
                 this.cameraEngine.applyTransform(this.renderer.ctx);
             }
 

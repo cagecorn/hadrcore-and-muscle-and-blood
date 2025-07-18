@@ -568,9 +568,8 @@ export class GameEngine {
         // ------------------------------------------------------------------
         // ✨ sceneEngine에 UI_STATES 상수 사용
         this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, [
-            this.territoryBackgroundManager,
-            this.territoryGridManager,
             this.territoryEngine,
+            this.territoryInputManager,
             this.territoryUIManager
         ]);
         this.sceneEngine.registerScene(UI_STATES.COMBAT_SCREEN, [
@@ -584,30 +583,48 @@ export class GameEngine {
         // ✨ sceneEngine 초기 상태 설정에 UI_STATES 상수 사용
         this.sceneEngine.setCurrentScene(UI_STATES.MAP_SCREEN);
 
-        this.layerEngine.registerLayer('sceneLayer', (ctx) => {
-            this.renderer.ctx.save();
-            this.cameraEngine.applyTransform(this.renderer.ctx); // 카메라 변환 적용
-            this.sceneEngine.draw(ctx);
+        // --- LAYER REGISTRATION ---
 
-            // ✨ 같은 변환을 사용하는 레이어들을 여기에 추가
-            this.statusIconManager.draw(ctx);
-            this.passiveIconManager.draw(ctx);
+        // ✨ [새로운 영지 레이어 1] 배경 레이어 (가장 아래)
+        this.layerEngine.registerLayer('territoryBackground', (ctx) => {
+            if (this.sceneEngine.getCurrentSceneName() === UI_STATES.MAP_SCREEN) {
+                this.territoryBackgroundManager.draw(ctx);
+            }
+        }, 5, true);
 
-            this.renderer.ctx.restore();
-        }, 10);
+        // ✨ [새로운 영지 레이어 2] 그리드/아이콘 레이어 (배경 위)
+        this.layerEngine.registerLayer('territoryGrid', (ctx) => {
+            if (this.sceneEngine.getCurrentSceneName() === UI_STATES.MAP_SCREEN) {
+                const { width, height } = this.measureManager.get('gameResolution');
+                this.territoryGridManager.draw(ctx, width, height);
+            }
+        }, 10, true);
 
-        // 개별 레이어 등록 제거
-        // this.layerEngine.registerLayer('statusIconLayer', ...);
-        // this.layerEngine.registerLayer('passiveIconLayer', ...);
+        // ✨ [전투용 씬 레이어] 전투 씬의 모든 요소를 그립니다.
+        this.layerEngine.registerLayer('combatScene', (ctx) => {
+            if (this.sceneEngine.getCurrentSceneName() === UI_STATES.COMBAT_SCREEN) {
+                this.sceneEngine.draw(ctx);
+            }
+        }, 10, true);
 
+        // 전투 관련 아이콘 레이어 (상태/패시브 아이콘을 카메라 변환과 함께 표시)
+        this.layerEngine.registerLayer('statusIconLayer', (ctx) => {
+            if (this.sceneEngine.getCurrentSceneName() === UI_STATES.COMBAT_SCREEN) {
+                this.statusIconManager.draw(ctx);
+                this.passiveIconManager.draw(ctx);
+            }
+        }, 20, true);
+
+        // UI 레이어 (카메라 영향 없음)
         this.layerEngine.registerLayer('uiLayer', (ctx) => {
             this.uiEngine.draw(ctx);
-        }, 100);
+        }, 100, false);
 
-        // ✨ DetailInfoManager의 draw 메서드를 별도의 레이어로 등록 (가장 위에 오도록 높은 Z-Index)
+        // 상세 정보 툴팁 레이어 (가장 위, 카메라 영향 없음)
         this.layerEngine.registerLayer('detailInfoLayer', (ctx) => {
             this.detailInfoManager.draw(ctx);
-        }, 200); // 100보다 높게 설정
+        }, 200, false);
+
 
         this._registerCleanupTasks();
 
