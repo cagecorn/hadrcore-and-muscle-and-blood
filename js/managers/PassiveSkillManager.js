@@ -50,7 +50,7 @@ export class PassiveSkillManager {
                 if (this.diceEngine.getRandomFloat() < finalChance) {
                     if (GAME_DEBUG_MODE) console.log(`[PassiveSkillManager] ${attacker.name}'s '${skillData.name}' triggered on ${targetId}!`);
                     this.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, {
-                        unitId: attackerId,
+                        userId: attackerId,
                         skillId: skillData.id
                     });
                     this.workflowManager.triggerStatusEffectApplication(targetId, skillData.effect.statusEffectId);

@@ -81,7 +81,7 @@ export class ClassAIManager {
     }
     
     async executeSkillAI(userUnit, skillData, targetUnit) {
-        this.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, { unitId: userUnit.id, skillId: skillData.id });
+        this.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, { userId: userUnit.id, skillId: skillData.id });
         if (!skillData.aiFunction) {
             if (GAME_DEBUG_MODE) console.warn(`[ClassAIManager] Skill '${skillData.name}' has no 'aiFunction' property to execute.`);
             return;

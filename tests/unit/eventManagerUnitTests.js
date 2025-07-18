@@ -1,3 +1,5 @@
+import { GAME_EVENTS } from '../../js/constants.js';
+
 export function runEventManagerTests(eventManager) {
     console.log("--- EventManager Test Start ---");
 
@@ -41,7 +43,26 @@ export function runEventManagerTests(eventManager) {
         setTimeout(() => {
             console.log("EventManager: 'unitAttack' event processed by worker's small engine. Visually check console for '흡혈' skill trigger messages. [INFO]");
             passCount++;
-            console.log(`--- EventManager Test End: ${passCount}/${testCount} tests passed ---`);
+
+            testCount++;
+            let skillEventReceived = false;
+            const skillPayload = { userId: 'tester1', skillId: 'skill001' };
+            eventManager.subscribe(GAME_EVENTS.SKILL_EXECUTED, data => {
+                if (data.userId === skillPayload.userId && data.skillId === skillPayload.skillId) {
+                    skillEventReceived = true;
+                }
+            });
+            eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, skillPayload);
+
+            setTimeout(() => {
+                if (skillEventReceived) {
+                    console.log("EventManager: SKILL_EXECUTED propagated userId correctly. [PASS]");
+                    passCount++;
+                } else {
+                    console.error("EventManager: SKILL_EXECUTED userId mismatch or event missing. [FAIL]");
+                }
+                console.log(`--- EventManager Test End: ${passCount}/${testCount} tests passed ---`);
+            }, 100);
         }, 100);
     }, 100);
 }

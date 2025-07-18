@@ -49,7 +49,7 @@ export class EventManager {
                 if (GAME_DEBUG_MODE) console.log(`[EventManager] ${sourceUnitId} 사망으로 인한 광역 공포(${radius} 범위) 발동!`);
             }
             // 이 시점에서 다시 이벤트를 발생시킬 수도 있습니다.
-            this.emit(GAME_EVENTS.SKILL_EXECUTED, { skillName, targetUnitId, amount, sourceUnitId, radius }); // ✨ 상수 사용
+            this.emit(GAME_EVENTS.SKILL_EXECUTED, { skillName, targetUnitId, amount, userId: sourceUnitId, radius }); // ✨ 상수 사용
         }
     }
 
