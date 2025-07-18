@@ -1,4 +1,5 @@
 import { TagManager } from '../../js/managers/TagManager.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export function runTagManagerUnitTests(idManager) {
     console.log("--- TagManager Unit Test Start ---");
@@ -11,7 +12,7 @@ export function runTagManagerUnitTests(idManager) {
         get: async (id) => {
             switch (id) {
                 case 'class_warrior':
-                    return { id: 'class_warrior', name: '전사', tags: ['근접', '방어', '용병'] };
+                    return { id: 'class_warrior', name: '전사', tags: ['근접', '방어', '용병', '전사'] };
                 case 'class_mage':
                     return { id: 'class_mage', name: '마법사', tags: ['원거리', '마법', '용병'] };
                 case 'class_skeleton':
@@ -159,7 +160,7 @@ export function runTagManagerUnitTests(idManager) {
     testCount++;
     try {
         const tm = new TagManager(mockIdManager);
-        const isValid = await tm.validateDataTags('class_warrior', ['근접', '방어', '용병']);
+        const isValid = await tm.validateDataTags('class_warrior', ['근접', '방어', '용병', '전사']);
         if (isValid) {
             console.log("TagManager: validateDataTags succeeded for Warrior. [PASS]");
             passCount++;
@@ -183,6 +184,23 @@ export function runTagManagerUnitTests(idManager) {
         }
     } catch (e) {
         console.error("TagManager: Error during validateDataTags (missing) test. [FAIL]", e);
+    }
+
+    // 테스트 11: Warrior class can use all warrior skills
+    testCount++;
+    try {
+        const tm = new TagManager(mockIdManager);
+        const warriorData = await mockIdManager.get('class_warrior');
+        const allUsable = Object.values(WARRIOR_SKILLS).every(skill => tm.canUseSkill(warriorData, skill));
+        const allTagged = Object.values(WARRIOR_SKILLS).every(skill => tm.hasTag(skill, '전사'));
+        if (allUsable && allTagged) {
+            console.log("TagManager: Warrior can use all warrior skills with correct tags. [PASS]");
+            passCount++;
+        } else {
+            console.error("TagManager: Warrior skills tag validation failed. [FAIL]");
+        }
+    } catch (e) {
+        console.error("TagManager: Error during warrior skill tag test. [FAIL]", e);
     }
 
     console.log(`--- TagManager Unit Test End: ${passCount}/${testCount} tests passed ---`);
