@@ -303,7 +303,8 @@ export class GameEngine {
             this.battleSimulationManager,
             this.animationManager,
             this.delayEngine,
-            this.coordinateManager
+            this.coordinateManager,
+            null // positionManager will be set after initialization
         );
 
         // ------------------------------------------------------------------
@@ -406,6 +407,8 @@ export class GameEngine {
         // ✨ 신규 매니저들 초기화 (BattleSimulationManager 이후에)
         this.targetingManager = new TargetingManager(this.battleSimulationManager);
         this.positionManager = new PositionManager(this.battleSimulationManager);
+        // MovingManager가 위치 정보를 활용할 수 있도록 PositionManager 연결
+        this.movingManager.positionManager = this.positionManager;
 
         // ✨ BasicAIManager에 신규 매니저들 주입
         this.basicAIManager = new BasicAIManager(this.targetingManager, this.positionManager);
@@ -437,7 +440,8 @@ export class GameEngine {
             measureManager: this.measureManager,
             idManager: this.idManager,
             movingManager: this.movingManager,
-            rangeManager: this.rangeManager
+            rangeManager: this.rangeManager,
+            positionManager: this.positionManager
         };
         this.warriorSkillsAI = new WarriorSkillsAI(commonManagersForSkills);
 
