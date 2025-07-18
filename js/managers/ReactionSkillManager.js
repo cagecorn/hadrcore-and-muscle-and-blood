@@ -12,7 +12,7 @@ export class ReactionSkillManager {
      * @param {BattleCalculationManager} battleCalculationManager
      * @param {DelayEngine} delayEngine
      */
-    constructor(eventManager, idManager, diceEngine, battleSimulationManager, battleCalculationManager, delayEngine) {
+    constructor(eventManager, idManager, diceEngine, battleSimulationManager, battleCalculationManager, delayEngine, unitStatManager) {
         if (GAME_DEBUG_MODE) console.log("\uD83D\uDCA5 ReactionSkillManager initialized. Ready to retaliate! \uD83D\uDCA5");
         this.eventManager = eventManager;
         this.idManager = idManager;
@@ -20,6 +20,7 @@ export class ReactionSkillManager {
         this.battleSimulationManager = battleSimulationManager;
         this.battleCalculationManager = battleCalculationManager;
         this.delayEngine = delayEngine;
+        this.unitStatManager = unitStatManager;
 
         this._setupEventListeners();
     }
@@ -38,42 +39,61 @@ export class ReactionSkillManager {
         const defender = this.battleSimulationManager.unitsOnGrid.find(u => u.id === defenderId);
         if (!defender || defender.currentHp <= 0 || !defender.skillSlots) return; // 방어자나 스킬 슬롯이 없으면 중단
 
-        if (!defender.skillSlots.includes(WARRIOR_SKILLS.RETALIATE.id)) {
-            return;
+        const slotProb = [0.4, 0.3, 0.2];
+
+        if (defender.skillSlots.includes(WARRIOR_SKILLS.RETALIATE.id)) {
+            const skillData = WARRIOR_SKILLS.RETALIATE;
+            const slotIndex = defender.skillSlots.indexOf(skillData.id);
+            const chance = slotProb[slotIndex] || 0;
+
+            if (this.diceEngine.getRandomFloat() < chance) {
+                if (GAME_DEBUG_MODE) console.log(`[ReactionSkillManager] ${defender.name}'s Retaliate triggered against ${attackerId}!`);
+
+                this.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
+                    unitId: defenderId,
+                    skillName: skillData.name
+                });
+
+                await this.delayEngine.waitFor(250);
+
+                this.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
+                    attackerId: defenderId,
+                    targetId: attackerId,
+                    attackType: ATTACK_TYPES.MELEE,
+                    isReaction: true,
+                    skillId: skillData.id
+                });
+
+                const retaliateAttackData = {
+                    type: ATTACK_TYPES.PHYSICAL,
+                    dice: { num: 1, sides: 6 },
+                    damageModifier: skillData.effect.damageModifier
+                };
+                this.battleCalculationManager.requestDamageCalculation(defenderId, attackerId, retaliateAttackData);
+
+                await this.delayEngine.waitFor(800);
+            }
         }
 
-        const skillData = WARRIOR_SKILLS.RETALIATE;
-        const slotProb = [0.4, 0.3, 0.2];
-        const slotIndex = defender.skillSlots.indexOf(skillData.id);
-        const chance = slotProb[slotIndex] || 0;
+        if (defender.skillSlots.includes(WARRIOR_SKILLS.SMALL_HEALING_POTION.id)) {
+            const skillData = WARRIOR_SKILLS.SMALL_HEALING_POTION;
+            const slotIndex = defender.skillSlots.indexOf(skillData.id);
+            const chance = slotProb[slotIndex] || 0;
 
-        if (this.diceEngine.getRandomFloat() < chance) {
-            if (GAME_DEBUG_MODE) console.log(`[ReactionSkillManager] ${defender.name}'s Retaliate triggered against ${attackerId}!`);
+            if (this.diceEngine.getRandomFloat() < chance) {
+                if (GAME_DEBUG_MODE) console.log(`[ReactionSkillManager] ${defender.name}'s Small Healing Potion triggered.`);
 
-            // 스킬 이름 표시 이벤트 발생
-            this.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
-                unitId: defenderId,
-                skillName: skillData.name
-            });
+                this.eventManager.emit(GAME_EVENTS.DISPLAY_SKILL_NAME, {
+                    unitId: defenderId,
+                    skillName: skillData.name
+                });
 
-            await this.delayEngine.waitFor(250);
+                const healAmount = Math.floor(defender.baseStats.hp * skillData.effect.healPercent);
+                this.unitStatManager.heal(defenderId, healAmount);
+                this.eventManager.emit(GAME_EVENTS.DISPLAY_DAMAGE, { unitId: defenderId, damage: healAmount, color: 'green' });
 
-            this.eventManager.emit(GAME_EVENTS.UNIT_ATTACK_ATTEMPT, {
-                attackerId: defenderId,
-                targetId: attackerId,
-                attackType: ATTACK_TYPES.MELEE,
-                isReaction: true,
-                skillId: skillData.id // 반격 스킬 ID 전달
-            });
-
-            const retaliateAttackData = {
-                type: ATTACK_TYPES.PHYSICAL,
-                dice: { num: 1, sides: 6 },
-                damageModifier: skillData.effect.damageModifier
-            };
-            this.battleCalculationManager.requestDamageCalculation(defenderId, attackerId, retaliateAttackData);
-
-            await this.delayEngine.waitFor(800);
+                await this.delayEngine.waitFor(500);
+            }
         }
     }
 }

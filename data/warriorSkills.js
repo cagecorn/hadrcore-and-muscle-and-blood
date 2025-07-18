@@ -55,6 +55,19 @@ export const WARRIOR_SKILLS = {
         }
     },
 
+    SMALL_HEALING_POTION: {
+        id: 'skill_warrior_small_healing_potion',
+        name: '스몰 힐링 포션',
+        type: SKILL_TYPES.REACTION,
+        icon: 'assets/icons/skills/small-healing-potion.png',
+        tags: ['전사'],
+        requiredUserTags: ['전사'],
+        description: '공격을 받을 때 자신의 체력의 5%를 회복합니다.',
+        effect: {
+            healPercent: 0.05
+        }
+    },
+
     SHIELD_BREAK: {
         id: 'skill_warrior_shield_break',
         name: '쉴드 브레이크',

@@ -502,7 +502,8 @@ export class GameEngine {
             this.diceEngine,
             this.battleSimulationManager,
             this.battleCalculationManager,
-            this.delayEngine
+            this.delayEngine,
+            this.unitStatManager
         );
 
         // HeroManager는 UnitSpriteEngine이 준비된 이후 생성한다
@@ -582,7 +583,7 @@ export class GameEngine {
         this.gameLoop = new GameLoop(this._update, this._draw);
 
         // ✨ _initAsyncManagers에서 로드할 총 에셋 및 데이터 수를 수동으로 계산
-        const expectedDataAndAssetCount = 9 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4; // 9(기존) + 5(워리어 스킬) + 5(기본 상태 아이콘) + 5(워리어 스킬 아이콘) + 4(전사 상태 스프라이트)
+        const expectedDataAndAssetCount = 9 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4; // 9(기존) + 6(워리어 스킬) + 5(기본 상태 아이콘) + 5(워리어 스킬 아이콘) + 4(전사 상태 스프라이트)
         this.assetLoaderManager.setTotalAssetsToLoad(expectedDataAndAssetCount);
 
         // 초기화 과정의 비동기 처리
