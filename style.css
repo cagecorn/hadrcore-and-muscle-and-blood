@@ -128,3 +128,67 @@ canvas {
 .hero-slot img {
     width: 70%;
 }
+
+/* overlay container for DOM-based combat UI */
+#overlay-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 40;
+}
+
+.unit-overlay {
+    position: absolute;
+    transform: translate(-50%, -100%);
+    pointer-events: none;
+}
+
+.unit-overlay .hp-bar-bg {
+    position: relative;
+    width: 64px;
+    height: 6px;
+    background: rgba(50,50,50,0.8);
+}
+.unit-overlay .hp-bar-fill {
+    height: 100%;
+    background: lightgreen;
+}
+.unit-overlay .barrier-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background: yellow;
+}
+
+.unit-overlay .status-icons {
+    display: flex;
+    gap: 2px;
+    margin-top: 2px;
+}
+.unit-overlay .status-icons img {
+    width: 16px;
+    height: 16px;
+}
+
+.damage-number, .skill-name {
+    position: absolute;
+    font-weight: bold;
+    pointer-events: none;
+    white-space: nowrap;
+}
+
+.unit-tooltip {
+    position: absolute;
+    background: rgba(0,0,0,0.8);
+    color: #fff;
+    border: 1px solid #fff;
+    padding: 5px;
+    font-size: 12px;
+    pointer-events: none;
+    z-index: 50;
+}
+
