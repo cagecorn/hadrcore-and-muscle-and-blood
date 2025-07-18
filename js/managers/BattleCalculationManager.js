@@ -57,6 +57,14 @@ export class BattleCalculationManager {
                     this.eventManager.emit(GAME_EVENTS.DISPLAY_DAMAGE, { unitId: unitId, attackerId: attackerId, damage: hpDamageDealt, color: 'red' }); // 공격자 ID 포함
                 }
 
+                this.eventManager.emit(GAME_EVENTS.DAMAGE_CALCULATED, {
+                    attackerId: attackerId,
+                    targetId: unitId,
+                    hpDamageDealt,
+                    barrierDamageDealt,
+                    newHp: unitToUpdate.currentHp
+                });
+
                 if (unitToUpdate.currentHp <= 0) {
                     this.eventManager.emit(GAME_EVENTS.UNIT_DEATH, { unitId: unitId, unitName: unitToUpdate.name, unitType: unitToUpdate.type });
                     console.log(`[BattleCalculationManager] Unit '${unitId}' has died.`);

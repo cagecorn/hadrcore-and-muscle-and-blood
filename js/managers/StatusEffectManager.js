@@ -31,6 +31,11 @@ export class StatusEffectManager {
             this.applyEffect.bind(this)
         );
 
+        // \uC0AC\uB9DD \uC2DC \uBAA8\uB4E0 \uC0C1\uD604\uC544\uC2DC \uC81C\uAC70
+        this.eventManager.subscribe(GAME_EVENTS.UNIT_DEATH, ({ unitId }) => {
+            this.clearAllEffectsOfUnit(unitId);
+        });
+
         this.eventManager.subscribe(GAME_EVENTS.UNIT_TURN_START, ({ unitId }) => { // ✨ 상수 사용
             const active = this.turnCountManager.getEffectsOfUnit(unitId);
             if (active) {
@@ -121,5 +126,15 @@ export class StatusEffectManager {
                 delete this.activeTimedEffects[unitId];
             }
         }
+    }
+
+    /**
+     * 특정 유닛의 모든 상태 이상을 즉시 제거합니다.
+     * @param {string} unitId
+     */
+    clearAllEffectsOfUnit(unitId) {
+        this.turnCountManager.clearEffectsOfUnit(unitId);
+        delete this.activeTimedEffects[unitId];
+        if (GAME_DEBUG_MODE) console.log(`[StatusEffectManager] Cleared all status effects from unit ${unitId}.`);
     }
 }
