@@ -23,7 +23,7 @@ export function runLogicManagerUnitTests(logicManager) {
         getCurrentSceneName: () => 'territoryScene'
     };
     const mockSceneManagerBattle = {
-        getCurrentSceneName: () => 'battleScene'
+        getCurrentSceneName: () => 'combatScreen'
     };
     const mockSceneManagerUnknown = {
         getCurrentSceneName: () => 'unknownScene'

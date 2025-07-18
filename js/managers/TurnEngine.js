@@ -116,6 +116,16 @@ export class TurnEngine {
                 if (this.microcosmHeroEngine.hasHeroMicrocosm(unit.id)) {
                     try {
                         action = await this.microcosmHeroEngine.determineHeroAction(unit.id, battleState);
+
+                        // ✨ MicrocosmHeroEngine은 execute 함수를 제공하지 않으므로
+                        // 스킬 액션일 경우 ClassAIManager 로직을 참고해 동적으로 할당합니다.
+                        if (action && action.actionType === 'skill' && !action.execute) {
+                            const skillData = await this.classAIManager.idManager.get(action.skillId);
+                            const targetUnit = this.battleSimulationManager.getUnitById(action.targetId);
+                            if (skillData && targetUnit) {
+                                action.execute = () => this.classAIManager.executeSkillAI(unit, skillData, targetUnit);
+                            }
+                        }
                     } catch (e) {
                         if (GAME_DEBUG_MODE) console.warn(`[TurnEngine] Microcosm action failed for ${unit.name}:`, e);
                     }
