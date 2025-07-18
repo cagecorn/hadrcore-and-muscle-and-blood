@@ -1,6 +1,10 @@
+/**
+ * Handles player input on the territory screen.
+ * For now it simply converts canvas clicks into grid coordinates.
+ */
 export class TerritoryInputManager {
     constructor(eventManager, territoryGridManager, canvas) {
-        console.log("\ud83d\udcbb TerritoryInputManager initialized. Awaiting your command.");
+        console.log("🖱️ TerritoryInputManager initialized. Awaiting your command.");
         this.eventManager = eventManager;
         this.territoryGridManager = territoryGridManager;
         this.canvas = canvas;
