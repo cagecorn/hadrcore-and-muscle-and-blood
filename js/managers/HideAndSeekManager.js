@@ -52,7 +52,7 @@ export class HideAndSeekManager {
             console.log(`- \uc0c1\ud0dc\uc774\uc0c1 \ud6a8\uacfc (TurnCountManager): ${statusEffects.activeEffects.size} \uc720\ub2c8\ud2b8`);
         }
         
-        const territoryUI = this.gameEngine.getTerritoryUIManager();
+        const territoryUI = this.gameEngine.getTerritoryUIManager ? this.gameEngine.getTerritoryUIManager() : null;
         if (territoryUI) {
             const tooltipVisible = territoryUI.tooltipElement && territoryUI.tooltipElement.style.display !== 'none';
             console.log(`- \uc601\uc9c0 \ud234\ud2b8\ud54f (TerritoryUIManager): ${tooltipVisible ? '\ubcf4\uc784' : '\uc228\uac8c\ub41c'}`);

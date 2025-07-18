@@ -19,65 +19,59 @@ import { HideAndSeekManager } from './managers/HideAndSeekManager.js';
 import { BattleSimulationManager } from './managers/BattleSimulationManager.js';
 import { AnimationManager } from './managers/AnimationManager.js';
 import { VFXManager } from './managers/VFXManager.js';
-import { ParticleEngine } from './managers/ParticleEngine.js'; // ✨ ParticleEngine 임포트
-import { ShadowEngine } from './managers/ShadowEngine.js'; // ✨ ShadowEngine 추가
-import { MovingManager } from './managers/MovingManager.js'; // ✨ MovingManager 추가
-import { DisarmManager } from './managers/DisarmManager.js'; // ✨ DisarmManager 임포트
-import { CanvasBridgeManager } from './managers/CanvasBridgeManager.js'; // ✨ CanvasBridgeManager 추가
-import { SkillIconManager } from './managers/SkillIconManager.js'; // ✨ SkillIconManager 추가
-import { StatusIconManager } from './managers/StatusIconManager.js'; // ✨ StatusIconManager 추가
+import { ParticleEngine } from './managers/ParticleEngine.js';
+import { ShadowEngine } from './managers/ShadowEngine.js';
+import { MovingManager } from './managers/MovingManager.js';
+import { DisarmManager } from './managers/DisarmManager.js';
+import { CanvasBridgeManager } from './managers/CanvasBridgeManager.js';
+import { SkillIconManager } from './managers/SkillIconManager.js';
+import { StatusIconManager } from './managers/StatusIconManager.js';
 import { BindingManager } from './managers/BindingManager.js';
 import { BattleCalculationManager } from './managers/BattleCalculationManager.js';
-import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js'; // ✨ MercenaryPanelManager 추가
-import { RuleManager } from './managers/RuleManager.js'; // ✨ RuleManager 추가
+import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js';
+import { RuleManager } from './managers/RuleManager.js';
 
-import { TurnEngine } from './managers/TurnEngine.js'; // ✨ TurnEngine 추가
-import { DelayEngine } from './managers/DelayEngine.js'; // ✨ DelayEngine 추가
-import { TimingEngine } from './managers/TimingEngine.js'; // ✨ TimingEngine 추가
-import { BattleLogManager } from './managers/BattleLogManager.js'; // ✨ 새롭게 추가
-import { TurnOrderManager } from './managers/TurnOrderManager.js'; // ✨ 새롭게 추가
-import { ClassAIManager } from './managers/ClassAIManager.js';   // ✨ 새롭게 추가
-import { BasicAIManager } from './managers/BasicAIManager.js'; // ✨ 새롭게 추가
-import { TargetingManager } from './managers/TargetingManager.js'; // ✨ TargetingManager 추가
-import { SoundEngine } from './managers/SoundEngine.js'; // SoundEngine 임포트 추가
-import { PositionManager } from './managers/PositionManager.js'; // ✨ PositionManager 추가
-import { JudgementManager } from './managers/JudgementManager.js'; // JudgementManager 임포트
-import { ValorEngine } from './managers/ValorEngine.js';   // ✨ ValorEngine 추가
-import { WeightEngine } from './managers/WeightEngine.js'; // ✨ WeightEngine 추가
-import { StatManager } from './managers/StatManager.js'; // ✨ StatManager 추가
+import { TurnEngine } from './managers/TurnEngine.js';
+import { DelayEngine } from './managers/DelayEngine.js';
+import { TimingEngine } from './managers/TimingEngine.js';
+import { BattleLogManager } from './managers/BattleLogManager.js';
+import { TurnOrderManager } from './managers/TurnOrderManager.js';
+import { ClassAIManager } from './managers/ClassAIManager.js';
+import { BasicAIManager } from './managers/BasicAIManager.js';
+import { TargetingManager } from './managers/TargetingManager.js';
+import { SoundEngine } from './managers/SoundEngine.js';
+import { PositionManager } from './managers/PositionManager.js';
+import { JudgementManager } from './managers/JudgementManager.js';
+import { ValorEngine } from './managers/ValorEngine.js';
+import { WeightEngine } from './managers/WeightEngine.js';
+import { StatManager } from './managers/StatManager.js';
 import { DiceEngine } from './managers/DiceEngine.js';
 import { DiceRollManager } from './managers/DiceRollManager.js';
 import { DiceBotEngine } from './managers/DiceBotEngine.js';
 import { TurnCountManager } from './managers/TurnCountManager.js';
 import { StatusEffectManager } from './managers/StatusEffectManager.js';
 import { WorkflowManager } from './managers/WorkflowManager.js';
-import { HeroEngine } from "./managers/HeroEngine.js"; // HeroEngine 추가
-import { MicrocosmHeroEngine } from './managers/MicrocosmHeroEngine.js'; // ✨ microcosm hero engine
-import { HeroManager } from './managers/HeroManager.js'; // ✨ HeroManager import
+import { HeroEngine } from "./managers/HeroEngine.js";
+import { MicrocosmHeroEngine } from './managers/MicrocosmHeroEngine.js';
+import { HeroManager } from './managers/HeroManager.js';
 import { BirthReportManager } from './managers/BirthReportManager.js';
-import { SynergyEngine } from './managers/SynergyEngine.js'; // ✨ SynergyEngine 추가
+import { SynergyEngine } from './managers/SynergyEngine.js';
 import { STATUS_EFFECTS } from '../data/statusEffects.js';
 
-import { TerritoryEngine } from './managers/TerritoryEngine.js';
-import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManager.js';
-import { TerritoryGridManager } from './managers/TerritoryGridManager.js';
-import { TerritoryInputManager } from './managers/TerritoryInputManager.js';
-import { TerritoryUIManager } from './managers/TerritoryUIManager.js';
-import { TerritorySceneManager } from './managers/TerritorySceneManager.js';
 import { BattleStageManager } from './managers/BattleStageManager.js';
 import { BattleGridManager } from './managers/BattleGridManager.js';
 import { CoordinateManager } from './managers/CoordinateManager.js';
-import { ButtonEngine } from './managers/ButtonEngine.js'; // ✨ ButtonEngine 임포트
-import { DetailInfoManager } from './managers/DetailInfoManager.js'; // ✨ DetailInfoManager 추가
-import { TagManager } from './managers/TagManager.js'; // ✨ TagManager 추가
-import { WarriorSkillsAI } from './managers/warriorSkillsAI.js'; // ✨ WarriorSkillsAI 추가
+import { ButtonEngine } from './managers/ButtonEngine.js';
+import { DetailInfoManager } from './managers/DetailInfoManager.js';
+import { TagManager } from './managers/TagManager.js';
+import { WarriorSkillsAI } from './managers/warriorSkillsAI.js';
 import { UnitSpriteEngine } from './managers/UnitSpriteEngine.js';
 import { UnitActionManager } from './managers/UnitActionManager.js';
 import { PassiveSkillManager } from './managers/PassiveSkillManager.js';
-import { ReactionSkillManager } from './managers/ReactionSkillManager.js'; // ✨ ReactionSkillManager import
+import { ReactionSkillManager } from './managers/ReactionSkillManager.js';
 import { ConditionalManager } from './managers/ConditionalManager.js';
 import { PassiveIconManager } from './managers/PassiveIconManager.js';
-import { AttackManager } from './managers/AttackManager.js'; // <-- AttackManager 임포트
+import { AttackManager } from './managers/AttackManager.js';
 import { BattleFormationManager } from './managers/BattleFormationManager.js';
 import { MonsterSpawnManager } from './managers/MonsterSpawnManager.js';
 import { EnemyEngine } from './managers/EnemyEngine.js';
@@ -88,15 +82,14 @@ import { RangeManager } from './managers/RangeManager.js';
 import { MonsterEngine } from './managers/MonsterEngine.js';
 import { MonsterAI } from './managers/MonsterAI.js';
 import { SlotMachineManager } from './managers/SlotMachineManager.js';
-import { BuffManager } from './managers/BuffManager.js'; // <-- 추가
-import { StackEngine } from './managers/StackEngine.js'; // ✨ StackEngine 임포트
+import { BuffManager } from './managers/BuffManager.js';
+import { StackEngine } from './managers/StackEngine.js';
 
 import { OneTwoThreeManager } from './managers/OneTwoThreeManager.js';
 import { PassiveIsAlsoASkillManager } from './managers/PassiveIsAlsoASkillManager.js';
 import { ModifierEngine } from './managers/ModifierEngine.js';
 import { ModifierLogManager } from './managers/ModifierLogManager.js';
-import { DOMEngine } from './managers/DOMEngine.js'; // ✨ DOMEngine import
-// ✨ 상수 파일 임포트
+import { DOMEngine } from './managers/DOMEngine.js';
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
 import { UNITS } from '../data/unit.js';
@@ -106,11 +99,9 @@ import { WARRIOR_SKILLS } from '../data/warriorSkills.js';
 
 export class GameEngine {
     constructor(canvasId) {
-        if (GAME_DEBUG_MODE) console.log("\u2699\ufe0f GameEngine initializing... \u2699\ufe0f");
+        if (GAME_DEBUG_MODE) console.log("⚙️ GameEngine initializing... ⚙️");
 
-        // ------------------------------------------------------------------
         // 1. Core Systems & Fundamental Managers
-        // ------------------------------------------------------------------
         this.renderer = new Renderer(canvasId);
         if (!this.renderer.canvas) {
             console.error("GameEngine: Failed to initialize Renderer. Game cannot proceed.");
@@ -118,545 +109,186 @@ export class GameEngine {
         }
 
         this.eventManager = new EventManager();
-        // ✨ CRITICAL_ERROR 이벤트 구독
         this.eventManager.subscribe(GAME_EVENTS.CRITICAL_ERROR, this._handleCriticalError.bind(this));
 
-        // ✨ DOMEngine 초기화 (EventManager 이후)
         this.domEngine = new DOMEngine(this.eventManager);
-        // JudgementManager는 EventManager 이후 초기화
         this.judgementManager = new JudgementManager(this.eventManager);
-
-        // ✨ StackEngine 초기화 (EventManager 이후)
         this.stackEngine = new StackEngine(this.eventManager);
-
         this.guardianManager = new GuardianManager();
         this.measureManager = new MeasureManager();
         this.ruleManager = new RuleManager();
-        this.soundEngine = new SoundEngine(); // <-- SoundEngine 인스턴스 생성
-
+        this.soundEngine = new SoundEngine();
         this.eraserEngine = new EraserEngine();
         this.hideAndSeekManager = new HideAndSeekManager(this);
-
-        // 1. ModifierLogManager 초기화
         this.modifierLogManager = new ModifierLogManager();
 
-        // ------------------------------------------------------------------
         // 2. Scene & Logic Managers
-        // ------------------------------------------------------------------
         this.sceneEngine = new SceneEngine(this.eraserEngine, this.hideAndSeekManager);
         this.logicManager = new LogicManager(this.measureManager, this.sceneEngine);
 
-        // ------------------------------------------------------------------
         // 3. ID & Asset Loading
-        // ------------------------------------------------------------------
         this.idManager = new IdManager();
         this.assetLoaderManager = new AssetLoaderManager();
         this.assetLoaderManager.setEventManager(this.eventManager);
-
-        // ✨ SkillIconManager 초기화
         this.skillIconManager = new SkillIconManager(this.assetLoaderManager, this.idManager);
-
-        // ✨ 에셋 로딩 진행 상황 구독
         this.eventManager.subscribe(GAME_EVENTS.ASSET_LOAD_PROGRESS, (data) => {
             if (GAME_DEBUG_MODE) console.log(`[GameEngine] Assets loading: ${data.loaded}/${data.total} (${(data.loaded / data.total * 100).toFixed(1)}%)`);
         });
         this.eventManager.subscribe(GAME_EVENTS.ASSETS_LOADED, () => {
             if (GAME_DEBUG_MODE) console.log("[GameEngine] All initial assets are loaded! Game ready.");
-            // Now that all assets are available, load VFX images such as bleed icons
             this.vfxManager.loadVisualEffects();
         });
 
-        // ------------------------------------------------------------------
         // 4. Core Game Mechanics Engines
-        // ------------------------------------------------------------------
         this.valorEngine = new ValorEngine();
         this.weightEngine = new WeightEngine();
         this.statManager = new StatManager(this.valorEngine, this.weightEngine);
-
         this.diceEngine = new DiceEngine();
         this.diceBotEngine = new DiceBotEngine(this.diceEngine);
 
-        // ------------------------------------------------------------------
         // 5. Battle Simulation & Related Managers
-        // ------------------------------------------------------------------
-        // 순환 의존성 해결을 위한 초기화 순서 조정
-        // 1. BattleSimulationManager 초기화 (animationManager는 나중에 설정)
-        this.battleSimulationManager = new BattleSimulationManager(
-            this.measureManager,
-            this.assetLoaderManager,
-            this.idManager,
-            this.logicManager,
-            null,
-            this.valorEngine
-        );
-
-        // Managers that rely on BattleSimulationManager
+        this.battleSimulationManager = new BattleSimulationManager(this.measureManager, this.assetLoaderManager, this.idManager, this.logicManager, null, this.valorEngine);
         this.unitStatManager = new UnitStatManager(this.battleSimulationManager);
         this.stageDataManager = new StageDataManager();
         this.rangeManager = new RangeManager(this.battleSimulationManager);
-
-        // 2. CameraEngine 초기화 (ParticleEngine에서 사용)
         this.cameraEngine = new CameraEngine(this.renderer, this.logicManager, this.sceneEngine);
-
-        // 3. ParticleEngine 초기화 (battleSimulationManager와 cameraEngine 의존)
-        this.particleEngine = new ParticleEngine(
-            this.measureManager,
-            this.cameraEngine,
-            this.battleSimulationManager
-        );
-
-        // 4. AnimationManager 초기화 (particleEngine 의존, battleSimulationManager는 나중에 설정)
-        this.animationManager = new AnimationManager(
-            this.measureManager,
-            null,
-            this.particleEngine
-        );
-
-        // 5. 순환 의존성 해결: 상호 참조 설정
+        this.particleEngine = new ParticleEngine(this.measureManager, this.cameraEngine, this.battleSimulationManager);
+        this.animationManager = new AnimationManager(this.measureManager, null, this.particleEngine);
         this.battleSimulationManager.animationManager = this.animationManager;
         this.animationManager.battleSimulationManager = this.battleSimulationManager;
+        this.shadowEngine = new ShadowEngine(this.battleSimulationManager, this.animationManager, this.measureManager);
 
-        // === 순환 의존성 조정 끝 ===
-
-        // ShadowEngine 초기화 (animationManager가 준비된 후)
-        this.shadowEngine = new ShadowEngine(
-            this.battleSimulationManager,
-            this.animationManager,
-            this.measureManager
-        );
-
-        // ------------------------------------------------------------------
         // 6. UI, Input, Log & Other Managers
-        // ------------------------------------------------------------------
-        // MercenaryPanelManager는 별도 캔버스를 사용하지 않고 UIEngine을 통해 그려집니다.
-        this.mercenaryPanelManager = new MercenaryPanelManager(
-            this.measureManager,
-            this.battleSimulationManager,
-            this.logicManager,
-            this.eventManager
-        );
-
-        // ✨ 클릭 가능한 UI 버튼을 관리하는 ButtonEngine 초기화
+        this.mercenaryPanelManager = new MercenaryPanelManager(this.measureManager, this.battleSimulationManager, this.logicManager, this.eventManager);
         this.buttonEngine = new ButtonEngine();
-
         const combatLogPanelElement = document.getElementById('battle-log-panel');
         if (!combatLogPanelElement) {
             console.error("GameEngine: Battle Log panel not found. Game cannot proceed without it.");
             throw new Error("Battle Log panel initialization failed.");
         }
-        this.battleLogManager = new BattleLogManager(
-            combatLogPanelElement,
-            this.eventManager,
-            this.measureManager
-        );
-        // 이벤트 리스너는 명시적으로 설정
+        this.battleLogManager = new BattleLogManager(combatLogPanelElement, this.eventManager, this.measureManager);
         this.battleLogManager._setupEventListeners();
-
-
-        // UIEngine과 MapManager를 먼저 초기화
         this.mapManager = new MapManager(this.measureManager);
-        // UIEngine 초기화 시 mercenaryPanelManager와 buttonEngine을 함께 전달
         this.uiEngine = new UIEngine(this.renderer, this.measureManager, this.eventManager, this.mercenaryPanelManager, this.buttonEngine);
-
-        // CompatibilityManager 초기화 (필요 매니저들을 모두 전달)
-        this.compatibilityManager = new CompatibilityManager(
-            this.measureManager,
-            this.renderer,
-            this.uiEngine,
-            this.mapManager,
-            this.logicManager,
-            null, // mercenaryPanelManager는 이제 별도 캔버스를 갖지 않으므로 null로 전달
-            this.battleLogManager
-        );
-
-        // ✨ InputManager 초기화 시 buttonEngine과 eventManager를 함께 전달
+        this.compatibilityManager = new CompatibilityManager(this.measureManager, this.renderer, this.uiEngine, this.mapManager, this.logicManager, null, this.battleLogManager);
         this.inputManager = new InputManager(this.renderer, this.cameraEngine, this.uiEngine, this.buttonEngine, this.eventManager);
-
         const mainGameCanvasElement = document.getElementById(canvasId);
-        this.canvasBridgeManager = new CanvasBridgeManager(
-            mainGameCanvasElement,
-            null,
-            null,
-            this.eventManager,
-            this.measureManager
-        );
-
+        this.canvasBridgeManager = new CanvasBridgeManager(mainGameCanvasElement, null, null, this.eventManager, this.measureManager);
         this.layerEngine = new LayerEngine(this.renderer, this.cameraEngine);
-
-        this.territoryEngine = new TerritoryEngine();
-        this.territoryBackgroundManager = new TerritoryBackgroundManager(this.assetLoaderManager);
-        this.territoryGridManager = new TerritoryGridManager(this.measureManager, this.assetLoaderManager);
-        this.territoryUIManager = new TerritoryUIManager();
-        this.territoryInputManager = new TerritoryInputManager(
-            this.renderer.canvas,
-            this.territoryGridManager,
-            this.territoryUIManager
-        );
-        this.territorySceneManager = new TerritorySceneManager(this.sceneEngine);
-        this.battleStageManager = new BattleStageManager(this.assetLoaderManager); // ✨ assetLoaderManager 전달
+        this.battleStageManager = new BattleStageManager(this.assetLoaderManager);
         this.battleGridManager = new BattleGridManager(this.measureManager, this.logicManager);
-        // ✨ CoordinateManager 초기화 - BattleSimulationManager 후
         this.coordinateManager = new CoordinateManager(this.battleSimulationManager, this.battleGridManager);
 
-        // ------------------------------------------------------------------
         // 7. Visual Effects & Rendering Helpers
-        // ------------------------------------------------------------------
-        // VFXManager에 AnimationManager와 ParticleEngine을 전달하여 HP 바 위치를 애니메이션과 동기화합니다.
-        this.vfxManager = new VFXManager(
-            this.renderer,
-            this.measureManager,
-            this.cameraEngine,
-            this.battleSimulationManager,
-            this.animationManager,
-            this.eventManager,
-            this.particleEngine
-        );
+        this.vfxManager = new VFXManager(this.renderer, this.measureManager, this.cameraEngine, this.battleSimulationManager, this.animationManager, this.eventManager, this.particleEngine);
         this.vfxManager.assetLoaderManager = this.assetLoaderManager;
         this.vfxManager.statusEffectManager = this.statusEffectManager;
-
         this.bindingManager = new BindingManager();
 
-        // ------------------------------------------------------------------
         // 8. Timing & Movement Engines
-        // ------------------------------------------------------------------
         this.delayEngine = new DelayEngine();
         this.timingEngine = new TimingEngine(this.delayEngine);
+        this.movingManager = new MovingManager(this.battleSimulationManager, this.animationManager, this.delayEngine, this.coordinateManager, null);
 
-        // ✨ MovingManager 초기화 - delayEngine이 준비된 이후
-        this.movingManager = new MovingManager(
-            this.battleSimulationManager,
-            this.animationManager,
-            this.delayEngine,
-            this.coordinateManager,
-            null // positionManager will be set after initialization
-        );
-
-        // ------------------------------------------------------------------
         // 9. Game Content & Feature Engines
-        // ------------------------------------------------------------------
-        // ✨ 9-1. Microcosm Hero Engine
         this.microcosmHeroEngine = new MicrocosmHeroEngine(this.idManager);
-
-        // HeroEngine 초기화
-        this.heroEngine = new HeroEngine(
-            this.idManager,
-            this.assetLoaderManager,
-            this.diceEngine,
-            this.diceBotEngine,
-            this.microcosmHeroEngine
-        );
-
-        // ✨ SynergyEngine 초기화
+        this.heroEngine = new HeroEngine(this.idManager, this.assetLoaderManager, this.diceEngine, this.diceBotEngine, this.microcosmHeroEngine);
         this.synergyEngine = new SynergyEngine(this.idManager, this.eventManager);
 
-        // ------------------------------------------------------------------
         // 10. Detail & Shadow Engines
-        // ------------------------------------------------------------------
-        // ✨ DetailInfoManager 초기화
-        this.detailInfoManager = new DetailInfoManager(
-            this.eventManager,
-            this.measureManager,
-            this.battleSimulationManager,
-            this.heroEngine,
-            this.idManager,
-            this.cameraEngine,
-            this.skillIconManager
-        );
-
-        // ✨ TagManager 초기화
+        this.detailInfoManager = new DetailInfoManager(this.eventManager, this.measureManager, this.battleSimulationManager, this.heroEngine, this.idManager, this.cameraEngine, this.skillIconManager);
         this.tagManager = new TagManager(this.idManager);
 
-        // ------------------------------------------------------------------
         // 11. Conditional Manager
-        // ------------------------------------------------------------------
         this.conditionalManager = new ConditionalManager(this.battleSimulationManager, this.idManager);
-
         this.modifierEngine = new ModifierEngine(this.statusEffectManager, this.conditionalManager, this.modifierLogManager);
 
-        // ------------------------------------------------------------------
         // 12. Combat Flow & AI Managers
-        // ------------------------------------------------------------------
-        // BattleCalculationManager는 DiceRollManager를 나중에 주입합니다.
-        this.battleCalculationManager = new BattleCalculationManager(
-            this.eventManager,
-            this.battleSimulationManager,
-            null,
-            this.delayEngine,
-            this.conditionalManager,
-            this.unitStatManager,
-            null,
-            this.modifierEngine
-        );
-
-        // Status effect 관련 매니저 초기화
+        this.battleCalculationManager = new BattleCalculationManager(this.eventManager, this.battleSimulationManager, null, this.delayEngine, this.conditionalManager, this.unitStatManager, null, this.modifierEngine);
         this.turnCountManager = new TurnCountManager();
-        this.statusEffectManager = new StatusEffectManager(
-            this.eventManager,
-            this.idManager,
-            this.turnCountManager,
-            this.battleCalculationManager,
-            this.stackEngine // ✨ 주입
-        );
-
+        this.statusEffectManager = new StatusEffectManager(this.eventManager, this.idManager, this.turnCountManager, this.battleCalculationManager, this.stackEngine);
         this.battleCalculationManager.statusEffectManager = this.statusEffectManager;
         this.modifierEngine.statusEffectManager = this.statusEffectManager;
-        
-        // 이제 StatusEffectManager가 준비되었으므로 DiceRollManager를 생성
         this.diceRollManager = new DiceRollManager(this.diceEngine, this.valorEngine, this.statusEffectManager, this.modifierEngine, this.modifierLogManager);
         this.battleCalculationManager.diceRollManager = this.diceRollManager;
         this.battleCalculationManager.modifierEngine = this.modifierEngine;
         this.battleCalculationManager.modifierLogManager = this.modifierLogManager;
-        this.workflowManager = new WorkflowManager(
-            this.eventManager,
-            this.statusEffectManager,
-            this.battleSimulationManager
-        );
-
-        // ✨ StatusIconManager 초기화
-        this.statusIconManager = new StatusIconManager(
-            this.skillIconManager,
-            this.battleSimulationManager,
-            this.bindingManager,
-            this.measureManager,
-            this.turnCountManager
-        );
-
-        // ✨ DisarmManager 초기화 (StatusEffectManager가 먼저 초기화되어야 함)
-        this.disarmManager = new DisarmManager(
-            this.eventManager,
-            this.statusEffectManager,
-            this.battleSimulationManager,
-            this.measureManager
-        );
-
-        // ✨ 신규 매니저들 초기화 (BattleSimulationManager 이후에)
+        this.workflowManager = new WorkflowManager(this.eventManager, this.statusEffectManager, this.battleSimulationManager);
+        this.statusIconManager = new StatusIconManager(this.skillIconManager, this.battleSimulationManager, this.bindingManager, this.measureManager, this.turnCountManager);
+        this.disarmManager = new DisarmManager(this.eventManager, this.statusEffectManager, this.battleSimulationManager, this.measureManager);
         this.targetingManager = new TargetingManager(this.battleSimulationManager);
         this.positionManager = new PositionManager(this.battleSimulationManager);
-        // MovingManager가 위치 정보를 활용할 수 있도록 PositionManager 연결
         this.movingManager.positionManager = this.positionManager;
-
-        // ✨ BasicAIManager에 신규 매니저들 주입
         this.basicAIManager = new BasicAIManager(this.targetingManager, this.positionManager);
-
-        // Monster-related managers
         this.monsterAI = new MonsterAI(this.basicAIManager);
         this.monsterEngine = new MonsterEngine(this.monsterAI);
-
-        // AI 와 턴 진행 관련 매니저들
-        this.turnOrderManager = new TurnOrderManager(
-            this.eventManager,
-            this.battleSimulationManager,
-            this.weightEngine // ✨ weightEngine 추가
-        );
-
-        // ✨ WarriorSkillsAI를 먼저 생성하여 ClassAIManager에 주입
-        const commonManagersForSkills = {
-            battleSimulationManager: this.battleSimulationManager,
-            battleCalculationManager: this.battleCalculationManager,
-            eventManager: this.eventManager,
-            delayEngine: this.delayEngine,
-            statusEffectManager: this.statusEffectManager,
-            coordinateManager: this.coordinateManager,
-            targetingManager: this.targetingManager,
-            vfxManager: this.vfxManager,
-            diceEngine: this.diceEngine,
-            workflowManager: this.workflowManager,
-            animationManager: this.animationManager,
-            measureManager: this.measureManager,
-            idManager: this.idManager,
-            movingManager: this.movingManager,
-            rangeManager: this.rangeManager,
-            positionManager: this.positionManager
-        };
+        this.turnOrderManager = new TurnOrderManager(this.eventManager, this.battleSimulationManager, this.weightEngine);
+        const commonManagersForSkills = { battleSimulationManager: this.battleSimulationManager, battleCalculationManager: this.battleCalculationManager, eventManager: this.eventManager, delayEngine: this.delayEngine, statusEffectManager: this.statusEffectManager, coordinateManager: this.coordinateManager, targetingManager: this.targetingManager, vfxManager: this.vfxManager, diceEngine: this.diceEngine, workflowManager: this.workflowManager, animationManager: this.animationManager, measureManager: this.measureManager, idManager: this.idManager, movingManager: this.movingManager, rangeManager: this.rangeManager, positionManager: this.positionManager };
         this.warriorSkillsAI = new WarriorSkillsAI(commonManagersForSkills);
-
-        // 🎰 슬롯 머신 및 버프 매니저 초기화
         this.slotMachineManager = new SlotMachineManager(this.idManager, this.diceEngine);
-        this.buffManager = new BuffManager(this.idManager, this.diceEngine); // <-- 추가
-
-        // ClassAIManager에 추가 매니저 전달
-        this.classAIManager = new ClassAIManager(
-            this.idManager,
-            this.battleSimulationManager,
-            this.basicAIManager,
-            this.warriorSkillsAI,
-            this.targetingManager,
-            this.monsterAI,
-            this.slotMachineManager,
-            this.eventManager,
-            this.buffManager // <-- 추가
-        );
+        this.buffManager = new BuffManager(this.idManager, this.diceEngine);
+        this.classAIManager = new ClassAIManager(this.idManager, this.battleSimulationManager, this.basicAIManager, this.warriorSkillsAI, this.targetingManager, this.monsterAI, this.slotMachineManager, this.eventManager, this.buffManager);
         this.oneTwoThreeManager = new OneTwoThreeManager(this.eventManager, this.battleSimulationManager);
         this.passiveIsAlsoASkillManager = new PassiveIsAlsoASkillManager(this.eventManager, this.battleSimulationManager, this.idManager);
+        this.turnEngine = new TurnEngine(this.eventManager, this.battleSimulationManager, this.turnOrderManager, this.microcosmHeroEngine, this.classAIManager, this.delayEngine, this.timingEngine, this.animationManager, this.battleCalculationManager, this.statusEffectManager, this.rangeManager);
 
-        // ✨ TurnEngine에 새로운 의존성 전달
-        this.turnEngine = new TurnEngine(
-            this.eventManager,
-            this.battleSimulationManager,
-            this.turnOrderManager,
-            this.microcosmHeroEngine,
-            this.classAIManager,
-            this.delayEngine,
-            this.timingEngine,
-            this.animationManager,
-            this.battleCalculationManager,
-            this.statusEffectManager,
-            this.rangeManager
-        );
-
-        // ------------------------------------------------------------------
         // 12. Sprite & Action Managers
-        // ------------------------------------------------------------------
         this.unitSpriteEngine = new UnitSpriteEngine(this.assetLoaderManager, this.battleSimulationManager);
-        // UnitSpriteEngine 초기화 이후 EnemyEngine을 준비합니다.
         this.enemyEngine = new EnemyEngine(this.unitSpriteEngine);
-        this.unitActionManager = new UnitActionManager(
-            this.eventManager,
-            this.unitSpriteEngine,
-            this.delayEngine,
-            this.battleSimulationManager
-        );
-        this.passiveSkillManager = new PassiveSkillManager(
-            this.eventManager,
-            this.idManager,
-            this.diceEngine,
-            this.battleSimulationManager,
-            this.workflowManager
-        );
-        this.reactionSkillManager = new ReactionSkillManager(
-            this.eventManager,
-            this.idManager,
-            this.diceEngine,
-            this.battleSimulationManager,
-            this.battleCalculationManager,
-            this.delayEngine,
-            this.unitStatManager
-        );
-
-        // HeroManager는 UnitSpriteEngine이 준비된 이후 생성한다
+        this.unitActionManager = new UnitActionManager(this.eventManager, this.unitSpriteEngine, this.delayEngine, this.battleSimulationManager);
+        this.passiveSkillManager = new PassiveSkillManager(this.eventManager, this.idManager, this.diceEngine, this.battleSimulationManager, this.workflowManager);
+        this.reactionSkillManager = new ReactionSkillManager(this.eventManager, this.idManager, this.diceEngine, this.battleSimulationManager, this.battleCalculationManager, this.delayEngine, this.unitStatManager);
         this.birthReportManager = new BirthReportManager();
-        this.heroManager = new HeroManager(
-            this.idManager,
-            this.diceEngine,
-            this.assetLoaderManager,
-            this.battleSimulationManager,
-            this.unitSpriteEngine,
-            this.diceBotEngine,
-            this.birthReportManager,
-            this.heroEngine
-        );
-
+        this.heroManager = new HeroManager(this.idManager, this.diceEngine, this.assetLoaderManager, this.battleSimulationManager, this.unitSpriteEngine, this.diceBotEngine, this.birthReportManager, this.heroEngine);
         this.battleFormationManager = new BattleFormationManager(this.battleSimulationManager);
         this.monsterSpawnManager = new MonsterSpawnManager(this.idManager, this.assetLoaderManager, this.battleSimulationManager, this.stageDataManager);
-        // EnemySpawnManager 초기화
         this.enemySpawnManager = new EnemySpawnManager(this.heroManager, this.enemyEngine, this.battleSimulationManager, this.idManager);
 
-        // ------------------------------------------------------------------
         // 13. Conditional & Passive Visual Managers
-        // ------------------------------------------------------------------
-        this.passiveIconManager = new PassiveIconManager(
-            this.battleSimulationManager,
-            this.idManager,
-            this.skillIconManager,
-            this.statusEffectManager
-        );
-        this.attackManager = new AttackManager(this.eventManager, this.idManager); // AttackManager 인스턴스 생성
+        this.passiveIconManager = new PassiveIconManager(this.battleSimulationManager, this.idManager, this.skillIconManager, this.statusEffectManager);
+        this.attackManager = new AttackManager(this.eventManager, this.idManager);
 
-        // ------------------------------------------------------------------
         // 13. Scene Registrations & Layer Engine Setup
-        // ------------------------------------------------------------------
-        // ✨ sceneEngine에 UI_STATES 상수 사용
-        this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, [
-            this.territoryEngine,
-            this.territoryInputManager,
-            this.territoryUIManager
-        ]);
-        this.sceneEngine.registerScene(UI_STATES.COMBAT_SCREEN, [
-            this.battleStageManager,    // 배경 그리기
-            this.battleGridManager,     // 그리드 그리기
-            (ctx) => { this.shadowEngine.draw(ctx); }, // ✨ 그림자 그리기 (배경/그리드 위, 유닛 아래)
-            this.battleSimulationManager, // 유닛 그리기
-            this.vfxManager             // VFX 그리기 (HP 바, 데미지 숫자 등)
-        ]);
-
-        // ✨ sceneEngine 초기 상태 설정에 UI_STATES 상수 사용
+        this.sceneEngine.registerScene(UI_STATES.MAP_SCREEN, []); // DOM only, no canvas managers
+        this.sceneEngine.registerScene(UI_STATES.COMBAT_SCREEN, [this.battleStageManager, this.battleGridManager, (ctx) => { this.shadowEngine.draw(ctx); }, this.battleSimulationManager, this.vfxManager]);
         this.sceneEngine.setCurrentScene(UI_STATES.MAP_SCREEN);
 
         // --- LAYER REGISTRATION ---
-
-        // ✨ [새로운 영지 레이어 1] 배경 레이어 (가장 아래)
-        this.layerEngine.registerLayer('territoryBackground', (ctx) => {
-            if (this.sceneEngine.getCurrentSceneName() === UI_STATES.MAP_SCREEN) {
-                this.territoryBackgroundManager.draw(ctx);
-            }
-        }, 5, true);
-
-        // ✨ [새로운 영지 레이어 2] 그리드/아이콘 레이어 (배경 위)
-        this.layerEngine.registerLayer('territoryGrid', (ctx) => {
-            if (this.sceneEngine.getCurrentSceneName() === UI_STATES.MAP_SCREEN) {
-                const { width, height } = this.measureManager.get('gameResolution');
-                this.territoryGridManager.draw(ctx, width, height);
-            }
-        }, 10, true);
-
-        // ✨ [전투용 씬 레이어] 전투 씬의 모든 요소를 그립니다.
         this.layerEngine.registerLayer('combatScene', (ctx) => {
             if (this.sceneEngine.getCurrentSceneName() === UI_STATES.COMBAT_SCREEN) {
                 this.sceneEngine.draw(ctx);
             }
         }, 10, true);
-
-        // 전투 관련 아이콘 레이어 (상태/패시브 아이콘을 카메라 변환과 함께 표시)
         this.layerEngine.registerLayer('statusIconLayer', (ctx) => {
             if (this.sceneEngine.getCurrentSceneName() === UI_STATES.COMBAT_SCREEN) {
                 this.statusIconManager.draw(ctx);
                 this.passiveIconManager.draw(ctx);
             }
         }, 20, true);
-
-        // UI 레이어 (카메라 영향 없음)
         this.layerEngine.registerLayer('uiLayer', (ctx) => {
             this.uiEngine.draw(ctx);
         }, 100, false);
-
-        // 상세 정보 툴팁 레이어 (가장 위, 카메라 영향 없음)
         this.layerEngine.registerLayer('detailInfoLayer', (ctx) => {
             this.detailInfoManager.draw(ctx);
         }, 200, false);
 
-
         this._registerCleanupTasks();
-
         this._update = this._update.bind(this);
         this._draw = this._draw.bind(this);
-
         this.gameLoop = new GameLoop(this._update, this._draw);
-
-        // ✨ _initAsyncManagers에서 로드할 총 에셋 및 데이터 수를 수동으로 계산
-        const expectedDataAndAssetCount = 10 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4; // 10(기존 + 영지 배경) + 6(워리어 스킬) + 5(기본 상태 아이콘) + 5(워리어 스킬 아이콘) + 4(전사 상태 스프라이트)
+        const expectedDataAndAssetCount = 10 + Object.keys(WARRIOR_SKILLS).length + 5 + 5 + 4;
         this.assetLoaderManager.setTotalAssetsToLoad(expectedDataAndAssetCount);
-
-        // async initialization will be performed via the init() method
     }
 
-    // ✨ asynchronous initialization separated from constructor
     async init() {
         await this._initAsyncManagers();
-
         const initialGameData = {
-            units: [
-                { id: 'u1', name: 'Knight', hp: 100 },
-                { id: 'u2', name: 'Archer', hp: 70 }
-            ],
-            config: {
-                resolution: this.measureManager.get('gameResolution'),
-                difficulty: 'normal'
-            }
+            units: [{ id: 'u1', name: 'Knight', hp: 100 }, { id: 'u2', name: 'Archer', hp: 70 }],
+            config: { resolution: this.measureManager.get('gameResolution'), difficulty: 'normal' }
         };
-
         try {
             this.guardianManager.enforceRules(initialGameData);
-            if (GAME_DEBUG_MODE) console.log("[GameEngine] Initial game data passed GuardianManager rules. \u2728");
+            if (GAME_DEBUG_MODE) console.log("[GameEngine] Initial game data passed GuardianManager rules. ✨");
         } catch (e) {
             if (e.name === "ImmutableRuleViolationError") {
                 console.error("[GameEngine] CRITICAL ERROR: Game initialization failed due to immutable rule violation!", e.message);
@@ -666,14 +298,11 @@ export class GameEngine {
                 throw e;
             }
         }
-
         this.cameraEngine.reset();
         if (GAME_DEBUG_MODE) console.log(`[GameEngine Debug] Camera Initial State: X=${this.cameraEngine.x}, Y=${this.cameraEngine.y}, Zoom=${this.cameraEngine.zoom}`);
-
         this.eventManager.subscribe(GAME_EVENTS.UNIT_DEATH, (data) => {
             if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Unit ${data.unitId} (${data.unitName}) has died.`);
         });
-
         this.eventManager.subscribe(GAME_EVENTS.SKILL_EXECUTED, async (data) => {
             if (data.skillName) {
                 if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${data.skillName}' was executed by ${data.userId}.`);
@@ -684,159 +313,87 @@ export class GameEngine {
                 if (GAME_DEBUG_MODE) console.log(`[GameEngine] Notification: Skill '${resolvedName}' was executed by ${data.userId}.`);
             }
         });
-
         this.eventManager.subscribe(GAME_EVENTS.BATTLE_START, async (data) => {
             if (GAME_DEBUG_MODE) console.log(`[GameEngine] Battle started for map: ${data.mapId}, difficulty: ${data.difficulty}`);
             this.sceneEngine.setCurrentScene(UI_STATES.COMBAT_SCREEN);
             this.uiEngine.setUIState(UI_STATES.COMBAT_SCREEN);
             this.domEngine.updateUIForScene(UI_STATES.COMBAT_SCREEN);
             this.cameraEngine.reset();
-
             await this.turnEngine.startBattleTurns();
         });
-
         this.eventManager.subscribe(GAME_EVENTS.BATTLE_END, (data) => {
             this.domEngine.updateUIForScene(UI_STATES.MAP_SCREEN);
         });
-
-        if (GAME_DEBUG_MODE) console.log("\u2699\ufe0f GameEngine initialized successfully. \u2699\ufe0f");
-
+        if (GAME_DEBUG_MODE) console.log("⚙️ GameEngine initialized successfully. ⚙️");
         this._setupEventListeners();
-
-        // ✨ 게임 시작 시 DOM UI 초기 상태 설정
         this.domEngine.updateUIForScene(UI_STATES.MAP_SCREEN);
     }
 
-    /**
-     * \ube44\ub3d9\uae30\ub85c \ucd08\uae30\ud654\ub418\uc5b4\uc57c \ud558\ub294 \ub9e4\ub2c8\uc800\ub97c \ucc98\ub9ac\ud569\ub2c8\ub2e4.
-     */
     async _initAsyncManagers() {
         await this.idManager.initialize();
-
-        // 1. IdManager에 전사 유닛과 클래스 ID 등록
         await this.idManager.addOrUpdateId(UNITS.WARRIOR.id, UNITS.WARRIOR);
         await this.idManager.addOrUpdateId(CLASSES.WARRIOR.id, CLASSES.WARRIOR);
-        // ✨ 새롭게 추가된 몬스터 클래스 등록
         await this.idManager.addOrUpdateId(MONSTER_CLASSES.SKELETON.id, MONSTER_CLASSES.SKELETON);
         await this.idManager.addOrUpdateId(MONSTER_CLASSES.ZOMBIE.id, MONSTER_CLASSES.ZOMBIE);
         await this.idManager.addOrUpdateId(CLASSES.WARRIOR_VALIANT.id, CLASSES.WARRIOR_VALIANT);
-
-        // ✨ IdManager에 WARRIOR_SKILLS 데이터 등록
         for (const skillKey in WARRIOR_SKILLS) {
             const skill = WARRIOR_SKILLS[skillKey];
             await this.idManager.addOrUpdateId(skill.id, skill);
         }
         if (GAME_DEBUG_MODE) console.log(`[GameEngine] Registered ${Object.keys(WARRIOR_SKILLS).length} warrior skills.`);
-
-        // ✨ SkillIconManager의 아이콘 로드를 시작합니다.
         await this.skillIconManager._loadAllIcons();
         if (GAME_DEBUG_MODE) console.log("[GameEngine] All initial icons have been queued for loading by SkillIconManager.");
-
-        // 2. AssetLoaderManager로 전사 스프라이트 로드
-        await this.assetLoaderManager.loadImage(
-            UNITS.WARRIOR.spriteId,
-            'assets/images/warrior.png'
-        );
-        await this.assetLoaderManager.loadImage(
-            'sprite_warrior_attack',
-            'assets/images/warrior-attack.png'
-        );
-        await this.assetLoaderManager.loadImage(
-            'sprite_warrior_hitted',
-            'assets/images/warrior-hitted.png'
-        );
-        await this.assetLoaderManager.loadImage(
-            'sprite_warrior_finish',
-            'assets/images/warrior-finish.png'
-        );
-        await this.assetLoaderManager.loadImage(
-            'sprite_warrior_status',
-            'assets/images/warrior-status-effects.png'
-        );
-        // ✨ 전사 패널 이미지 로드
+        await this.assetLoaderManager.loadImage(UNITS.WARRIOR.spriteId, 'assets/images/warrior.png');
+        await this.assetLoaderManager.loadImage('sprite_warrior_attack', 'assets/images/warrior-attack.png');
+        await this.assetLoaderManager.loadImage('sprite_warrior_hitted', 'assets/images/warrior-hitted.png');
+        await this.assetLoaderManager.loadImage('sprite_warrior_finish', 'assets/images/warrior-finish.png');
+        await this.assetLoaderManager.loadImage('sprite_warrior_status', 'assets/images/warrior-status-effects.png');
         await this.assetLoaderManager.loadImage('sprite_warrior_panel', 'assets/images/warrior-panel-1.png');
-        // ✨ 전투 배경 이미지 로드
         await this.assetLoaderManager.loadImage('sprite_battle_stage_forest', 'assets/images/battle-stage-forest.png');
-        // ✨ 영지 배경 이미지 로드
-        await this.assetLoaderManager.loadImage('territory_background', 'assets/images/city-1.png');
-        await this.assetLoaderManager.loadImage('tavern-icon', 'assets/territory/tavern-icon.png');
-
         console.log(`[GameEngine] Registered unit ID: ${UNITS.WARRIOR.id}`);
         console.log(`[GameEngine] Loaded warrior sprite: ${UNITS.WARRIOR.spriteId}`);
-
         const mockEnemyUnitData = {
-            id: 'unit_zombie_001', // ID 변경
-            name: '좀비', // 이름 변경
-            classId: 'class_skeleton', // 기존 해골 클래스 재사용
-            type: ATTACK_TYPES.ENEMY, // ✨ ATTACK_TYPES 상수 사용
-            baseStats: {
-                hp: 80,
-                attack: 15,
-                defense: 5,
-                speed: 30,
-                valor: 10,
-                strength: 10,
-                endurance: 8,
-                agility: 12,
-                intelligence: 5,
-                wisdom: 5,
-                luck: 15,
-                weight: 10
-            },
+            id: 'unit_zombie_001',
+            name: '좀비',
+            classId: 'class_skeleton',
+            type: ATTACK_TYPES.ENEMY,
+            baseStats: { hp: 80, attack: 15, defense: 5, speed: 30, valor: 10, strength: 10, endurance: 8, agility: 12, intelligence: 5, wisdom: 5, luck: 15, weight: 10 },
             spriteId: 'sprite_zombie_default'
         };
         await this.idManager.addOrUpdateId(mockEnemyUnitData.id, mockEnemyUnitData);
-        // ✨ 좀비 기본 이미지 로드
         await this.assetLoaderManager.loadImage(mockEnemyUnitData.spriteId, 'assets/images/zombie.png');
-        // ✨ 무장해제 상태의 좀비 이미지 로드
         await this.assetLoaderManager.loadImage('sprite_zombie_empty_default', 'assets/images/zombie-empty.png');
-        // ✨ 좀비 무기 이미지 로드
         await this.assetLoaderManager.loadImage('sprite_zombie_weapon_default', 'assets/images/zombie-weapon.png');
         await this.assetLoaderManager.loadImage('bleed', 'assets/icons/status_effects/bleed.png');
         await this.assetLoaderManager.loadImage('icon_status_shield_break', 'assets/icons/status_effects/shield-break.png');
-
         await this._initBattleGrid();
     }
 
     async _initBattleGrid() {
-        // 영웅 데이터를 변환하여 적군 전사를 생성합니다.
         await this.enemySpawnManager.spawnEnemyWarriors(5);
     }
 
     _update(deltaTime) {
-        this.conditionalManager.update(); // ✨ 업데이트 루프에 추가
+        this.conditionalManager.update();
         this.sceneEngine.update(deltaTime);
         this.animationManager.update(deltaTime);
         this.statusEffectManager.update(deltaTime);
         this.vfxManager.update(deltaTime);
-        this.particleEngine.update(deltaTime); // ✨ ParticleEngine 업데이트 호출
-        // ✨ DetailInfoManager 업데이트 호출
+        this.particleEngine.update(deltaTime);
         this.detailInfoManager.update(deltaTime);
-
         const { effectiveTileSize, gridOffsetX, gridOffsetY } = this.battleSimulationManager.getGridRenderParameters();
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
-            const { drawX, drawY } = this.animationManager.getRenderPosition(
-                unit.id,
-                unit.gridX,
-                unit.gridY,
-                effectiveTileSize,
-                gridOffsetX,
-                gridOffsetY
-            );
-            this.bindingManager.bindUnit(unit.id, {
-                renderX: drawX,
-                renderY: drawY
-            });
+            const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
+            this.bindingManager.bindUnit(unit.id, { renderX: drawX, renderY: drawY });
         }
     }
 
     _draw() {
         this.layerEngine.draw();
-        // DOM 기반 전투 로그는 캔버스 그리기가 필요 없습니다.
     }
 
     start() {
-        if (GAME_DEBUG_MODE) console.log("\ud83d\ude80 GameEngine starting game loop... \ud83d\ude80");
+        if (GAME_DEBUG_MODE) console.log("🚀 GameEngine starting game loop... 🚀");
         this.gameLoop.start();
     }
 
@@ -845,12 +402,10 @@ export class GameEngine {
         if (recruitButton) {
             recruitButton.addEventListener('click', () => this.recruitNewWarrior());
         }
-
         const toggleHeroPanelBtn = document.getElementById(BUTTON_IDS.TOGGLE_HERO_PANEL);
         if (toggleHeroPanelBtn) {
             toggleHeroPanelBtn.addEventListener('click', () => this.uiEngine.toggleHeroPanel());
         }
-
         const battleStartHtmlBtn = document.getElementById(BUTTON_IDS.BATTLE_START_HTML);
         if (battleStartHtmlBtn) {
             battleStartHtmlBtn.addEventListener('click', () => this.uiEngine.handleBattleStartClick());
@@ -874,28 +429,18 @@ export class GameEngine {
             this.vfxManager.clearEffects();
             this.turnCountManager.clearAllEffects();
         });
-
         this.eraserEngine.registerCleanupTask(UI_STATES.MAP_SCREEN, () => {
-            if (this.territoryUIManager) {
-                this.territoryUIManager.cleanup();
-            }
-            if (this.territoryInputManager) {
-                this.territoryInputManager.cleanup();
-            }
+            // No cleanup needed for DOM-based territory
         });
     }
 
-    /**
-     * ✨ 심각한 오류 발생 시 게임을 처리합니다.
-     * @param {object} errorData - 오류 데이터 (source, message, errorObject 포함)
-     * @private
-     */
     _handleCriticalError(errorData) {
         console.error("[GameEngine] CRITICAL ERROR DETECTED!", errorData);
-        this.eventManager.setGameRunningState(false); // 게임 루프 정지
+        this.eventManager.setGameRunningState(false);
         alert(`치명적인 게임 오류 발생! (${errorData.source}):\n${errorData.message}\n게임을 일시 정지합니다. 콘솔을 확인해주세요.`);
     }
 
+    // Getters for all managers...
     getRenderer() { return this.renderer; }
     getEventManager() { return this.eventManager; }
     getGuardianManager() { return this.guardianManager; }
@@ -917,8 +462,6 @@ export class GameEngine {
     getBattleLogManager() { return this.battleLogManager; }
     getVFXManager() { return this.vfxManager; }
     getBindingManager() { return this.bindingManager; }
-
-    // 새로운 엔진들에 대한 getter 메서드
     getDelayEngine() { return this.delayEngine; }
     getTimingEngine() { return this.timingEngine; }
     getValorEngine() { return this.valorEngine; }
@@ -934,40 +477,28 @@ export class GameEngine {
     getStatusEffectManager() { return this.statusEffectManager; }
     getWorkflowManager() { return this.workflowManager; }
     getDisarmManager() { return this.disarmManager; }
-    getParticleEngine() { return this.particleEngine; } // ✨ ParticleEngine getter 추가
-    getMovingManager() { return this.movingManager; } // ✨ MovingManager getter 추가
-
+    getParticleEngine() { return this.particleEngine; }
+    getMovingManager() { return this.movingManager; }
     getButtonEngine() { return this.buttonEngine; }
-
-    // Dice 관련 엔진/매니저에 대한 getter
     getDiceEngine() { return this.diceEngine; }
     getDiceRollManager() { return this.diceRollManager; }
     getHeroEngine() { return this.heroEngine; }
     getMicrocosmHeroEngine() { return this.microcosmHeroEngine; }
-    // ✨ HeroManager getter 추가
     getHeroManager() { return this.heroManager; }
-    // ✨ SynergyEngine getter 추가
     getSynergyEngine() { return this.synergyEngine; }
-    // ✨ DetailInfoManager getter 추가
     getDetailInfoManager() { return this.detailInfoManager; }
     getDiceBotEngine() { return this.diceBotEngine; }
-    // ✨ CoordinateManager getter 추가
     getCoordinateManager() { return this.coordinateManager; }
-    // ✨ TargetingManager getter 추가
     getTargetingManager() { return this.targetingManager; }
-    // ✨ TagManager getter 추가
     getTagManager() { return this.tagManager; }
-    // ✨ 워리어 스킬 AI getter 추가
     getWarriorSkillsAI() { return this.warriorSkillsAI; }
-    // ✨ SkillIconManager getter 추가
     getSkillIconManager() { return this.skillIconManager; }
-    // ✨ StatusIconManager getter 추가
     getStatusIconManager() { return this.statusIconManager; }
     getBattleFormationManager() { return this.battleFormationManager; }
     getMonsterSpawnManager() { return this.monsterSpawnManager; }
     getEnemyEngine() { return this.enemyEngine; }
     getEnemySpawnManager() { return this.enemySpawnManager; }
-    getShadowEngine() { return this.shadowEngine; } // ✨ ShadowEngine getter 추가
+    getShadowEngine() { return this.shadowEngine; }
     getUnitSpriteEngine() { return this.unitSpriteEngine; }
     getUnitActionManager() { return this.unitActionManager; }
     getPassiveSkillManager() { return this.passiveSkillManager; }
@@ -981,22 +512,13 @@ export class GameEngine {
     getMonsterEngine() { return this.monsterEngine; }
     getMonsterAI() { return this.monsterAI; }
     getSlotMachineManager() { return this.slotMachineManager; }
-    getBuffManager() { return this.buffManager; } // <-- Getter 추가
+    getBuffManager() { return this.buffManager; }
     getSoundEngine() { return this.soundEngine; }
     getOneTwoThreeManager() { return this.oneTwoThreeManager; }
     getPassiveIsAlsoASkillManager() { return this.passiveIsAlsoASkillManager; }
     getModifierEngine() { return this.modifierEngine; }
     getModifierLogManager() { return this.modifierLogManager; }
-    // ✨ StackEngine getter 추가
     getStackEngine() { return this.stackEngine; }
-    // ✨ Territory 관련 매니저 getter 추가
-    getTerritoryEngine() { return this.territoryEngine; }
-    getTerritoryBackgroundManager() { return this.territoryBackgroundManager; }
-    getTerritoryGridManager() { return this.territoryGridManager; }
-    getTerritoryInputManager() { return this.territoryInputManager; }
-    getTerritoryUIManager() { return this.territoryUIManager; }
-    getTerritorySceneManager() { return this.territorySceneManager; }
     getHideAndSeekManager() { return this.hideAndSeekManager; }
     getDOMEngine() { return this.domEngine; }
 }
-

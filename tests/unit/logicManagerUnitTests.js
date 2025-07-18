@@ -20,10 +20,10 @@ export function runLogicManagerUnitTests(logicManager) {
 
     // \ubaa8\uc758 SceneManager (\ud14c\uc2a4\ud2b8\ub97c \uc704\ud574 setCurrentScene\uc744 \uc9c1\uc811 \ud638\ucd9c\ud558\uc9c0 \uc54a\uace0 currentSceneName\uc744 \uc124\uc815)
     const mockSceneManagerTerritory = {
-        getCurrentSceneName: () => 'territoryScene'
+        getCurrentSceneName: () => 'mapScreen'
     };
     const mockSceneManagerBattle = {
-        getCurrentSceneName: () => 'battleScene'
+        getCurrentSceneName: () => 'combatScreen'
     };
     const mockSceneManagerUnknown = {
         getCurrentSceneName: () => 'unknownScene'

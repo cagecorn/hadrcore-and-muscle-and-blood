@@ -38,7 +38,7 @@ export function runBattleSimulationIntegrationTest(gameEngine) {
         vfxManager.activeDamageNumbers = [];
 
         uiEngine.setUIState('mapScreen');
-        sceneEngine.setCurrentScene('territoryScene');
+        sceneEngine.setCurrentScene('mapScreen');
         cameraEngine.reset();
 
         eventManager.setGameRunningState(true);
@@ -113,7 +113,7 @@ export function runBattleSimulationIntegrationTest(gameEngine) {
         }
 
         uiEngine.setUIState('mapScreen');
-        sceneEngine.setCurrentScene('territoryScene');
+        sceneEngine.setCurrentScene('mapScreen');
         cameraEngine.reset();
         eventManager.setGameRunningState(false);
         console.log("Integration Test: Game state reset to map screen and game loop stopped.");

@@ -6,7 +6,7 @@ import { GAME_EVENTS, UI_STATES } from '../constants.js';
  */
 export class DOMEngine {
     constructor(eventManager) {
-        console.log('\ud83c\udfdb\ufe0f DOMEngine initialized. Managing all HTML UI elements.');
+        console.log('🏛️ DOMEngine initialized. Managing all HTML UI elements.');
         this.eventManager = eventManager;
         this.elements = new Map();
         this._registerElements();
@@ -19,6 +19,8 @@ export class DOMEngine {
         this.registerElement('gameCanvas', document.getElementById('gameCanvas'));
         this.registerElement('battle-log-panel', document.getElementById('battle-log-panel'));
         this.registerElement('hero-panel', document.getElementById('hero-panel'));
+        this.registerElement('battleStartHtmlBtn', document.getElementById('battleStartHtmlBtn'));
+        this.registerElement('recruitWarriorBtn', document.getElementById('recruitWarriorBtn'));
     }
 
     _setupEventListeners() {
@@ -27,7 +29,6 @@ export class DOMEngine {
             tavernIcon.addEventListener('click', () => {
                 if (!tavernIcon.classList.contains('hidden')) {
                     console.log('여관 아이콘(HTML 버튼)이 클릭되었습니다!');
-                    // 여관 패널 열기 등 추가 로직을 넣을 수 있습니다.
                 }
             });
         }
@@ -42,17 +43,28 @@ export class DOMEngine {
         const territory = this.getElement('territory-screen');
         const gameCanvas = this.getElement('gameCanvas');
         const logPanel = this.getElement('battle-log-panel');
+        const battleStartBtn = this.getElement('battleStartHtmlBtn');
+        const recruitBtn = this.getElement('recruitWarriorBtn');
+        const heroPanelBtn = document.getElementById('toggleHeroPanelBtn');
 
         if (sceneName === UI_STATES.MAP_SCREEN) {
-            tavernIcon && tavernIcon.classList.remove('hidden');
-            territory && territory.classList.remove('hidden');
-            gameCanvas && gameCanvas.classList.add('hidden');
-            logPanel && logPanel.classList.add('hidden');
-        } else {
-            tavernIcon && tavernIcon.classList.add('hidden');
-            territory && territory.classList.add('hidden');
-            gameCanvas && gameCanvas.classList.remove('hidden');
-            logPanel && logPanel.classList.remove('hidden');
+            territory?.classList.remove('hidden');
+            tavernIcon?.classList.remove('hidden');
+            battleStartBtn?.classList.remove('hidden');
+            recruitBtn?.classList.remove('hidden');
+            heroPanelBtn?.classList.remove('hidden');
+
+            gameCanvas?.classList.add('hidden');
+            logPanel?.classList.add('hidden');
+        } else { // COMBAT_SCREEN
+            territory?.classList.add('hidden');
+            tavernIcon?.classList.add('hidden');
+            battleStartBtn?.classList.add('hidden');
+            recruitBtn?.classList.add('hidden');
+            heroPanelBtn?.classList.add('hidden');
+
+            gameCanvas?.classList.remove('hidden');
+            logPanel?.classList.remove('hidden');
         }
     }
 

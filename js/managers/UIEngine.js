@@ -1,12 +1,10 @@
 // js/managers/UIEngine.js
 
-// ... (기존 임포트 유지)
-// ✨ 상수 파일 임포트
-import { GAME_EVENTS, UI_STATES, BUTTON_IDS } from '../constants.js';
+import { GAME_EVENTS, UI_STATES } from '../constants.js';
 
 export class UIEngine {
     constructor(renderer, measureManager, eventManager, mercenaryPanelManager, buttonEngine) {
-        console.log("\ud83c\udf9b UIEngine initialized. Ready to draw interfaces. \ud83c\udf9b");
+        console.log("🎨 UIEngine initialized. Ready to draw interfaces. 🎨");
         this.renderer = renderer;
         this.measureManager = measureManager;
         this.eventManager = eventManager;
@@ -19,9 +17,6 @@ export class UIEngine {
         this._currentUIState = UI_STATES.MAP_SCREEN;
 
         this.recalculateUIDimensions();
-
-        // ✨ '전투 시작' 버튼은 이제 HTML에서 관리하므로 ButtonEngine에 등록하지 않습니다.
-
         console.log("[UIEngine] Initialized for overlay UI rendering.");
     }
 
@@ -31,13 +26,7 @@ export class UIEngine {
         const logicalCanvasWidth = this.measureManager.get('gameResolution.width');
         const logicalCanvasHeight = this.measureManager.get('gameResolution.height');
 
-        this.mapPanelWidth = logicalCanvasWidth * this.measureManager.get('ui.mapPanelWidthRatio');
-        this.mapPanelHeight = logicalCanvasHeight * this.measureManager.get('ui.mapPanelHeightRatio');
-
-        // ✨ '전투 시작' 버튼은 HTML에서 관리하므로 여기서는 UI 폰트 크기만 계산합니다.
         this.uiFontSize = Math.floor(logicalCanvasHeight * this.measureManager.get('ui.fontSizeRatio'));
-
-        // ButtonEngine에 등록된 다른 버튼이 있다면 이곳에서 위치 정보를 업데이트할 수 있습니다.
 
         console.log(`[UIEngine Debug] Canvas Logical Dimensions: ${logicalCanvasWidth}x${logicalCanvasHeight}`);
     }
@@ -51,7 +40,6 @@ export class UIEngine {
         console.log(`[UIEngine] Internal UI state updated to: ${newState}`);
     }
 
-    // 영웅 패널 가시성 토글
     toggleHeroPanel() {
         const heroPanel = document.getElementById('hero-panel');
         if (heroPanel) {
@@ -61,33 +49,12 @@ export class UIEngine {
         console.log(`[UIEngine] Hero Panel Visibility toggled.`);
     }
 
-
     handleBattleStartClick() {
         console.log("[UIEngine] '전투 시작' 버튼 클릭 처리됨!");
-        this.eventManager.emit(GAME_EVENTS.BATTLE_START, { mapId: 'currentMap', difficulty: 'normal' }); // ✨ 상수 사용
+        this.eventManager.emit(GAME_EVENTS.BATTLE_START, { mapId: 'currentMap', difficulty: 'normal' });
     }
 
     draw(ctx) {
-        // ✨ '전투 시작' 버튼은 이제 HTML 요소이므로 캔버스에 그리지 않습니다.
-        if (this._currentUIState === UI_STATES.MAP_SCREEN) {
-            // 다른 UI 요소가 있다면 여기에 그립니다.
-        } else if (this._currentUIState === UI_STATES.COMBAT_SCREEN) {
-            // 전투 화면에서는 현재 별도의 상단 텍스트를 표시하지 않습니다.
-        }
-
-        // DOM 기반 영웅 패널은 캔버스에 별도 그리기를 하지 않습니다.
-    }
-
-    getMapPanelDimensions() {
-        return {
-            width: this.mapPanelWidth,
-            height: this.mapPanelHeight
-        };
-    }
-
-    // getButtonDimensions는 이제 canvas-drawn 버튼이 없으므로 필요성이 줄어듭니다.
-    // 하지만 외부에서 여전히 참조할 수 있으므로, 임시로 빈 값을 반환합니다.
-    getButtonDimensions() {
-        return { width: 0, height: 0 };
+        // DOM 기반 UI는 캔버스에 그릴 필요가 없습니다.
     }
 }
