@@ -1,7 +1,7 @@
-import { GAME_DEBUG_MODE, ATTACK_TYPES } from '../constants.js';
+import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES } from '../constants.js';
 
 export class ClassAIManager {
-    constructor(idManager, battleSimulationManager, basicAIManager, warriorSkillsAI, targetingManager, monsterAI, slotMachineManager) {
+    constructor(idManager, battleSimulationManager, basicAIManager, warriorSkillsAI, targetingManager, monsterAI, slotMachineManager, eventManager) {
         console.log("\u2694\uFE0F ClassAIManager initialized. Ready to command units based on class.");
         this.idManager = idManager;
         this.battleSimulationManager = battleSimulationManager;
@@ -10,6 +10,7 @@ export class ClassAIManager {
         this.targetingManager = targetingManager;
         this.monsterAI = monsterAI;
         this.slotMachineManager = slotMachineManager; // 슬롯 머신 매니저 저장
+        this.eventManager = eventManager;
     }
 
     async getBasicClassAction(unit, allUnits) {
@@ -50,6 +51,7 @@ export class ClassAIManager {
     }
     
     async executeSkillAI(userUnit, skillData, targetUnit) {
+        this.eventManager.emit(GAME_EVENTS.SKILL_EXECUTED, { unitId: userUnit.id, skillId: skillData.id });
         if (!skillData.aiFunction) {
             if (GAME_DEBUG_MODE) console.warn(`[ClassAIManager] Skill '${skillData.name}' has no 'aiFunction' property to execute.`);
             return;

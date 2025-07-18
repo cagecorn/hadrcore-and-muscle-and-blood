@@ -83,6 +83,8 @@ import { MonsterEngine } from './managers/MonsterEngine.js';
 import { MonsterAI } from './managers/MonsterAI.js';
 import { SlotMachineManager } from './managers/SlotMachineManager.js';
 
+import { OneTwoThreeManager } from './managers/OneTwoThreeManager.js';
+import { PassiveIsAlsoASkillManager } from './managers/PassiveIsAlsoASkillManager.js';
 // ✨ 상수 파일 임포트
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
@@ -437,8 +439,11 @@ export class GameEngine {
             this.warriorSkillsAI,
             this.targetingManager,
             this.monsterAI,
-            this.slotMachineManager
+            this.slotMachineManager,
+            this.eventManager
         );
+        this.oneTwoThreeManager = new OneTwoThreeManager(this.eventManager, this.battleSimulationManager);
+        this.passiveIsAlsoASkillManager = new PassiveIsAlsoASkillManager(this.eventManager, this.battleSimulationManager, this.idManager);
 
         // ✨ TurnEngine에 새로운 의존성 전달
         this.turnEngine = new TurnEngine(
@@ -885,4 +890,6 @@ export class GameEngine {
     getMonsterAI() { return this.monsterAI; }
     getSlotMachineManager() { return this.slotMachineManager; }
     getSoundEngine() { return this.soundEngine; }
+    getOneTwoThreeManager() { return this.oneTwoThreeManager; }
+    getPassiveIsAlsoASkillManager() { return this.passiveIsAlsoASkillManager; }
 }
