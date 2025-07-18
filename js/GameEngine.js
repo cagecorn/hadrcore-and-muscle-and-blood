@@ -436,7 +436,8 @@ export class GameEngine {
             animationManager: this.animationManager,
             measureManager: this.measureManager,
             idManager: this.idManager,
-            movingManager: this.movingManager
+            movingManager: this.movingManager,
+            rangeManager: this.rangeManager
         };
         this.warriorSkillsAI = new WarriorSkillsAI(commonManagersForSkills);
 
