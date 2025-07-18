@@ -1,7 +1,8 @@
 export class TerritoryGridManager {
-    constructor(measureManager) {
+    constructor(measureManager, assetLoaderManager) {
         console.log("▦ TerritoryGridManager initialized. Laying the foundations of your city.");
         this.measureManager = measureManager;
+        this.assetLoaderManager = assetLoaderManager;
         this.gridRows = 2;
         this.gridCols = 3;
         this.grid = this.createGridData();
@@ -45,7 +46,8 @@ export class TerritoryGridManager {
         return null;
     }
 
-    draw(ctx, canvasWidth, canvasHeight, assetLoaderManager) {
+    draw(ctx, canvasWidth, canvasHeight) {
+        const loader = this.assetLoaderManager;
         for (let i = 0; i < this.gridRows; i++) {
             for (let j = 0; j < this.gridCols; j++) {
                 const bounds = this.getGridCellBounds(i, j, canvasWidth, canvasHeight);
@@ -54,7 +56,7 @@ export class TerritoryGridManager {
 
                 const cellData = this.grid[i][j];
                 if (cellData && cellData.icon) {
-                    const icon = assetLoaderManager.getImage(cellData.icon);
+                    const icon = loader?.getImage(cellData.icon);
                     if (icon) {
                         const iconX = bounds.x + (bounds.width - icon.width) / 2;
                         const iconY = bounds.y + (bounds.height - icon.height) / 2;

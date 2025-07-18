@@ -230,6 +230,14 @@ export class VFXManager {
         }
     }
 
+    clearEffects() {
+        this.activeDamageNumbers = [];
+        this.activeSkillNames = [];
+        this.activeWeaponDrops.clear();
+        this.bleedingUnits.clear();
+        if (GAME_DEBUG_MODE) console.log("[VFXManager] All active visual effects cleared.");
+    }
+
     /**
      * 특정 유닛의 HP 바를 그립니다.
      * 실제 그리기 위치는 AnimationManager로 계산된 값을 사용합니다.
