@@ -1,6 +1,6 @@
 // tests/unit/statManagerUnitTests.js
 
-import { StatManager } from '../../js/managers/warriormanager.js';
+import { StatManager } from '../../js/managers/StatManager.js';
 
 export function runStatManagerUnitTests() {
     console.log("--- StatManager Unit Test Start ---");

@@ -1,4 +1,5 @@
-import { TagManager, WARRIOR_SKILLS } from '../../js/managers/warriormanager.js';
+import { TagManager } from '../../js/managers/TagManager.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export function runTagManagerUnitTests(idManager) {
     console.log("--- TagManager Unit Test Start ---");

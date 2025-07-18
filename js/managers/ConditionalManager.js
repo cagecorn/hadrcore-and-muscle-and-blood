@@ -1,7 +1,7 @@
 // js/managers/ConditionalManager.js
 
 import { GAME_DEBUG_MODE } from '../constants.js';
-import { WARRIOR_SKILLS } from './warriormanager.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class ConditionalManager {
     /**

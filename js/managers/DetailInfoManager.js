@@ -1,7 +1,7 @@
 // js/managers/DetailInfoManager.js
 
 import { GAME_EVENTS } from '../constants.js'; // 이벤트 상수를 사용
-import { WARRIOR_SKILLS } from './warriormanager.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class DetailInfoManager {
     /**

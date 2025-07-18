@@ -1,7 +1,7 @@
 // js/managers/PassiveIconManager.js
 
 import { GAME_DEBUG_MODE } from '../constants.js';
-import { WARRIOR_SKILLS } from './warriormanager.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class PassiveIconManager {
     constructor(battleSimulationManager, idManager, skillIconManager, statusEffectManager) {

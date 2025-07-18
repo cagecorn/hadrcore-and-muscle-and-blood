@@ -1,5 +1,6 @@
 // js/managers/HeroEngine.js
-import { CLASSES, WARRIOR_SKILLS } from './warriormanager.js';
+import { CLASSES } from '../../data/class.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class HeroEngine {
     /**
