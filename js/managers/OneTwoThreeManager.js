@@ -21,10 +21,10 @@ export class OneTwoThreeManager {
 
     /**
      * 스킬이 실행되었을 때 호출됩니다.
-     * @param {object} data - { unitId, skillId }
+     * @param {object} data - { userId, skillId }
      */
-    _onSkillExecuted({ unitId, skillId }) {
-        const unit = this.battleSimulationManager.getUnitById(unitId);
+    _onSkillExecuted({ userId, skillId }) {
+        const unit = this.battleSimulationManager.getUnitById(userId);
         if (!unit || !unit.skillSlots) return;
 
         const slotIndex = unit.skillSlots.indexOf(skillId);
@@ -35,7 +35,7 @@ export class OneTwoThreeManager {
             
             // "N번째 스킬 슬롯이 활성화되었다!" 라고 새로운 이벤트를 외쳐줍니다.
             this.eventManager.emit(GAME_EVENTS.SKILL_SLOT_ACTIVATED, {
-                unitId: unitId,
+                unitId: userId,
                 skillId: skillId,
                 slotIndex: slotIndex // 0-based index (0, 1, 2)
             });
