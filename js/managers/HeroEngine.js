@@ -1,5 +1,6 @@
 // js/managers/HeroEngine.js
 import { CLASSES } from '../../data/class.js';
+import { WARRIOR_SKILLS } from '../../data/warriorSkills.js';
 
 export class HeroEngine {
     /**
@@ -108,12 +109,18 @@ export class HeroEngine {
         baseStats.moveRange = classData?.moveRange || 1;
         baseStats.attackRange = classData?.attackRange || 1;
 
-        // 3. 랜덤한 세 가지 스킬 부여 (임시 스킬 ID 사용)
-        const skills = [
-            `skill_${this.diceEngine.getRandomInt(1, 3)}`, // 첫 번째 스킬
-            `skill_${this.diceEngine.getRandomInt(4, 6)}`, // 두 번째 스킬
-            `skill_passive_${this.diceEngine.getRandomInt(1, 2)}` // 세 번째 스킬 (패시브)
-        ];
+        // 3. 랜덤한 세 가지 스킬 부여
+        let skills;
+        if (classId === CLASSES.WARRIOR.id) {
+            const allSkillIds = Object.values(WARRIOR_SKILLS).map(s => s.id);
+            skills = this.diceBotEngine.pickUniqueItems(allSkillIds, 3);
+        } else {
+            skills = [
+                `skill_${this.diceEngine.getRandomInt(1, 3)}`,
+                `skill_${this.diceEngine.getRandomInt(4, 6)}`,
+                `skill_passive_${this.diceEngine.getRandomInt(1, 2)}`
+            ];
+        }
 
         // 4. 랜덤한 특성 부여 (임시 특성 ID 사용)
         const traits = [`trait_${this.diceEngine.getRandomInt(1, 3)}`];
@@ -143,7 +150,7 @@ export class HeroEngine {
             rarity: options.rarity || 'common',
             illustration: illustrationImage,
             baseStats: baseStats,
-            skills: skills,
+            skillSlots: skills,
             traits: traits,
             synergies: synergies, // ✨ 영웅 시너지 추가
             equippedItems: equippedItems,
