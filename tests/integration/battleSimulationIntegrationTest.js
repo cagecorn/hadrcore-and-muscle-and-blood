@@ -35,6 +35,7 @@ export function runBattleSimulationIntegrationTest(gameEngine) {
         }
 
         battleLogManager.logMessages = [];
+        vfxManager.activeDamageNumbers = [];
 
         uiEngine.setUIState('mapScreen');
         sceneEngine.setCurrentScene('mapScreen');
@@ -79,6 +80,16 @@ export function runBattleSimulationIntegrationTest(gameEngine) {
             allTestsPassed = false;
         }
 
+        testCount++;
+        const hasDamageNumbers = vfxManager.activeDamageNumbers.length > 0;
+        const hasYellowDamage = vfxManager.activeDamageNumbers.some(dmg => dmg.color === 'yellow');
+        if (hasDamageNumbers && hasYellowDamage) {
+            console.log("Integration Test (Damage Numbers & Color): Damage numbers (including yellow for barrier) were added to VFXManager. [PASS]");
+            passCount++;
+        } else {
+            console.error("Integration Test (Damage Numbers & Color): Damage numbers were not registered or yellow damage missing. [FAIL]", vfxManager.activeDamageNumbers);
+            allTestsPassed = false;
+        }
 
         testCount++;
         const isGameStillRunning = eventManager.getGameRunningState();
