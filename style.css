@@ -20,6 +20,7 @@ body {
     box-sizing: border-box;
     padding: 0px;
     justify-content: center; /* 세로 중앙 정렬 */
+    position: relative; /* 자식 absolute 위치 기준 */
 }
 
 /* \u2728 \uc601\uc9c0 \ud654\uba74 \uc2a4\ud0c0\uc77c \ucd94\uac00 */
@@ -245,6 +246,11 @@ canvas {
 
 /* \u2728 Pixi.js UI \uc624\ubc84\ub808\uc774 \ucee4\ube14\ub9ac\uc2a4\ub97c \uc704\ud55c \uc2a4\ud0c0\uc77c \ucd94\uac00 */
 #pixi-ui-canvas {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    pointer-events: none;
     background-color: transparent !important;
     border: none !important;
 }
