@@ -1,7 +1,7 @@
 // js/managers/CompatibilityManager.js
 
 export class CompatibilityManager {
-    constructor(measureManager, renderer, uiEngine, mapManager, logicManager, mercenaryPanelManager, battleLogManager, pixiUIOverlay = null) {
+    constructor(measureManager, renderer, uiEngine, mapManager, logicManager, mercenaryPanelManager, battleLogManager) {
         console.log("\ud83d\udcf1 CompatibilityManager initialized. Adapting to screen changes. \ud83d\udcf1");
         this.measureManager = measureManager;
         this.renderer = renderer;
@@ -11,7 +11,6 @@ export class CompatibilityManager {
         // mercenaryPanelManager는 이제 독립적인 캔버스를 가지지 않으므로 직접 참조하지 않습니다.
         // this.mercenaryPanelManager = mercenaryPanelManager;
         this.battleLogManager = battleLogManager;
-        this.pixiUIOverlay = pixiUIOverlay;
 
         // 캔버스 참조 보관
         // this.mercenaryPanelCanvas = mercenaryPanelManager ? mercenaryPanelManager.canvas : null; // 이제 필요 없음
@@ -47,10 +46,7 @@ export class CompatibilityManager {
             this.measureManager.updateGameResolution(minRes.minWidth, minRes.minHeight);
             this.renderer.canvas.style.width = `${minRes.minWidth}px`;
             this.renderer.canvas.style.height = `${minRes.minHeight}px`;
-        this.renderer.resizeCanvas(minRes.minWidth, minRes.minHeight);
-        if (this.pixiUIOverlay && this.pixiUIOverlay.resize) {
-            this.pixiUIOverlay.resize(minRes.minWidth, minRes.minHeight);
-        }
+            this.renderer.resizeCanvas(minRes.minWidth, minRes.minHeight);
 
             if (this.combatLogCanvas) {
                 const cHeight = Math.floor(minRes.minWidth * (this.measureManager.get('combatLog.heightRatio') / (this.baseGameWidth / this.baseGameHeight)));
@@ -117,9 +113,6 @@ export class CompatibilityManager {
         this.renderer.canvas.style.width = `${mainGameCanvasWidth}px`;
         this.renderer.canvas.style.height = `${mainGameCanvasHeight}px`;
         this.renderer.resizeCanvas(mainGameCanvasWidth, mainGameCanvasHeight);
-        if (this.pixiUIOverlay && this.pixiUIOverlay.resize) {
-            this.pixiUIOverlay.resize(mainGameCanvasWidth, mainGameCanvasHeight);
-        }
         console.log(`[CompatibilityManager] Main Canvas adjusted to: ${mainGameCanvasWidth}x${mainGameCanvasHeight}`);
 
         // 2. 전투 로그 패널 크기 업데이트
