@@ -25,7 +25,7 @@ export class PixiUIOverlay {
             view,
             width: renderer.canvas.width / renderer.pixelRatio,
             height: renderer.canvas.height / renderer.pixelRatio,
-            transparent: true,
+            backgroundAlpha: 0,
             autoStart: false
         });
 
