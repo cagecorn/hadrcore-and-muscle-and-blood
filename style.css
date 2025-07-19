@@ -9,17 +9,43 @@ body {
     flex-direction: column; /* 자식 요소들을 세로로 정렬 */
 }
 
-/* 두 캔버스를 담는 컨테이너 */
+/* 메인 컨테이너는 flex를 유지하여 캔버스 영역과 로그 패널을 세로로 배치합니다. */
 #gameContainer {
     display: flex;
-    flex-direction: column; /* 캔버스들을 세로로 정렬 */
-    align-items: center; /* 컨테이너 내에서 캔버스들을 수평 중앙 정렬 */
-    /* 컨테이너가 뷰포트 최대 크기를 차지하도록 */
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
     width: 100vw;
     height: 100vh;
-    box-sizing: border-box;
-    padding: 0px;
-    justify-content: center; /* 세로 중앙 정렬 */
+}
+
+/* ✨ 새로 추가된 캔버스 래퍼 스타일 */
+#canvas-wrapper {
+    position: relative;
+    display: block;
+}
+
+/* ✨ 캔버스들의 position을 absolute로 설정하여 래퍼 안에서 겹치도록 합니다. */
+#gameCanvas, #pixi-ui-canvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    display: block;
+}
+
+/* 메인 게임 캔버스 스타일 */
+#gameCanvas {
+    background-color: #000;
+    border: 2px solid #fff;
+    z-index: 1; /* Pixi 캔버스보다 아래에 있도록 설정 */
+}
+
+/* PixiJS UI 캔버스 전용 스타일 */
+#pixi-ui-canvas {
+    background-color: transparent !important;
+    border: none !important;
+    z-index: 10; /* 메인 캔버스보다 위에 표시되도록 설정 */
+    pointer-events: none;
 }
 
 /* \u2728 \uc601\uc9c0 \ud654\uba74 \uc2a4\ud0c0\uc77c \ucd94\uac00 */
@@ -61,11 +87,6 @@ canvas {
     padding: 10px;
 }
 
-/* 메인 게임 캔버스 */
-#gameCanvas {
-    flex-grow: 1;
-    aspect-ratio: 16 / 9;
-}
 
 /* ✨ HTML 전투 시작 버튼 스타일 */
 .game-button {
@@ -243,8 +264,3 @@ canvas {
     transform: scale(1.1);
 }
 
-/* \u2728 Pixi.js UI \uc624\ubc84\ub808\uc774 \ucee4\ube14\ub9ac\uc2a4\ub97c \uc704\ud55c \uc2a4\ud0c0\uc77c \ucd94\uac00 */
-#pixi-ui-canvas {
-    background-color: transparent !important;
-    border: none !important;
-}
