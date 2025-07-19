@@ -14,7 +14,7 @@ export class PixiUIOverlay {
 
         const view = document.createElement('canvas');
         view.id = 'pixi-ui-canvas';
-        document.getElementById('canvas-wrapper').appendChild(view);
+        renderer.canvas.parentNode.appendChild(view);
 
         this.app = new PIXI.Application({
             view,
