@@ -242,3 +242,9 @@ canvas {
     opacity: 1;
     transform: scale(1.1);
 }
+
+/* \u2728 Pixi.js UI \uc624\ubc84\ub808\uc774 \ucee4\ube14\ub9ac\uc2a4\ub97c \uc704\ud55c \uc2a4\ud0c0\uc77c \ucd94\uac00 */
+#pixi-ui-canvas {
+    background-color: transparent !important;
+    border: none !important;
+}
