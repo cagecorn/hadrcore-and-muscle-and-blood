@@ -1,5 +1,5 @@
 import * as PIXI from 'https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.mjs';
-import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES, UI_STATES } from '../constants.js';
+import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES, UI_STATES, SKILL_TYPE_COLORS } from '../constants.js';
 
 export class PixiUIOverlay {
     // OffscreenTextManager를 생성자에서 받습니다.
@@ -26,31 +26,67 @@ export class PixiUIOverlay {
         this.hpBars = new Map();
         this.nameSprites = new Map(); // PIXI.Text 대신 PIXI.Sprite를 사용합니다.
         this.damageTexts = [];
+        this.skillTexts = [];
 
         this.eventManager.subscribe(GAME_EVENTS.DISPLAY_DAMAGE, this._onDisplayDamage.bind(this));
+        this.eventManager.subscribe(GAME_EVENTS.DISPLAY_SKILL_NAME, this._onDisplaySkillName.bind(this));
     }
 
     resize(width, height) { this.app.renderer.resize(width, height); }
 
     _onDisplayDamage({ unitId, damage, color }) {
         if (this.sceneEngine.getCurrentSceneName() !== UI_STATES.COMBAT_SCREEN) return;
-        const style = new PIXI.TextStyle({ fontFamily: 'Arial', fontSize: this.measureManager.get('vfx.damageNumberBaseFontSize'), fill: color || '#FF4500', stroke: '#000', strokeThickness: 2, resolution: 2 });
-        const text = new PIXI.Text(String(damage), style);
-        text.anchor.set(0.5, 1);
-        this.damageTexts.push({ text, start: performance.now(), unitId });
-        this.uiContainer.addChild(text);
+        const fontSize = this.measureManager.get('vfx.damageNumberBaseFontSize');
+        const dmgCanvas = this.offscreenTextManager.getOrCreateText(String(damage), {
+            fontSize,
+            fontColor: color || '#FF4500',
+            bgColor: 'rgba(0,0,0,0)'
+        });
+        const texture = PIXI.Texture.from(dmgCanvas);
+        const sprite = new PIXI.Sprite(texture);
+        sprite.anchor.set(0.5, 1);
+        sprite.scale.set(1 / this.offscreenTextManager.renderScale);
+        this.damageTexts.push({ text: sprite, start: performance.now(), unitId });
+        this.uiContainer.addChild(sprite);
+    }
+
+    _onDisplaySkillName({ unitId, skillName, skillType }) {
+        if (this.sceneEngine.getCurrentSceneName() !== UI_STATES.COMBAT_SCREEN) return;
+        const fontSize = Math.round(this.measureManager.get('vfx.damageNumberBaseFontSize') * 0.8);
+        const skillCanvas = this.offscreenTextManager.getOrCreateText(skillName, {
+            fontSize,
+            fontColor: SKILL_TYPE_COLORS[skillType] || '#FFD700',
+            bgColor: 'rgba(0,0,0,0)'
+        });
+        const texture = PIXI.Texture.from(skillCanvas);
+        const sprite = new PIXI.Sprite(texture);
+        sprite.anchor.set(0.5, 1);
+        sprite.scale.set(1 / this.offscreenTextManager.renderScale);
+        this.skillTexts.push({ text: sprite, start: performance.now(), unitId });
+        this.uiContainer.addChild(sprite);
     }
 
     _cleanupUnitUI(unitId) {
         if (this.hpBars.has(unitId)) { this.hpBars.get(unitId).destroy(); this.hpBars.delete(unitId); }
         if (this.nameSprites.has(unitId)) { this.nameSprites.get(unitId).destroy(); this.nameSprites.delete(unitId); }
+        this.damageTexts = this.damageTexts.filter(obj => {
+            if (obj.unitId === unitId) { obj.text.destroy(); return false; }
+            return true;
+        });
+        this.skillTexts = this.skillTexts.filter(obj => {
+            if (obj.unitId === unitId) { obj.text.destroy(); return false; }
+            return true;
+        });
     }
 
     update(delta) {
         if (this.sceneEngine.getCurrentSceneName() !== UI_STATES.COMBAT_SCREEN) {
             if (this.uiContainer.children.length > 0) {
                 this.uiContainer.removeChildren().forEach(child => child.destroy());
-                this.hpBars.clear(); this.nameSprites.clear(); this.damageTexts = [];
+                this.hpBars.clear();
+                this.nameSprites.clear();
+                this.damageTexts = [];
+                this.skillTexts = [];
             }
             return;
         }
@@ -113,14 +149,28 @@ export class PixiUIOverlay {
         }
 
         const now = performance.now();
-        const duration = this.measureManager.get('vfx.damageNumberDuration');
+        const dmgDuration = this.measureManager.get('vfx.damageNumberDuration');
         this.damageTexts = this.damageTexts.filter(obj => {
             const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === obj.unitId);
             if (!unit) { obj.text.destroy(); return false; }
-            const progress = (now - obj.start) / duration;
+            const progress = (now - obj.start) / dmgDuration;
             if (progress >= 1) { obj.text.destroy(); return false; }
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
             obj.text.position.set(drawX + effectiveTileSize / 2, drawY - progress * effectiveTileSize * 0.5);
+            obj.text.alpha = 1 - progress;
+            return true;
+        });
+
+        const skillDuration = 1500;
+        const floatSpeed = 0.04;
+        this.skillTexts = this.skillTexts.filter(obj => {
+            const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === obj.unitId);
+            if (!unit) { obj.text.destroy(); return false; }
+            const progress = (now - obj.start) / skillDuration;
+            if (progress >= 1) { obj.text.destroy(); return false; }
+            const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
+            const offsetY = floatSpeed * (now - obj.start);
+            obj.text.position.set(drawX + effectiveTileSize / 2, drawY - offsetY - (effectiveTileSize * 0.2));
             obj.text.alpha = 1 - progress;
             return true;
         });
