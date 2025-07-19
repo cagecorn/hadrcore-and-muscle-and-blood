@@ -6,7 +6,6 @@ import { GuardianManager } from './managers/GuardianManager.js';
 import { MeasureManager } from './managers/MeasureManager.js';
 import { MapManager } from './managers/MapManager.js';
 import { UIEngine } from './managers/UIEngine.js';
-import { PixiUIOverlay } from './managers/PixiUIOverlay.js';
 import { LayerEngine } from './managers/LayerEngine.js';
 import { SceneEngine } from './managers/SceneEngine.js';
 import { CameraEngine } from './managers/CameraEngine.js';
@@ -192,13 +191,6 @@ export class GameEngine {
         this.vfxManager.assetLoaderManager = this.assetLoaderManager;
         this.vfxManager.statusEffectManager = this.statusEffectManager;
         this.bindingManager = new BindingManager();
-        this.pixiUIOverlay = new PixiUIOverlay(
-            this.renderer,
-            this.measureManager,
-            this.battleSimulationManager,
-            this.animationManager,
-            this.eventManager
-        );
 
         // 8. Timing & Movement Engines
         this.delayEngine = new DelayEngine();
@@ -404,7 +396,6 @@ export class GameEngine {
         this.vfxManager.update(deltaTime);
         this.particleEngine.update(deltaTime);
         this.detailInfoManager.update(deltaTime);
-        this.pixiUIOverlay.update(deltaTime);
         const { effectiveTileSize, gridOffsetX, gridOffsetY } = this.battleSimulationManager.getGridRenderParameters();
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
@@ -485,7 +476,6 @@ export class GameEngine {
     getMercenaryPanelManager() { return this.mercenaryPanelManager; }
     getBattleLogManager() { return this.battleLogManager; }
     getVFXManager() { return this.vfxManager; }
-    getPixiUIOverlay() { return this.pixiUIOverlay; }
     getBindingManager() { return this.bindingManager; }
     getDelayEngine() { return this.delayEngine; }
     getTimingEngine() { return this.timingEngine; }
