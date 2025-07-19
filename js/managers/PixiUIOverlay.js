@@ -2,7 +2,7 @@
 // error about failing to resolve the module specifier when running without a
 // bundler.
 import * as PIXI from 'https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.mjs';
-import { GAME_DEBUG_MODE, GAME_EVENTS } from '../constants.js';
+import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES } from '../constants.js';
 
 export class PixiUIOverlay {
     constructor(renderer, measureManager, battleSimulationManager, animationManager, eventManager) {
@@ -39,6 +39,7 @@ export class PixiUIOverlay {
 
         this.hpBars = new Map();
         this.nameTexts = new Map();
+        this.nameBackgrounds = new Map();
         this.buffIcons = new Map();
         this.damageTexts = [];
 
@@ -68,6 +69,7 @@ export class PixiUIOverlay {
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
             let bar = this.hpBars.get(unit.id);
             let nameText = this.nameTexts.get(unit.id);
+            let nameBg = this.nameBackgrounds.get(unit.id);
             let buff = this.buffIcons.get(unit.id);
             if (!bar) {
                 bar = new PIXI.Graphics();
@@ -77,6 +79,9 @@ export class PixiUIOverlay {
                 nameText.anchor.set(0.5, 0);
                 this.uiContainer.addChild(nameText);
                 this.nameTexts.set(unit.id, nameText);
+                nameBg = new PIXI.Graphics();
+                this.uiContainer.addChild(nameBg);
+                this.nameBackgrounds.set(unit.id, nameBg);
                 buff = new PIXI.Graphics();
                 this.uiContainer.addChild(buff);
                 this.buffIcons.set(unit.id, buff);
@@ -106,8 +111,16 @@ export class PixiUIOverlay {
             bar.endFill();
             bar.position.set(centerX, centerY);
 
+            // Update name background based on unit type
             nameText.text = unit.name;
             nameText.position.set(centerX, drawY + effectiveTileSize + 2);
+            const padding = 2;
+            const bgColor = unit.type === ATTACK_TYPES.MERCENARY ? 0x0000ff : 0xff0000;
+            nameBg.clear();
+            nameBg.beginFill(bgColor, 0.6);
+            nameBg.drawRect(-nameText.width / 2 - padding, 0, nameText.width + padding * 2, nameText.height);
+            nameBg.endFill();
+            nameBg.position.set(centerX, drawY + effectiveTileSize + 2);
 
             buff.clear();
             buff.beginFill(0xffff00);
