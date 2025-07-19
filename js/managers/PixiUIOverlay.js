@@ -15,6 +15,10 @@ export class PixiUIOverlay {
 
         const view = document.createElement('canvas');
         view.id = 'pixi-ui-canvas';
+        view.style.position = 'absolute';
+        view.style.left = '0';
+        view.style.top = '0';
+        view.style.pointerEvents = 'none';
         renderer.canvas.parentNode.appendChild(view);
 
         this.app = new PIXI.Application({
