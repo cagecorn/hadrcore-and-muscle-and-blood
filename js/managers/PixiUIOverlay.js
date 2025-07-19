@@ -1,4 +1,7 @@
-import * as PIXI from 'pixi.js';
+// Use the ESM build of Pixi.js directly from the CDN. This avoids the browser
+// error about failing to resolve the module specifier when running without a
+// bundler.
+import * as PIXI from 'https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.mjs';
 import { GAME_DEBUG_MODE, GAME_EVENTS } from '../constants.js';
 
 export class PixiUIOverlay {
