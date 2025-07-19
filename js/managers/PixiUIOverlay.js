@@ -67,6 +67,18 @@ export class PixiUIOverlay {
     update(delta) {
         const { effectiveTileSize, gridOffsetX, gridOffsetY } = this.battleSimulationManager.getGridRenderParameters();
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
+            if (unit.currentHp <= 0) {
+                if (this.nameTexts.has(unit.id)) {
+                    this.uiContainer.removeChild(this.nameTexts.get(unit.id));
+                    this.nameTexts.delete(unit.id);
+                }
+                if (this.nameBackgrounds.has(unit.id)) {
+                    this.uiContainer.removeChild(this.nameBackgrounds.get(unit.id));
+                    this.nameBackgrounds.delete(unit.id);
+                }
+                continue;
+            }
+
             let bar = this.hpBars.get(unit.id);
             let nameText = this.nameTexts.get(unit.id);
             let nameBg = this.nameBackgrounds.get(unit.id);
@@ -75,13 +87,23 @@ export class PixiUIOverlay {
                 bar = new PIXI.Graphics();
                 this.uiContainer.addChild(bar);
                 this.hpBars.set(unit.id, bar);
-                nameText = new PIXI.Text(unit.name, { fontSize: effectiveTileSize * 0.25, fill: '#ffffff' });
+
+                const textStyle = new PIXI.TextStyle({
+                    fontFamily: 'Arial',
+                    fontSize: effectiveTileSize * 0.2,
+                    fill: '#ffffff',
+                    stroke: '#000000',
+                    strokeThickness: 3
+                });
+                nameText = new PIXI.Text(unit.name, textStyle);
                 nameText.anchor.set(0.5, 0);
                 this.uiContainer.addChild(nameText);
                 this.nameTexts.set(unit.id, nameText);
+
                 nameBg = new PIXI.Graphics();
                 this.uiContainer.addChild(nameBg);
                 this.nameBackgrounds.set(unit.id, nameBg);
+
                 buff = new PIXI.Graphics();
                 this.uiContainer.addChild(buff);
                 this.buffIcons.set(unit.id, buff);
@@ -111,16 +133,24 @@ export class PixiUIOverlay {
             bar.endFill();
             bar.position.set(centerX, centerY);
 
-            // Update name background based on unit type
+            // Update name text and background
+            const padding = 4;
+            const nameYPosition = drawY + effectiveTileSize + 5;
+
             nameText.text = unit.name;
-            nameText.position.set(centerX, drawY + effectiveTileSize + 2);
-            const padding = 2;
+            nameText.position.set(centerX, nameYPosition);
+
             const bgColor = unit.type === ATTACK_TYPES.MERCENARY ? 0x0000ff : 0xff0000;
             nameBg.clear();
-            nameBg.beginFill(bgColor, 0.6);
-            nameBg.drawRect(-nameText.width / 2 - padding, 0, nameText.width + padding * 2, nameText.height);
+            nameBg.beginFill(bgColor, 0.7);
+            nameBg.drawRect(
+                -nameText.width / 2 - padding,
+                -padding / 2,
+                nameText.width + padding * 2,
+                nameText.height + padding
+            );
             nameBg.endFill();
-            nameBg.position.set(centerX, drawY + effectiveTileSize + 2);
+            nameBg.position.set(centerX, nameYPosition + nameText.height / 2);
 
             buff.clear();
             buff.beginFill(0xffff00);
