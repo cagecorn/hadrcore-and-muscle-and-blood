@@ -105,7 +105,7 @@ export class DOMVFXEngine {
             const hpRatio = Math.max(0, unit.currentHp) / unit.baseStats.hp;
             ui.hpBar.style.width = `${hpRatio * 100}%`;
 
-            const barrierValue = this.battleSimulationManager.statusEffectManager.getEffectValue(unitId, 'barrier') || 0;
+            const barrierValue = unit.currentBarrier || 0;
             if (barrierValue > 0) {
                 const barrierRatio = Math.min(hpRatio + (barrierValue / unit.baseStats.hp), 1);
                 ui.barrierBar.style.width = `${barrierRatio * 100}%`;
