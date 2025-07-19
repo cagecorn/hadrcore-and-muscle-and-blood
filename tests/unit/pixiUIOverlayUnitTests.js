@@ -13,10 +13,20 @@ export function runPixiUIOverlayUnitTests() {
     const mockBSM = { unitsOnGrid: [], getGridRenderParameters: () => ({ effectiveTileSize: 32, gridOffsetX:0, gridOffsetY:0 }) };
     const mockAnim = { getRenderPosition: () => ({ drawX:0, drawY:0 }) };
     const mockEventManager = { subscribe: () => {} };
+    const mockSceneEngine = { getCurrentSceneName: () => 'combatScreen' };
+    const mockOffscreenTextManager = { getOrCreateText: () => new Image(), clearCache: () => {} };
 
     let overlay;
     try {
-        overlay = new PixiUIOverlay(mockRenderer, mockMeasure, mockBSM, mockAnim, mockEventManager);
+        overlay = new PixiUIOverlay(
+            mockRenderer,
+            mockMeasure,
+            mockBSM,
+            mockAnim,
+            mockEventManager,
+            mockSceneEngine,
+            mockOffscreenTextManager
+        );
         console.log('PixiUIOverlay: Initialized. [PASS]');
     } catch (e) {
         console.error('PixiUIOverlay: Initialization failed. [FAIL]', e);
