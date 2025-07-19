@@ -193,7 +193,7 @@ export class GameEngine {
         this.battleLogManager._setupEventListeners();
         this.mapManager = new MapManager(this.measureManager);
         this.uiEngine = new UIEngine(this.renderer, this.measureManager, this.eventManager, this.mercenaryPanelManager, this.buttonEngine);
-        this.compatibilityManager = new CompatibilityManager(this.measureManager, this.renderer, this.uiEngine, this.mapManager, this.logicManager, null, this.battleLogManager, this.pixiUIOverlay);
+        this.compatibilityManager = new CompatibilityManager(this.measureManager, this.renderer, this.uiEngine, this.mapManager, this.logicManager, null, this.battleLogManager);
         this.inputManager = new InputManager(this.renderer, this.cameraEngine, this.uiEngine, this.buttonEngine, this.eventManager);
         const mainGameCanvasElement = document.getElementById(canvasId);
         this.canvasBridgeManager = new CanvasBridgeManager(mainGameCanvasElement, null, null, this.eventManager, this.measureManager);
