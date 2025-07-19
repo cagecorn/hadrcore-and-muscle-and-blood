@@ -26,6 +26,8 @@ export class ShadowEngine {
         // 그림자 오프셋 (유닛 타일 크기 대비 비율) - 45도 느낌
         this.shadowOffsetXRatio = 0.3;
         this.shadowOffsetYRatio = 0.3;
+        // 그림자 내부 반경 비율 (그라디언트 시작 지점)
+        this.shadowGradientInnerRatio = 0.1;
     }
 
     /**
@@ -74,8 +76,8 @@ export class ShadowEngine {
             );
 
             ctx.save();
-            ctx.globalAlpha = this.baseShadowOpacity;
-            ctx.fillStyle = 'black';
+    // 그라디언트를 사용하여 그림자 가장자리가 부드럽게 퍼지도록 함
+            ctx.globalAlpha = 1;
 
             const offsetX = effectiveTileSize * this.shadowOffsetXRatio;
             const offsetY = effectiveTileSize * this.shadowOffsetYRatio;
@@ -96,6 +98,17 @@ export class ShadowEngine {
                 0,
                 Math.PI * 2
             );
+            const gradient = ctx.createRadialGradient(
+                shadowDrawX + effectiveTileSize / 2,
+                shadowDrawY + effectiveTileSize * 0.9,
+                (effectiveTileSize * this.shadowGradientInnerRatio) / 2,
+                shadowDrawX + effectiveTileSize / 2,
+                shadowDrawY + effectiveTileSize * 0.9,
+                effectiveTileSize / 2
+            );
+            gradient.addColorStop(0, `rgba(0, 0, 0, ${this.baseShadowOpacity})`);
+            gradient.addColorStop(1, 'rgba(0,0,0,0)');
+            ctx.fillStyle = gradient;
             ctx.fill();
 
             ctx.restore();
