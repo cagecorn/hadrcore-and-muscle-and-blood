@@ -1,6 +1,6 @@
 // js/managers/VFXManager.js
 
-import { GAME_EVENTS, GAME_DEBUG_MODE, SKILL_TYPE_COLORS } from '../constants.js';
+import { GAME_EVENTS, GAME_DEBUG_MODE } from '../constants.js';
 
 export class VFXManager {
     // animationManager를 추가로 받아 유닛의 애니메이션 위치를 참조합니다.
@@ -14,10 +14,7 @@ export class VFXManager {
         this.eventManager = eventManager;
         this.particleEngine = particleEngine; // ✨ ParticleEngine 저장
 
-        this.activeDamageNumbers = [];
-        this.activeSkillNames = []; // 스킬 이름 효과 배열
-
-        this.activeWeaponDrops = new Map(); // unitId => animation data
+        this.activeWeaponDrops = new Map();
 
         // bleed effect tracking
         this.bleedIcon = null;
@@ -45,65 +42,10 @@ export class VFXManager {
         if (GAME_DEBUG_MODE) console.log("[VFXManager] Subscribed to 'weaponDropped' event.");
 
         this.eventManager.subscribe(GAME_EVENTS.DISPLAY_DAMAGE, (data) => {
-            this.addDamageNumber(data.unitId, data.damage, data.color);
             if (this.particleEngine && data.damage > 0) {
                 this.particleEngine.addParticles(data.unitId, 'red');
             }
         });
-
-        this.eventManager.subscribe(GAME_EVENTS.DISPLAY_SKILL_NAME, (data) => {
-            this.addSkillName(data.unitId, data.skillName, data.skillType);
-        });
-        if (GAME_DEBUG_MODE) console.log("[VFXManager] Subscribed to 'displaySkillName' event.");
-    }
-
-    /**
-     * 특정 유닛 위에 데미지 숫자를 표시하도록 큐에 추가합니다.
-     * @param {string} unitId - 데미지를 받은 유닛의 ID
-     * @param {number} damageAmount - 표시할 데미지 양
-     * @param {string} [color='red'] - 데미지 숫자의 색상 (예: 'yellow', 'red')
-     */
-    addDamageNumber(unitId, damageAmount, color = 'red') {
-        const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);
-        if (!unit) {
-            if (GAME_DEBUG_MODE) console.warn(`[VFXManager] Cannot show damage for unknown unit: ${unitId}`);
-            return;
-        }
-
-        this.activeDamageNumbers.push({
-            unitId: unitId,
-            damage: damageAmount,
-            startTime: performance.now(),
-            duration: this.measureManager.get('vfx.damageNumberDuration'),
-            floatSpeed: this.measureManager.get('vfx.damageNumberFloatSpeed'),
-            color: color
-        });
-        if (GAME_DEBUG_MODE) console.log(`[VFXManager] Added damage number: ${damageAmount} (${color}) for ${unit.name}`);
-    }
-
-    /**
-     * 특정 유닛 위에 스킬 이름을 표시하도록 큐에 추가합니다.
-     * @param {string} unitId - 스킬을 사용한 유닛의 ID
-     * @param {string} skillName - 표시할 스킬 이름
-     */
-    addSkillName(unitId, skillName, skillType) {
-        const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);
-        if (!unit) {
-            if (GAME_DEBUG_MODE) console.warn(`[VFXManager] Cannot show skill name for unknown unit: ${unitId}`);
-            return;
-        }
-
-        const color = SKILL_TYPE_COLORS[skillType] || '#FFD700';
-
-        this.activeSkillNames.push({
-            unitId,
-            text: skillName,
-            startTime: performance.now(),
-            duration: 1500,
-            floatSpeed: 0.04,
-            color
-        });
-        if (GAME_DEBUG_MODE) console.log(`[VFXManager] Added skill name: '${skillName}' for ${unit.name}`);
     }
 
     /**
@@ -181,21 +123,7 @@ export class VFXManager {
      */
     update(deltaTime) {
         const currentTime = performance.now();
-        let i = this.activeDamageNumbers.length;
-        while (i--) {
-            const dmgNum = this.activeDamageNumbers[i];
-            if (currentTime - dmgNum.startTime >= dmgNum.duration) {
-                this.activeDamageNumbers.splice(i, 1);
-            }
-        }
 
-        let j = this.activeSkillNames.length;
-        while (j--) {
-            const effect = this.activeSkillNames[j];
-            if (currentTime - effect.startTime >= effect.duration) {
-                this.activeSkillNames.splice(j, 1);
-            }
-        }
 
         // 무기 드롭 애니메이션 업데이트
         for (const [unitId, drop] of this.activeWeaponDrops.entries()) {
@@ -231,8 +159,6 @@ export class VFXManager {
     }
 
     clearEffects() {
-        this.activeDamageNumbers = [];
-        this.activeSkillNames = [];
         this.activeWeaponDrops.clear();
         this.bleedingUnits.clear();
         if (GAME_DEBUG_MODE) console.log("[VFXManager] All active visual effects cleared.");
@@ -247,63 +173,6 @@ export class VFXManager {
      * @param {number} actualDrawX - 애니메이션이 적용된 x 좌표
      * @param {number} actualDrawY - 애니메이션이 적용된 y 좌표
      */
-    drawHpBar(ctx, unit, effectiveTileSize, actualDrawX, actualDrawY) {
-        if (!unit || !unit.baseStats) {
-            if (GAME_DEBUG_MODE) console.warn("[VFXManager] Cannot draw HP bar: unit data is missing.", unit);
-            return;
-        }
-
-        const maxHp = unit.baseStats.hp;
-        const currentHp = unit.currentHp !== undefined ? unit.currentHp : maxHp;
-        const hpRatio = currentHp / maxHp;
-
-        const barWidth = effectiveTileSize * this.measureManager.get('vfx.hpBarWidthRatio');
-        const barHeight = effectiveTileSize * this.measureManager.get('vfx.hpBarHeightRatio');
-        const barOffsetY = -(barHeight + this.measureManager.get('vfx.hpBarVerticalOffset')); // 유닛 이미지 위에 위치
-
-        const hpBarDrawX = actualDrawX + (effectiveTileSize - barWidth) / 2;
-        const hpBarDrawY = actualDrawY + barOffsetY;
-
-        ctx.fillStyle = 'rgba(50, 50, 50, 0.8)';
-        ctx.fillRect(hpBarDrawX, hpBarDrawY, barWidth, barHeight);
-
-        ctx.fillStyle = 'lightgreen'; // 항상 초록색으로 그립니다
-        ctx.fillRect(hpBarDrawX, hpBarDrawY, barWidth * hpRatio, barHeight);
-
-        ctx.strokeStyle = 'rgba(255, 255, 255, 0.9)';
-        ctx.lineWidth = 1;
-        ctx.strokeRect(hpBarDrawX, hpBarDrawY, barWidth, barHeight);
-    }
-
-    /**
-     * ✨ 특정 유닛의 배리어 바를 그립니다 (HP 바 위에 노란색 게이지를 덧씌움).
-     * @param {CanvasRenderingContext2D} ctx - 캔버스 2D 렌더링 컨텍스트
-     * @param {object} unit - 배리어 바를 그릴 유닛 객체
-     * @param {number} effectiveTileSize - 유닛이 그려지는 타일의 유효 크기
-     * @param {number} actualDrawX - 유닛의 실제 렌더링 x 좌표 (애니메이션이 적용된)
-     * @param {number} actualDrawY - 유닛의 실제 렌더링 y 좌표 (애니메이션이 적용된)
-     */
-    drawBarrierBar(ctx, unit, effectiveTileSize, actualDrawX, actualDrawY) {
-        if (!unit || unit.currentBarrier === undefined || unit.maxBarrier === undefined) {
-            return;
-        }
-
-        const currentBarrier = unit.currentBarrier;
-        const maxBarrier = unit.maxBarrier;
-        const barrierRatio = maxBarrier > 0 ? currentBarrier / maxBarrier : 0;
-
-        // HP 바와 동일한 위치와 크기로 계산하여 정확히 겹치도록 합니다
-        const barWidth = effectiveTileSize * this.measureManager.get('vfx.hpBarWidthRatio');
-        const barHeight = effectiveTileSize * this.measureManager.get('vfx.hpBarHeightRatio');
-        const barOffsetY = -(barHeight + this.measureManager.get('vfx.hpBarVerticalOffset'));
-
-        const barrierBarDrawX = actualDrawX + (effectiveTileSize - barWidth) / 2;
-        const barrierBarDrawY = actualDrawY + barOffsetY;
-
-        // 노란색 배리어 바를 HP 바 위에 덧씌움 (배경과 테두리는 없음)
-        ctx.fillStyle = '#FFFF00';
-        ctx.fillRect(barrierBarDrawX, barrierBarDrawY, barWidth * barrierRatio, barHeight);
-    }
 
     /**
      * 모든 활성 시각 효과를 그립니다. 이 메서드는 LayerEngine에 의해 호출됩니다.
@@ -346,86 +215,12 @@ export class VFXManager {
                 gridOffsetX,
                 gridOffsetY
             );
-            // ✨ 추가: 각 유닛의 HP/배리어 바가 그려지는 최종 위치 로그
-            // if (GAME_DEBUG_MODE) console.log(`[VFXManager Debug] Unit ${unit.id} (HP/Barrier Bar): drawX=${drawX.toFixed(2)}, drawY=${drawY.toFixed(2)}`);
-            this.drawHpBar(ctx, unit, effectiveTileSize, drawX, drawY);
-            this.drawBarrierBar(ctx, unit, effectiveTileSize, drawX, drawY); // ✨ 배리어 바 그리기 호출
-
             if (this.bleedIcon && this.bleedingUnits.has(unit.id)) {
                 const iconSize = effectiveTileSize * 0.3;
                 const iconX = drawX + effectiveTileSize - iconSize;
                 const iconY = drawY;
                 ctx.drawImage(this.bleedIcon, iconX, iconY, iconSize, iconSize);
             }
-        }
-
-        // ✨ 데미지 숫자 그리기
-        const currentTime = performance.now();
-        for (const dmgNum of this.activeDamageNumbers) {
-            const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === dmgNum.unitId);
-            if (!unit) continue;
-
-            const { drawX, drawY } = this.animationManager.getRenderPosition(
-                unit.id,
-                unit.gridX,
-                unit.gridY,
-                effectiveTileSize,
-                gridOffsetX,
-                gridOffsetY
-            );
-
-            const elapsed = currentTime - dmgNum.startTime;
-            const progress = elapsed / dmgNum.duration;
-
-            const currentYOffset = this.measureManager.get('vfx.damageNumberFloatSpeed') * elapsed; // ✨ 비율 사용
-            const alpha = Math.max(0, 1 - progress);
-
-            ctx.save();
-            ctx.globalAlpha = alpha;
-            ctx.fillStyle = dmgNum.color || ((dmgNum.damage > 0) ? '#FF4500' : '#00FF00');
-            const baseFontSize = this.measureManager.get('vfx.damageNumberBaseFontSize');
-            const scaleFactor = this.measureManager.get('vfx.damageNumberScaleFactor');
-            ctx.font = `bold ${baseFontSize + (1 - progress) * scaleFactor}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText(
-                dmgNum.damage.toString(),
-                drawX + effectiveTileSize / 2,
-                drawY - currentYOffset - this.measureManager.get('vfx.damageNumberVerticalOffset')
-            );
-            ctx.restore();
-        }
-
-        for (const effect of this.activeSkillNames) {
-            const unit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === effect.unitId);
-            if (!unit) continue;
-
-            const { drawX, drawY } = this.animationManager.getRenderPosition(
-                unit.id,
-                unit.gridX,
-                unit.gridY,
-                effectiveTileSize,
-                gridOffsetX,
-                gridOffsetY
-            );
-
-            const elapsed = currentTime - effect.startTime;
-            const progress = elapsed / effect.duration;
-            const currentYOffset = effect.floatSpeed * elapsed;
-            const alpha = Math.max(0, 1 - progress);
-
-            ctx.save();
-            ctx.globalAlpha = alpha;
-            ctx.fillStyle = effect.color;
-            ctx.font = `bold ${effectiveTileSize * 0.25}px Arial`;
-            ctx.textAlign = 'center';
-            ctx.textBaseline = 'bottom';
-            ctx.fillText(
-                effect.text,
-                drawX + effectiveTileSize / 2,
-                drawY - currentYOffset - (effectiveTileSize * 0.2)
-            );
-            ctx.restore();
         }
 
         // ✨ 무기 드롭 애니메이션 그리기
