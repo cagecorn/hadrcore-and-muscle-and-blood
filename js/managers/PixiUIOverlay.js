@@ -105,7 +105,7 @@ export class PixiUIOverlay {
             let bar = this.hpBars.get(unit.id);
 
             if (!nameSprite) {
-                const bgColor = unit.type === ATTACK_TYPES.MERCENARY ? 'rgba(0, 51, 204, 0.8)' : 'rgba(204, 0, 0, 0.8)';
+                const bgColor = 'rgba(0,0,0,0)';
                 const fontSize = Math.round(effectiveTileSize * 0.18);
 
                 // OffscreenTextManager로부터 캔버스를 받아 텍스처를 생성합니다.
@@ -114,7 +114,7 @@ export class PixiUIOverlay {
                 // 캔버스는 이미 렌더링 완료된 상태이므로 바로 텍스처로 변환합니다.
                 const texture = PIXI.Texture.from(nameCanvas);
                 nameSprite = new PIXI.Sprite(texture);
-                nameSprite.anchor.set(0.5, 0);
+                nameSprite.anchor.set(0, 0.5);
                 // OffscreenTextManager의 렌더링 스케일만큼 다시 줄여 원래 크기로 맞춥니다.
                 nameSprite.scale.set(1 / this.offscreenTextManager.renderScale);
                 this.uiContainer.addChild(nameSprite);
@@ -128,14 +128,14 @@ export class PixiUIOverlay {
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
             const centerX = drawX + effectiveTileSize / 2;
 
-            // 이름표 위치 설정
-            const nameYPosition = drawY + effectiveTileSize + 5;
-            nameSprite.position.set(centerX, nameYPosition);
-
-            // HP 바 로직
+            // 이름표를 HP 바 안 왼쪽에 배치
             const barWidth = effectiveTileSize * 0.8;
             const barHeight = effectiveTileSize * 0.1;
             const barYOffset = drawY + effectiveTileSize - barHeight;
+            const nameXPosition = centerX - barWidth / 2 + 2;
+            const nameYPosition = barYOffset + barHeight / 2;
+            nameSprite.position.set(nameXPosition, nameYPosition);
+            // HP 바 로직
             const maxHp = unit.baseStats?.hp || 1;
             const hpRatio = Math.max(0, unit.currentHp / maxHp);
 
