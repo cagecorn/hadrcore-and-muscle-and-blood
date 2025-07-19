@@ -91,6 +91,7 @@ import { ModifierEngine } from './managers/ModifierEngine.js';
 import { ModifierLogManager } from './managers/ModifierLogManager.js';
 import { DOMEngine } from './managers/DOMEngine.js';
 import { DOMVFXEngine } from './managers/DOMVFXEngine.js';
+import { DOMAnimationManager } from './managers/DOMAnimationManager.js';
 import { TerritoryEngine } from './managers/TerritoryEngine.js';
 import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManager.js';
 import { TerritoryUIManager } from './managers/TerritoryUIManager.js';
@@ -191,7 +192,8 @@ export class GameEngine {
         this.vfxManager = new VFXManager(this.renderer, this.measureManager, this.cameraEngine, this.battleSimulationManager, this.animationManager, this.eventManager, this.particleEngine);
         this.vfxManager.assetLoaderManager = this.assetLoaderManager;
         this.vfxManager.statusEffectManager = this.statusEffectManager;
-        this.domVFXEngine = new DOMVFXEngine(this.battleSimulationManager, this.cameraEngine, this.eventManager);
+        this.domAnimationManager = new DOMAnimationManager('dom-vfx-container', this.battleSimulationManager);
+        this.domVFXEngine = new DOMVFXEngine(this.battleSimulationManager, this.cameraEngine, this.eventManager, this.domAnimationManager);
         this.bindingManager = new BindingManager();
 
         // 8. Timing & Movement Engines
@@ -205,7 +207,7 @@ export class GameEngine {
         this.synergyEngine = new SynergyEngine(this.idManager, this.eventManager);
 
         // 10. Detail & Shadow Engines
-        this.detailInfoManager = new DetailInfoManager(this.eventManager, this.measureManager, this.battleSimulationManager, this.heroEngine, this.idManager, this.cameraEngine, this.skillIconManager);
+        this.detailInfoManager = new DetailInfoManager(this.renderer, this.cameraEngine, this.battleSimulationManager, this.eventManager, this.assetLoaderManager);
         this.tagManager = new TagManager(this.idManager);
 
         // 11. Conditional Manager
@@ -400,6 +402,7 @@ export class GameEngine {
         this.vfxManager.update(deltaTime);
         this.particleEngine.update(deltaTime);
         this.domVFXEngine.update();
+        this.domAnimationManager.update();
         this.detailInfoManager.update(deltaTime);
         const { effectiveTileSize, gridOffsetX, gridOffsetY } = this.battleSimulationManager.getGridRenderParameters();
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
