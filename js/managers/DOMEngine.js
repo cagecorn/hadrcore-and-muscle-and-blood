@@ -26,8 +26,6 @@ export class DOMEngine {
         this.registerElement('prev-class-btn', document.getElementById('prev-class-btn'));
         this.registerElement('next-class-btn', document.getElementById('next-class-btn'));
         this.registerElement('gameCanvas', document.getElementById('gameCanvas'));
-        // ✨ 캔버스와 DOM UI 컨테이너를 함께 감싸는 래퍼 등록
-        this.registerElement('canvas-wrapper', document.getElementById('canvas-wrapper'));
         this.registerElement('battle-log-panel', document.getElementById('battle-log-panel'));
         this.registerElement('hero-panel', document.getElementById('hero-panel'));
         this.registerElement('battleStartHtmlBtn', document.getElementById('battleStartHtmlBtn'));
@@ -44,7 +42,6 @@ export class DOMEngine {
         const tavernIcon = this.getElement('tavern-icon-btn');
         const territory = this.getElement('territory-screen');
         const tavernScreen = this.getElement('tavern-screen');
-        const canvasWrapper = this.getElement('canvas-wrapper');
         const gameCanvas = this.getElement('gameCanvas');
         const logPanel = this.getElement('battle-log-panel');
         const battleStartBtn = this.getElement('battleStartHtmlBtn');
@@ -59,7 +56,7 @@ export class DOMEngine {
             heroPanelBtn?.classList.remove('hidden');
 
             tavernScreen?.classList.add('hidden');
-            canvasWrapper?.classList.add('hidden');
+            gameCanvas?.classList.add('hidden');
             logPanel?.classList.add('hidden');
         } else if (sceneName === UI_STATES.TAVERN_SCREEN) {
             tavernScreen?.classList.remove('hidden');
@@ -70,7 +67,7 @@ export class DOMEngine {
             recruitBtn?.classList.add('hidden');
             heroPanelBtn?.classList.add('hidden');
 
-            canvasWrapper?.classList.add('hidden');
+            gameCanvas?.classList.add('hidden');
             logPanel?.classList.add('hidden');
         } else { // COMBAT_SCREEN
             territory?.classList.add('hidden');
@@ -80,7 +77,7 @@ export class DOMEngine {
             heroPanelBtn?.classList.add('hidden');
 
             tavernScreen?.classList.add('hidden');
-            canvasWrapper?.classList.remove('hidden');
+            gameCanvas?.classList.remove('hidden');
             logPanel?.classList.remove('hidden');
         }
     }
