@@ -90,6 +90,7 @@ import { PassiveIsAlsoASkillManager } from './managers/PassiveIsAlsoASkillManage
 import { ModifierEngine } from './managers/ModifierEngine.js';
 import { ModifierLogManager } from './managers/ModifierLogManager.js';
 import { DOMEngine } from './managers/DOMEngine.js';
+import { DOMVFXEngine } from './managers/DOMVFXEngine.js';
 import { TerritoryEngine } from './managers/TerritoryEngine.js';
 import { TerritoryBackgroundManager } from './managers/TerritoryBackgroundManager.js';
 import { TerritoryUIManager } from './managers/TerritoryUIManager.js';
@@ -190,6 +191,7 @@ export class GameEngine {
         this.vfxManager = new VFXManager(this.renderer, this.measureManager, this.cameraEngine, this.battleSimulationManager, this.animationManager, this.eventManager, this.particleEngine);
         this.vfxManager.assetLoaderManager = this.assetLoaderManager;
         this.vfxManager.statusEffectManager = this.statusEffectManager;
+        this.domVFXEngine = new DOMVFXEngine(this.battleSimulationManager, this.cameraEngine, this.eventManager);
         this.bindingManager = new BindingManager();
 
         // 8. Timing & Movement Engines
@@ -333,11 +335,13 @@ export class GameEngine {
             this.sceneEngine.setCurrentScene(UI_STATES.COMBAT_SCREEN);
             this.uiEngine.setUIState(UI_STATES.COMBAT_SCREEN);
             this.domEngine.updateUIForScene(UI_STATES.COMBAT_SCREEN);
+            this.cameraEngine.setControlsEnabled(false); // ✨ 카메라 제어 비활성화
             this.cameraEngine.reset();
             await this.turnEngine.startBattleTurns();
         });
         this.eventManager.subscribe(GAME_EVENTS.BATTLE_END, (data) => {
             this.domEngine.updateUIForScene(UI_STATES.MAP_SCREEN);
+            this.cameraEngine.setControlsEnabled(true); // ✨ 카메라 제어 활성화
         });
         if (GAME_DEBUG_MODE) console.log("⚙️ GameEngine initialized successfully. ⚙️");
         this._setupEventListeners();
@@ -395,6 +399,7 @@ export class GameEngine {
         this.statusEffectManager.update(deltaTime);
         this.vfxManager.update(deltaTime);
         this.particleEngine.update(deltaTime);
+        this.domVFXEngine.update();
         this.detailInfoManager.update(deltaTime);
         const { effectiveTileSize, gridOffsetX, gridOffsetY } = this.battleSimulationManager.getGridRenderParameters();
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
