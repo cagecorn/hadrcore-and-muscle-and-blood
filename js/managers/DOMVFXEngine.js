@@ -1,15 +1,18 @@
 import { GAME_EVENTS, SKILL_TYPE_COLORS } from '../constants.js';
 
 export class DOMVFXEngine {
-    constructor(battleSimulationManager, cameraEngine, eventManager, domAnimationManager) {
+    constructor(battleSimulationManager, cameraEngine, eventManager) {
         console.log("\ud83c\udfe3 DOMVFXEngine initialized. Managing UI elements in the DOM. \ud83c\udfe3");
         this.battleSimulationManager = battleSimulationManager;
         this.cameraEngine = cameraEngine;
         this.eventManager = eventManager;
-        this.domAnimationManager = domAnimationManager;
 
         this.container = document.getElementById('dom-vfx-container');
+        if (!this.container) {
+            console.warn("[DOMVFXEngine] 'dom-vfx-container' element not found. VFX will not be displayed.");
+        }
         this.unitUIs = new Map();
+        this.tempElements = [];
 
         this._setupEventListeners();
     }
@@ -35,32 +38,30 @@ export class DOMVFXEngine {
         const uiContainer = document.createElement('div');
         uiContainer.className = 'unit-ui-container';
 
-        // HP & Barrier Bar Container
-        const barContainer = document.createElement('div');
-        barContainer.className = 'bar-container';
-
-        const hpBar = document.createElement('div');
-        hpBar.className = 'hp-bar';
-
-        const barrierBar = document.createElement('div');
-        barrierBar.className = 'barrier-bar';
-
-        barContainer.appendChild(hpBar);
-        barContainer.appendChild(barrierBar);
+        const hpBarContainer = document.createElement('div');
+        hpBarContainer.className = 'hp-bar-container';
+        const hpBarBackground = document.createElement('div');
+        hpBarBackground.className = 'hp-bar-background';
+        const hpBarForeground = document.createElement('div');
+        hpBarForeground.className = 'hp-bar-foreground';
+        const hpBarText = document.createElement('span');
+        hpBarText.className = 'hp-bar-text';
+        hpBarContainer.appendChild(hpBarBackground);
+        hpBarContainer.appendChild(hpBarForeground);
+        hpBarContainer.appendChild(hpBarText);
 
         const nameTag = document.createElement('div');
         nameTag.className = 'unit-name-tag';
         nameTag.textContent = unit.name;
-        nameTag.style.color = unit.isPlayerUnit ? '#66ccff' : '#ffd700';
 
-        uiContainer.appendChild(barContainer);
+        uiContainer.appendChild(hpBarContainer);
         uiContainer.appendChild(nameTag);
         this.container.appendChild(uiContainer);
 
         this.unitUIs.set(unit.id, {
             container: uiContainer,
-            hpBar: hpBar,
-            barrierBar: barrierBar,
+            hpBar: hpBarForeground,
+            hpText: hpBarText,
             nameTag: nameTag
         });
     }
@@ -73,14 +74,27 @@ export class DOMVFXEngine {
     }
 
     showDamageNumber(unitId, damage, color = 'red') {
-        const text = (damage > 0 && color === 'lime') ? `+${damage}` : `${Math.abs(damage)}`;
-        this.domAnimationManager.add(unitId, text, 'damage-number', color, 1000, 0);
+        if (!this.container) return;
+        const element = document.createElement('div');
+        element.className = 'damage-number';
+        element.textContent = damage;
+        element.style.color = color;
+        const duration = 1000;
+        element.style.animationDuration = `${duration}ms`;
+        this.container.appendChild(element);
+        this.tempElements.push({ element, unitId, startTime: performance.now(), duration, type: 'damage' });
     }
 
     showSkillName(unitId, skillName, skillType) {
-        const color = SKILL_TYPE_COLORS[skillType] || '#FFD700';
-        const { effectiveTileSize } = this.battleSimulationManager.getGridRenderParameters();
-        this.domAnimationManager.add(unitId, skillName, 'skill-name-display', color, 1500, effectiveTileSize * 0.5);
+        if (!this.container) return;
+        const element = document.createElement('div');
+        element.className = 'skill-name-display';
+        element.textContent = skillName;
+        element.style.color = SKILL_TYPE_COLORS[skillType] || '#FFD700';
+        const duration = 1500;
+        element.style.animationDuration = `${duration}ms`;
+        this.container.appendChild(element);
+        this.tempElements.push({ element, unitId, startTime: performance.now(), duration, type: 'skill' });
     }
 
     update() {
@@ -102,19 +116,30 @@ export class DOMVFXEngine {
             const xPos = drawX + effectiveTileSize / 2;
             const yPos = drawY - 10;
             ui.container.style.transform = `translate(-50%, -100%) translate(${xPos}px, ${yPos}px)`;
-            const hpRatio = Math.max(0, unit.currentHp) / unit.baseStats.hp;
+            const hpRatio = unit.currentHp / unit.baseStats.hp;
             ui.hpBar.style.width = `${hpRatio * 100}%`;
-
-            const barrierValue = this.battleSimulationManager.statusEffectManager.getEffectValue(unitId, 'barrier') || 0;
-            if (barrierValue > 0) {
-                const barrierRatio = Math.min(hpRatio + (barrierValue / unit.baseStats.hp), 1);
-                ui.barrierBar.style.width = `${barrierRatio * 100}%`;
-                ui.barrierBar.style.display = 'block';
-            } else {
-                ui.barrierBar.style.display = 'none';
-            }
+            ui.hpText.textContent = `${unit.currentHp} / ${unit.baseStats.hp}`;
         }
 
+        const now = performance.now();
+        for (let i = this.tempElements.length - 1; i >= 0; i--) {
+            const item = this.tempElements[i];
+            if (now - item.startTime > item.duration) {
+                item.element.remove();
+                this.tempElements.splice(i, 1);
+                continue;
+            }
+            const unit = this.battleSimulationManager.getUnitById(item.unitId);
+            if (unit) {
+                const { drawX, drawY } = this.battleSimulationManager.animationManager.getRenderPosition(
+                    unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY
+                );
+                let yOffset = item.type === 'skill' ? effectiveTileSize * 0.5 : 0;
+                const xPos = drawX + effectiveTileSize / 2;
+                const yPos = drawY - yOffset;
+                item.element.style.transform = `translate(-50%, -100%) translate(${xPos}px, ${yPos}px)`;
+            }
+        }
     }
 
     clearAllUIs() {
@@ -122,8 +147,6 @@ export class DOMVFXEngine {
             this.container.innerHTML = '';
         }
         this.unitUIs.clear();
-        if (this.domAnimationManager) {
-            this.domAnimationManager.clearAll();
-        }
+        this.tempElements = [];
     }
 }
