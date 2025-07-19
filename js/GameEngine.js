@@ -27,6 +27,7 @@ import { CanvasBridgeManager } from './managers/CanvasBridgeManager.js';
 import { SkillIconManager } from './managers/SkillIconManager.js';
 import { StatusIconManager } from './managers/StatusIconManager.js';
 import { BindingManager } from './managers/BindingManager.js';
+import { PixiUIOverlay } from './managers/PixiUIOverlay.js';
 import { BattleCalculationManager } from './managers/BattleCalculationManager.js';
 import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js';
 import { RuleManager } from './managers/RuleManager.js';
@@ -163,7 +164,22 @@ export class GameEngine {
         this.animationManager = new AnimationManager(this.measureManager, null, this.particleEngine);
         this.battleSimulationManager.animationManager = this.animationManager;
         this.animationManager.battleSimulationManager = this.battleSimulationManager;
-        this.shadowEngine = new ShadowEngine(this.battleSimulationManager, this.animationManager, this.measureManager);
+
+        // Pixi 기반 UI 오버레이를 먼저 생성합니다.
+        this.pixiUIOverlay = new PixiUIOverlay(
+            this.renderer,
+            this.measureManager,
+            this.battleSimulationManager,
+            this.animationManager,
+            this.eventManager
+        );
+
+        // 그림자 엔진은 PixiUIOverlay를 활용하도록 변경합니다.
+        this.shadowEngine = new ShadowEngine(
+            this.battleSimulationManager,
+            this.animationManager,
+            this.pixiUIOverlay
+        );
 
         // 6. UI, Input, Log & Other Managers
         this.mercenaryPanelManager = new MercenaryPanelManager(this.measureManager, this.battleSimulationManager, this.logicManager, this.eventManager);
@@ -396,6 +412,9 @@ export class GameEngine {
         this.vfxManager.update(deltaTime);
         this.particleEngine.update(deltaTime);
         this.detailInfoManager.update(deltaTime);
+        // 그림자 정보를 먼저 갱신한 뒤 UI 오버레이를 업데이트합니다.
+        this.shadowEngine.update(deltaTime);
+        this.pixiUIOverlay.update(deltaTime);
         const { effectiveTileSize, gridOffsetX, gridOffsetY } = this.battleSimulationManager.getGridRenderParameters();
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);

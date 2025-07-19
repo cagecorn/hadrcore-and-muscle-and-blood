@@ -32,6 +32,11 @@ export class PixiUIOverlay {
         this.uiContainer = new PIXI.Container();
         this.app.stage.addChild(this.uiContainer);
 
+        // 그림자 전용 컨테이너를 추가하여 다른 UI 요소와 분리합니다.
+        this.shadowContainer = new PIXI.Container();
+        // stage의 최하단에 위치하도록 인덱스 0에 배치합니다.
+        this.app.stage.addChildAt(this.shadowContainer, 0);
+
         this.hpBars = new Map();
         this.nameTexts = new Map();
         this.buffIcons = new Map();
