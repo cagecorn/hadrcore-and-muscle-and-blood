@@ -66,6 +66,8 @@ canvas {
 #gameCanvas {
     flex-grow: 1;
     aspect-ratio: 16 / 9;
+    position: relative; /* z-index 적용을 위해 위치 지정 */
+    z-index: 1;         /* 겹침 순서 지정 */
 }
 
 /* ✨ HTML 전투 시작 버튼 스타일 */
@@ -253,4 +255,5 @@ canvas {
     pointer-events: none;
     background-color: transparent !important;
     border: none !important;
+    z-index: 2; /* 메인 캔버스 위에 오도록 높은 값 지정 */
 }
