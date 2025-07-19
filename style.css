@@ -67,6 +67,62 @@ canvas {
     aspect-ratio: 16 / 9;
 }
 
+/* ✨ 캔버스 래퍼: 캔버스와 DOM UI의 위치 기준점이 됩니다. */
+#canvas-wrapper {
+    position: relative;
+}
+
+/* ✨ DOM UI 컨테이너: 캔버스 위에 투명하게 떠 있도록 설정합니다. */
+#dom-ui-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+}
+
+/* 개별 유닛 UI 요소 (이름표 + 체력바)의 기본 스타일 */
+.unit-ui {
+    position: absolute;
+    top: -5px;
+    left: 0;
+    transform-origin: center top;
+    display: flex;
+    flex-direction: column-reverse;
+    align-items: center;
+    gap: 2px;
+    will-change: transform;
+}
+
+.unit-name {
+    color: white;
+    font-size: 14px;
+    font-family: "Nanum Gothic", Arial, sans-serif;
+    font-weight: bold;
+    padding: 2px 8px;
+    border-radius: 4px;
+    text-shadow: 1px 1px 2px black;
+    white-space: nowrap;
+}
+
+.hp-bar {
+    width: 60px;
+    height: 8px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #222;
+    border-radius: 4px;
+}
+
+.hp-bar-current {
+    width: 100%;
+    height: 100%;
+    background-color: #28a745;
+    border-radius: 3px;
+    transition: width 0.2s ease;
+}
+
 /* ✨ HTML 전투 시작 버튼 스타일 */
 .game-button {
     background-color: darkgreen;
@@ -243,8 +299,3 @@ canvas {
     transform: scale(1.1);
 }
 
-/* \u2728 Pixi.js UI \uc624\ubc84\ub808\uc774 \ucee4\ube14\ub9ac\uc2a4\ub97c \uc704\ud55c \uc2a4\ud0c0\uc77c \ucd94\uac00 */
-#pixi-ui-canvas {
-    background-color: transparent !important;
-    border: none !important;
-}

@@ -1,13 +1,13 @@
 // js/managers/ShadowEngine.js
 
 import { GAME_DEBUG_MODE } from '../constants.js';
-// Use the same CDN build of Pixi.js as the PixiUIOverlay to avoid module
-// resolution issues when running without a bundler.
+// Use the same CDN build of Pixi.js as the previous overlay to avoid module resolution issues
+// when running without a bundler.
 import * as PIXI from 'https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.mjs';
 
 export class ShadowEngine {
-    constructor(battleSimulationManager, animationManager, pixiUIOverlay) {
-        if (!battleSimulationManager || !animationManager || !pixiUIOverlay) {
+    constructor(battleSimulationManager, animationManager, renderer) {
+        if (!battleSimulationManager || !animationManager || !renderer) {
             throw new Error('[ShadowEngine] Missing essential dependencies.');
         }
         if (GAME_DEBUG_MODE) {
@@ -15,8 +15,18 @@ export class ShadowEngine {
         }
         this.battleSimulationManager = battleSimulationManager;
         this.animationManager = animationManager;
-        this.pixiApp = pixiUIOverlay.app;
-        this.shadowContainer = pixiUIOverlay.shadowContainer;
+        const view = document.createElement('canvas');
+        view.id = 'shadow-canvas';
+        renderer.canvas.parentNode.appendChild(view);
+        this.pixiApp = new PIXI.Application({
+            view,
+            width: renderer.canvas.width / renderer.pixelRatio,
+            height: renderer.canvas.height / renderer.pixelRatio,
+            backgroundAlpha: 0,
+            autoStart: false
+        });
+        this.shadowContainer = new PIXI.Container();
+        this.pixiApp.stage.addChild(this.shadowContainer);
 
         this.shadows = new Map();
         this.shadowsEnabled = true;
@@ -37,6 +47,14 @@ export class ShadowEngine {
             console.log(`[ShadowEngine] Toggled shadows to: ${this.shadowsEnabled}.`);
         }
         return this.shadowsEnabled;
+    }
+
+    resize(width, height) {
+        this.pixiApp.renderer.resize(width, height);
+    }
+
+    draw() {
+        this.pixiApp.render();
     }
 
     update() {
