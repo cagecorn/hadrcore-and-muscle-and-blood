@@ -1,7 +1,9 @@
 // js/managers/ShadowEngine.js
 
 import { GAME_DEBUG_MODE } from '../constants.js';
-import * as PIXI from 'pixi.js';
+// Use the same CDN build of Pixi.js as the PixiUIOverlay to avoid module
+// resolution issues when running without a bundler.
+import * as PIXI from 'https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.mjs';
 
 export class ShadowEngine {
     constructor(battleSimulationManager, animationManager, pixiUIOverlay) {
