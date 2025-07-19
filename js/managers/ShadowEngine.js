@@ -1,117 +1,66 @@
-// js/managers/ShadowEngine.js
-
-import { GAME_DEBUG_MODE } from '../constants.js'; // 디버그 모드 상수 임포트
+import { GAME_DEBUG_MODE } from '../constants.js';
+import * as PIXI from 'https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.mjs';
 
 export class ShadowEngine {
-    /**
-     * ShadowEngine을 초기화합니다.
-     * @param {BattleSimulationManager} battleSimulationManager - 유닛 데이터 및 그리드 조회를 위한 인스턴스
-     * @param {AnimationManager} animationManager - 유닛의 현재 렌더링 위치(애니메이션 적용) 조회를 위한 인스턴스
-     * @param {MeasureManager} measureManager - 크기 관련 설정을 위한 인스턴스
-     */
-    constructor(battleSimulationManager, animationManager, measureManager) {
-        if (GAME_DEBUG_MODE) console.log("\ud83c\udf11 ShadowEngine initialized. Ready to cast dynamic shadows. \ud83c\udf11");
-        if (!battleSimulationManager || !animationManager || !measureManager) {
-            throw new Error("[ShadowEngine] Missing essential dependencies. Cannot initialize.");
-        }
-
+    constructor(battleSimulationManager, animationManager, pixiUIOverlay) {
+        if (GAME_DEBUG_MODE) console.log("🎨 ShadowEngine initialized for Pixi.js. 🎨");
         this.battleSimulationManager = battleSimulationManager;
         this.animationManager = animationManager;
-        this.measureManager = measureManager;
+        this.pixiApp = pixiUIOverlay.app;
+        this.shadowContainer = pixiUIOverlay.shadowContainer;
 
-        this.shadowsEnabled = true; // \u2728 그림자 효과 활성화/비활성화 토글 기능
-        this.baseShadowOpacity = 0.4; // 그림자 기본 투명도
-        // 그림자 타원 형태 비율
-        this.shadowScaleY = 0.5; // 그림자의 Y축 스케일 (납작하게 만듦)
-        // 그림자 오프셋 (유닛 타일 크기 대비 비율) - 45도 느낌
-        this.shadowOffsetXRatio = 0.3;
-        this.shadowOffsetYRatio = 0.3;
-        // 그림자 내부 반경 비율 (그라디언트 시작 지점)
-        this.shadowGradientInnerRatio = 0.1;
+        this.shadows = new Map();
+        this.shadowsEnabled = true;
+        this.baseShadowOpacity = 0.4;
+        this.shadowScaleY = 0.35;
     }
 
-    /**
-     * 그림자 효과를 켜거나 끕니다.
-     * @param {boolean} enable - true면 켜고, false면 끕니다.
-     */
-    setShadowsEnabled(enable) {
-        this.shadowsEnabled = enable;
-        if (GAME_DEBUG_MODE) console.log(`[ShadowEngine] Shadows are now ${this.shadowsEnabled ? 'ENABLED' : 'DISABLED'}.`); // \u2728 조건부 로그
-    }
-
-    /**
-     * 현재 그림자 효과 활성화 상태를 토글합니다.
-     * @returns {boolean} 새로운 그림자 활성화 상태
-     */
-    toggleShadows() {
-        this.shadowsEnabled = !this.shadowsEnabled;
-        if (GAME_DEBUG_MODE) console.log(`[ShadowEngine] Toggled shadows to: ${this.shadowsEnabled}.`); // \u2728 조건부 로그
-        return this.shadowsEnabled;
-    }
-
-    /**
-     * 모든 유닛의 그림자를 캔버스에 그립니다. LayerEngine에 의해 호출됩니다.
-     * @param {CanvasRenderingContext2D} ctx - 캔버스 2D 렌더링 컨텍스트
-     */
-    draw(ctx) {
+    update() {
         if (!this.shadowsEnabled) {
-            return; // 그림자 효과가 비활성화되어 있으면 그리지 않습니다.
+            this.shadowContainer.visible = false;
+            return;
         }
+        this.shadowContainer.visible = true;
 
         const { effectiveTileSize, gridOffsetX, gridOffsetY } = this.battleSimulationManager.getGridRenderParameters();
+        const aliveUnitIds = new Set();
 
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
             if (unit.currentHp <= 0 || !unit.image) {
-                continue; // 죽었거나 이미지가 없는 유닛은 그림자를 그리지 않습니다.
+                continue;
+            }
+            aliveUnitIds.add(unit.id);
+
+            let shadow = this.shadows.get(unit.id);
+            if (!shadow) {
+                shadow = new PIXI.Graphics();
+                this.shadows.set(unit.id, shadow);
+                this.shadowContainer.addChild(shadow);
             }
 
-            // 유닛의 현재 렌더링 위치(애니메이션 적용된 위치)를 가져옵니다.
             const { drawX, drawY } = this.animationManager.getRenderPosition(
-                unit.id,
-                unit.gridX,
-                unit.gridY,
-                effectiveTileSize,
-                gridOffsetX,
-                gridOffsetY
+                unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY
             );
 
-            ctx.save();
-    // 그라디언트를 사용하여 그림자 가장자리가 부드럽게 퍼지도록 함
-            ctx.globalAlpha = 1;
+            const shadowWidth = effectiveTileSize * 0.8;
+            const shadowHeight = shadowWidth * this.shadowScaleY;
 
-            const offsetX = effectiveTileSize * this.shadowOffsetXRatio;
-            const offsetY = effectiveTileSize * this.shadowOffsetYRatio;
-            const shadowDrawX = drawX + offsetX;
-            const shadowDrawY = drawY + offsetY;
+            shadow.clear();
+            shadow.beginFill(0x000000, this.baseShadowOpacity);
+            shadow.drawEllipse(0, 0, shadowWidth / 2, shadowHeight / 2);
+            shadow.endFill();
 
-            ctx.translate(shadowDrawX + effectiveTileSize / 2, shadowDrawY + effectiveTileSize / 2);
-            ctx.scale(1, this.shadowScaleY);
-            ctx.translate(-(shadowDrawX + effectiveTileSize / 2), -(shadowDrawY + effectiveTileSize / 2));
+            shadow.x = drawX + effectiveTileSize / 2;
+            shadow.y = drawY + effectiveTileSize * 0.95;
+            shadow.filters = [new PIXI.BlurFilter(4)];
+        }
 
-            ctx.beginPath();
-            ctx.ellipse(
-                shadowDrawX + effectiveTileSize / 2,
-                shadowDrawY + effectiveTileSize * 0.9,
-                effectiveTileSize / 2,
-                (effectiveTileSize * this.shadowScaleY) / 2,
-                0,
-                0,
-                Math.PI * 2
-            );
-            const gradient = ctx.createRadialGradient(
-                shadowDrawX + effectiveTileSize / 2,
-                shadowDrawY + effectiveTileSize * 0.9,
-                (effectiveTileSize * this.shadowGradientInnerRatio) / 2,
-                shadowDrawX + effectiveTileSize / 2,
-                shadowDrawY + effectiveTileSize * 0.9,
-                effectiveTileSize / 2
-            );
-            gradient.addColorStop(0, `rgba(0, 0, 0, ${this.baseShadowOpacity})`);
-            gradient.addColorStop(1, 'rgba(0,0,0,0)');
-            ctx.fillStyle = gradient;
-            ctx.fill();
-
-            ctx.restore();
+        for (const [unitId, shadow] of this.shadows.entries()) {
+            if (!aliveUnitIds.has(unitId)) {
+                this.shadowContainer.removeChild(shadow);
+                shadow.destroy();
+                this.shadows.delete(unitId);
+            }
         }
     }
 }
