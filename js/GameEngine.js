@@ -28,6 +28,7 @@ import { SkillIconManager } from './managers/SkillIconManager.js';
 import { StatusIconManager } from './managers/StatusIconManager.js';
 import { BindingManager } from './managers/BindingManager.js';
 import { PixiUIOverlay } from './managers/PixiUIOverlay.js';
+import { OffscreenTextManager } from './managers/OffscreenTextManager.js';
 import { BattleCalculationManager } from './managers/BattleCalculationManager.js';
 import { MercenaryPanelManager } from './managers/MercenaryPanelManager.js';
 import { RuleManager } from './managers/RuleManager.js';
@@ -165,13 +166,17 @@ export class GameEngine {
         this.battleSimulationManager.animationManager = this.animationManager;
         this.animationManager.battleSimulationManager = this.battleSimulationManager;
 
+        this.offscreenTextManager = new OffscreenTextManager();
+
         // Pixi 기반 UI 오버레이를 먼저 생성합니다.
         this.pixiUIOverlay = new PixiUIOverlay(
             this.renderer,
             this.measureManager,
             this.battleSimulationManager,
             this.animationManager,
-            this.eventManager
+            this.eventManager,
+            this.sceneEngine,
+            this.offscreenTextManager
         );
 
         // 그림자 엔진은 PixiUIOverlay를 활용하도록 변경합니다.
