@@ -171,7 +171,8 @@ export class GameEngine {
             this.measureManager,
             this.battleSimulationManager,
             this.animationManager,
-            this.eventManager
+            this.eventManager,
+            this.sceneEngine
         );
 
         // 그림자 엔진은 PixiUIOverlay를 활용하도록 변경합니다.

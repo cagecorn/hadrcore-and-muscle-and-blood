@@ -1,5 +1,5 @@
 import { PixiUIOverlay } from '../../js/managers/PixiUIOverlay.js';
-import { GAME_DEBUG_MODE, GAME_EVENTS } from '../../js/constants.js';
+import { GAME_DEBUG_MODE, GAME_EVENTS, UI_STATES } from '../../js/constants.js';
 
 export function runPixiUIOverlayUnitTests() {
     if (!GAME_DEBUG_MODE) return;
@@ -13,10 +13,11 @@ export function runPixiUIOverlayUnitTests() {
     const mockBSM = { unitsOnGrid: [], getGridRenderParameters: () => ({ effectiveTileSize: 32, gridOffsetX:0, gridOffsetY:0 }) };
     const mockAnim = { getRenderPosition: () => ({ drawX:0, drawY:0 }) };
     const mockEventManager = { subscribe: () => {} };
+    const mockSceneEngine = { getCurrentSceneName: () => UI_STATES.COMBAT_SCREEN };
 
     let overlay;
     try {
-        overlay = new PixiUIOverlay(mockRenderer, mockMeasure, mockBSM, mockAnim, mockEventManager);
+        overlay = new PixiUIOverlay(mockRenderer, mockMeasure, mockBSM, mockAnim, mockEventManager, mockSceneEngine);
         console.log('PixiUIOverlay: Initialized. [PASS]');
     } catch (e) {
         console.error('PixiUIOverlay: Initialization failed. [FAIL]', e);
