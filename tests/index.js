@@ -15,6 +15,7 @@ export { runWarriorSkillsAIUnitTests } from './unit/warriorSkillsAIUnitTests.js'
 export { runShadowEngineUnitTests } from './unit/shadowEngineUnitTests.js'; // ✨ ShadowEngine 단위 테스트 추가
 export { runMicrocosmHeroEngineUnitTests } from './unit/microcosmHeroEngineUnitTests.js'; // 👈 추가
 export { runSoundEngineUnitTests } from './unit/soundEngineUnitTests.js'; // <-- 이 줄 추가
+export { runPixiUIOverlayUnitTests } from './unit/pixiUIOverlayUnitTests.js';
 
 // new unit tests
 export { runSceneEngineUnitTests } from './unit/sceneEngineUnitTests.js';
@@ -96,4 +97,5 @@ export function runEngineTests(
     runMovingManagerUnitTests();
     runWarriorSkillsAIUnitTests();
     runShadowEngineUnitTests();
+    runPixiUIOverlayUnitTests();
 }
