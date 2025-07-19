@@ -72,13 +72,15 @@ export class PixiUIOverlay {
                 const bgColor = unit.type === ATTACK_TYPES.MERCENARY ? 'rgba(0, 51, 204, 0.8)' : 'rgba(204, 0, 0, 0.8)';
                 const fontSize = Math.round(effectiveTileSize * 0.18);
 
-                // OffscreenTextManager를 통해 텍스트 이미지를 생성합니다.
-                const nameImage = this.offscreenTextManager.getOrCreateText(unit.name, { fontSize: fontSize, bgColor: bgColor });
+                // OffscreenTextManager로부터 캔버스를 받아 텍스처를 생성합니다.
+                const nameCanvas = this.offscreenTextManager.getOrCreateText(unit.name, { fontSize: fontSize, bgColor: bgColor });
 
-                // 생성된 이미지로 PixiJS 텍스처와 스프라이트를 만듭니다.
-                const texture = PIXI.Texture.from(nameImage);
+                // 캔버스는 이미 렌더링 완료된 상태이므로 바로 텍스처로 변환합니다.
+                const texture = PIXI.Texture.from(nameCanvas);
                 nameSprite = new PIXI.Sprite(texture);
                 nameSprite.anchor.set(0.5, 0);
+                // OffscreenTextManager의 렌더링 스케일만큼 다시 줄여 원래 크기로 맞춥니다.
+                nameSprite.scale.set(1 / this.offscreenTextManager.renderScale);
                 this.uiContainer.addChild(nameSprite);
                 this.nameSprites.set(unit.id, nameSprite);
 

@@ -14,7 +14,7 @@ export function runPixiUIOverlayUnitTests() {
     const mockAnim = { getRenderPosition: () => ({ drawX:0, drawY:0 }) };
     const mockEventManager = { subscribe: () => {} };
     const mockSceneEngine = { getCurrentSceneName: () => 'combatScreen' };
-    const mockOffscreenTextManager = { getOrCreateText: () => new Image(), clearCache: () => {} };
+    const mockOffscreenTextManager = { getOrCreateText: () => document.createElement('canvas'), clearCache: () => {} };
 
     let overlay;
     try {
