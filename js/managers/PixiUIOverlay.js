@@ -187,6 +187,18 @@ export class PixiUIOverlay {
             return true;
         });
 
+        if (GAME_DEBUG_MODE && Math.random() < 0.05) { // 콘솔이 너무 지저분해지지 않도록 로그 빈도를 조절합니다.
+            console.groupCollapsed(`[PixiUIOverlay Debug] Rendering Stats`);
+            console.log(`- HP Bars in Map: ${this.hpBars.size}`);
+            console.log(`- Active Damage Texts: ${this.damageTexts.length}`);
+            console.log(`- Shadow Elements in Container: ${this.shadowContainer.children.length}`);
+            console.log(`- UI Elements in Container: ${this.uiContainer.children.length}`);
+            console.log('---');
+            console.log('Shadow Container Children:', this.shadowContainer.children);
+            console.log('UI Container Children:', this.uiContainer.children);
+            console.groupEnd();
+        }
+
         this.app.render();
     }
 }
