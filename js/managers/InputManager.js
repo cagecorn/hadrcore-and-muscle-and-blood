@@ -35,11 +35,6 @@ export class InputManager {
     }
 
     _onMouseDown(event) {
-        if (!this.cameraEngine.controlsEnabled) {
-            this.isDragging = false;
-            return;
-        }
-
         const rect = this.canvas.getBoundingClientRect();
         const mouseX = event.clientX - rect.left;
         const mouseY = event.clientY - rect.top;
@@ -79,13 +74,11 @@ export class InputManager {
     }
 
     _onMouseUp() {
-        if (!this.cameraEngine.controlsEnabled) return;
         this.isDragging = false;
         this.canvas.style.cursor = 'grab';
     }
 
     _onMouseWheel(event) {
-        if (!this.cameraEngine.controlsEnabled) return;
         event.preventDefault();
 
         const zoomAmount = event.deltaY > 0 ? -0.1 : 0.1;

@@ -28,7 +28,7 @@ export class HideAndSeekManager {
 
         const vfx = this.gameEngine.getVFXManager();
         if (vfx) {
-            const totalVFX = vfx.activeWeaponDrops.size;
+            const totalVFX = vfx.activeDamageNumbers.length + vfx.activeSkillNames.length + vfx.activeWeaponDrops.size;
             console.log(`- \uc2dc\uac01 \ud6a8\uacfc (VFXManager): ${totalVFX} \uac1c`);
         }
 

@@ -10,13 +10,6 @@ export class CameraEngine {
         this.x = 0;
         this.y = 0;
         this.zoom = 1;
-        this.controlsEnabled = false; // ✨ 카메라 제어 활성화 플래그
-    }
-
-    // ✨ 제어 상태를 설정하는 메서드 추가
-    setControlsEnabled(enabled) {
-        this.controlsEnabled = enabled;
-        console.log(`[CameraEngine] Camera controls ${enabled ? 'ENABLED' : 'DISABLED'}.`);
     }
 
     applyTransform(ctx) {
@@ -25,7 +18,6 @@ export class CameraEngine {
     }
 
     pan(dx, dy) {
-        if (!this.controlsEnabled) return;
         this.x += dx;
         this.y += dy;
         const clampedPos = this.logicManager.applyPanConstraints(this.x, this.y, this.zoom);
@@ -34,7 +26,6 @@ export class CameraEngine {
     }
 
     zoomAt(zoomAmount, mouseX, mouseY) {
-        if (!this.controlsEnabled) return;
         const oldZoom = this.zoom;
         let newZoom = this.zoom + zoomAmount;
         const zoomLimits = this.logicManager.getZoomLimits();
