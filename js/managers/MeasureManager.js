@@ -60,6 +60,10 @@ export class MeasureManager {
                 barrierBarHeightRatio: 0.05, // 배리어 바 높이 (타일 크기의 5%)
                 barrierBarVerticalOffset: 8, // 배리어 바 수직 오프셋 (픽셀)
 
+                // 유닛 이름표 관련
+                unitNameFontSizeRatio: 0.18, // 이름표 폰트 크기 비율
+                unitNameVerticalOffset: 5,   // 이름표 수직 오프셋 (픽셀)
+
                 // 데미지 숫자 팝업 관련
                 damageNumberDuration: 1000,     // 데미지 숫자 팝업 지속 시간 (ms)
                 damageNumberFloatSpeed: 0.05,   // 데미지 숫자 부유 속도
