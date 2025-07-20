@@ -105,6 +105,9 @@ export class PixiUIOverlay {
             let bar = this.hpBars.get(unit.id);
 
             if (!nameSprite) {
+                // [디버그 1] 이름표가 '생성'되는 시점을 확인합니다.
+                console.log(`[디버그] ${unit.name}의 이름표를 새로 생성합니다.`);
+
                 const bgColor = 'rgba(0,0,0,0)';
                 const fontSize = Math.round(effectiveTileSize * 0.18);
 
@@ -121,6 +124,9 @@ export class PixiUIOverlay {
                 this.uiContainer.addChild(nameSprite);
                 this.nameSprites.set(unit.id, nameSprite);
 
+                // [디버그 2] 생성 직후 이름표 객체 상태를 확인합니다.
+                console.log(`[디버그] ${unit.name} 이름표 생성 완료:`, nameSprite);
+
                 bar = new PIXI.Graphics();
                 this.uiContainer.addChild(bar);
                 this.hpBars.set(unit.id, bar);
@@ -133,6 +139,15 @@ export class PixiUIOverlay {
             nameSprite.anchor.set(0.5, 0);
             const nameYPosition = drawY + effectiveTileSize + 5;
             nameSprite.position.set(centerX, nameYPosition);
+
+            // [디버그 3] 매 프레임 이름표의 '위치'와 '상태'를 확인합니다.
+            console.log(
+                `[디버그] ${unit.name} 업데이트:`,
+                `위치=(${nameSprite.x.toFixed(1)}, ${nameSprite.y.toFixed(1)})`,
+                `보임=${nameSprite.visible}`,
+                `투명도=${nameSprite.alpha}`,
+                `부모=${nameSprite.parent ? nameSprite.parent.constructor.name : '없음'}`
+            );
 
             // HP 바 위치를 유닛 위쪽으로 조정해 이름표와 겹치지 않게 함
             const barWidth = effectiveTileSize * 0.8;
