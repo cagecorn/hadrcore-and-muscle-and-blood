@@ -306,6 +306,24 @@ export class VFXManager {
     }
 
     /**
+     * 유닛 이름을 스프라이트 하단에 그립니다.
+     * @param {CanvasRenderingContext2D} ctx
+     * @param {object} unit
+     * @param {number} effectiveTileSize
+     * @param {number} actualDrawX
+     * @param {number} actualDrawY
+     */
+    drawUnitName(ctx, unit, effectiveTileSize, actualDrawX, actualDrawY) {
+        const fontSize = effectiveTileSize * this.measureManager.get('vfx.unitNameFontSizeRatio');
+        const offsetY = effectiveTileSize + this.measureManager.get('vfx.unitNameVerticalOffset');
+        ctx.fillStyle = '#FFFFFF';
+        ctx.font = `bold ${fontSize}px Arial`;
+        ctx.textAlign = 'center';
+        ctx.textBaseline = 'top';
+        ctx.fillText(unit.name, actualDrawX + effectiveTileSize / 2, actualDrawY + offsetY);
+    }
+
+    /**
      * 모든 활성 시각 효과를 그립니다. 이 메서드는 LayerEngine에 의해 호출됩니다.
      * @param {CanvasRenderingContext2D} ctx - 캔버스 2D 렌더링 컨텍스트
      */
@@ -350,6 +368,7 @@ export class VFXManager {
             // if (GAME_DEBUG_MODE) console.log(`[VFXManager Debug] Unit ${unit.id} (HP/Barrier Bar): drawX=${drawX.toFixed(2)}, drawY=${drawY.toFixed(2)}`);
             this.drawHpBar(ctx, unit, effectiveTileSize, drawX, drawY);
             this.drawBarrierBar(ctx, unit, effectiveTileSize, drawX, drawY); // ✨ 배리어 바 그리기 호출
+            this.drawUnitName(ctx, unit, effectiveTileSize, drawX, drawY);
 
             if (this.bleedIcon && this.bleedingUnits.has(unit.id)) {
                 const iconSize = effectiveTileSize * 0.3;

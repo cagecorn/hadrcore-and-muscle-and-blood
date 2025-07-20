@@ -156,7 +156,23 @@ export function runVFXManagerUnitTests() {
         console.error("VFXManager: Error during draw method test. [FAIL]", e);
     }
 
-    // 테스트 6: 이벤트 매니저를 통한 damageNumberDisplay 연동 확인 (간접적)
+    // 테스트 6: drawUnitName을 통한 이름표 그리기 확인
+    testCount++;
+    try {
+        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
+        mockCtx.fillTextCalled = false;
+        vfxManager.draw(mockCtx);
+        if (mockCtx.fillTextCalled) {
+            console.log("VFXManager: drawUnitName drew unit name. [PASS]");
+            passCount++;
+        } else {
+            console.error("VFXManager: drawUnitName did not draw unit name. [FAIL]");
+        }
+    } catch (e) {
+        console.error("VFXManager: Error during drawUnitName test. [FAIL]", e);
+    }
+
+    // 테스트 7: 이벤트 매니저를 통한 damageNumberDisplay 연동 확인 (간접적)
     testCount++;
     try {
         const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
