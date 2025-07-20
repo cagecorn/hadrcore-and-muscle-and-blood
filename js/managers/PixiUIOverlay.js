@@ -82,7 +82,7 @@ export class PixiUIOverlay {
     update(delta) {
         if (this.sceneEngine.getCurrentSceneName() !== UI_STATES.COMBAT_SCREEN) {
             if (this.uiContainer.children.length > 0) {
-                this.uiContainer.removeChildren().forEach(child => child.destroy());
+                this.uiContainer.removeChildren().forEach(child => child.destroy({ children: true }));
                 this.hpBars.clear();
                 this.nameSprites.clear();
                 this.damageTexts = [];
@@ -99,33 +99,26 @@ export class PixiUIOverlay {
         }
 
         for (const unit of this.battleSimulationManager.unitsOnGrid) {
-            if (unit.currentHp <= 0) { this._cleanupUnitUI(unit.id); continue; }
+            if (unit.currentHp <= 0) { 
+                this._cleanupUnitUI(unit.id); 
+                continue; 
+            }
 
-            let nameSprite = this.nameSprites.get(unit.id);
+            // ✨ nameSprite를 nameRect로 변경하여 테스트합니다.
+            let nameRect = this.nameSprites.get(unit.id);
             let bar = this.hpBars.get(unit.id);
 
-            if (!nameSprite) {
-                // [디버그 1] 이름표가 '생성'되는 시점을 확인합니다.
-                console.log(`[디버그] ${unit.name}의 이름표를 새로 생성합니다.`);
+            if (!nameRect) {
+                // --- ✨ 진단 코드 시작 ✨ ---
+                // 텍스트 스프라이트 대신 단순한 PIXI.Graphics 사각형을 생성합니다.
+                nameRect = new PIXI.Graphics();
+                nameRect.beginFill(unit.type === ATTACK_TYPES.ENEMY ? 0xff0000 : 0x00ff00, 0.7); // 적은 빨강, 아군은 초록
+                nameRect.drawRect(0, 0, effectiveTileSize * 0.8, effectiveTileSize * 0.15);
+                nameRect.endFill();
+                // --- ✨ 진단 코드 종료 ✨ ---
 
-                const bgColor = 'rgba(0,0,0,0)';
-                const fontSize = Math.round(effectiveTileSize * 0.18);
-
-                // OffscreenTextManager로부터 캔버스를 받아 텍스처를 생성합니다.
-                const nameCanvas = this.offscreenTextManager.getOrCreateText(unit.name, { fontSize: fontSize, bgColor: bgColor });
-
-                // 캔버스는 이미 렌더링 완료된 상태이므로 바로 텍스처로 변환합니다.
-                const texture = PIXI.Texture.from(nameCanvas);
-                nameSprite = new PIXI.Sprite(texture);
-                // 이름표를 타일 하단 중앙 기준으로 배치하기 위해 앵커를 중앙 상단으로 설정
-                nameSprite.anchor.set(0.5, 0);
-                // OffscreenTextManager의 렌더링 스케일만큼 다시 줄여 원래 크기로 맞춥니다.
-                nameSprite.scale.set(1 / this.offscreenTextManager.renderScale);
-                this.uiContainer.addChild(nameSprite);
-                this.nameSprites.set(unit.id, nameSprite);
-
-                // [디버그 2] 생성 직후 이름표 객체 상태를 확인합니다.
-                console.log(`[디버그] ${unit.name} 이름표 생성 완료:`, nameSprite);
+                this.uiContainer.addChild(nameRect);
+                this.nameSprites.set(unit.id, nameRect); // 맵 이름은 그대로 사용합니다.
 
                 bar = new PIXI.Graphics();
                 this.uiContainer.addChild(bar);
@@ -134,26 +127,16 @@ export class PixiUIOverlay {
 
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
             const centerX = drawX + effectiveTileSize / 2;
+            
+            // 이름표(사각형) 위치 설정 (유닛 이미지 바로 위)
+            const nameYPosition = drawY - 20; // 유닛 이미지 상단에서 20px 위
+            nameRect.position.set(centerX - nameRect.width / 2, nameYPosition);
 
-            // 이름표를 유닛 이미지 바로 아래 중앙에 배치
-            nameSprite.anchor.set(0.5, 0);
-            const nameYPosition = drawY + effectiveTileSize + 5;
-            nameSprite.position.set(centerX, nameYPosition);
-
-            // [디버그 3] 매 프레임 이름표의 '위치'와 '상태'를 확인합니다.
-            console.log(
-                `[디버그] ${unit.name} 업데이트:`,
-                `위치=(${nameSprite.x.toFixed(1)}, ${nameSprite.y.toFixed(1)})`,
-                `보임=${nameSprite.visible}`,
-                `투명도=${nameSprite.alpha}`,
-                `부모=${nameSprite.parent ? nameSprite.parent.constructor.name : '없음'}`
-            );
-
-            // HP 바 위치를 유닛 위쪽으로 조정해 이름표와 겹치지 않게 함
+            // HP 바 위치 설정 (이름표 위)
             const barWidth = effectiveTileSize * 0.8;
             const barHeight = effectiveTileSize * 0.1;
-            const barYOffset = drawY - barHeight - 5;
-            // HP 바 로직
+            const barYOffset = nameYPosition - barHeight - 2;
+            
             const maxHp = unit.baseStats?.hp || 1;
             const hpRatio = Math.max(0, unit.currentHp / maxHp);
 
@@ -162,7 +145,7 @@ export class PixiUIOverlay {
             bar.drawRect(centerX - barWidth / 2, barYOffset, barWidth, barHeight);
             bar.endFill();
             bar.beginFill(0x00ff00);
-            bar.drawRect(centerX - barWidth / 2, barYOffset, barWidth * hpRatio, barHeight);
+            bar.drawRect(centerX - barWidth / 2, barYOffset, barWidth * barRatio, barHeight);
             bar.endFill();
         }
 
