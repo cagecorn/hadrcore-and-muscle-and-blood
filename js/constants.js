@@ -77,4 +77,9 @@ export const SKILL_TYPE_COLORS = {
     [SKILL_TYPES.PASSIVE]: 'green'
 };
 
+export const UNIT_NAME_BG_COLORS = {
+    [ATTACK_TYPES.MERCENARY]: 'rgba(0,0,255,0.5)',
+    [ATTACK_TYPES.ENEMY]: 'rgba(255,0,0,0.5)'
+};
+
 export const GAME_DEBUG_MODE = true; // ✨ 디버그 모드 플래그 (배포 시 false로 설정)

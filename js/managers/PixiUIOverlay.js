@@ -1,5 +1,5 @@
 import * as PIXI from 'https://cdn.jsdelivr.net/npm/pixi.js@7/dist/pixi.mjs';
-import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES, UI_STATES, SKILL_TYPE_COLORS } from '../constants.js';
+import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES, UI_STATES, SKILL_TYPE_COLORS, UNIT_NAME_BG_COLORS } from '../constants.js';
 
 export class PixiUIOverlay {
     // OffscreenTextManager를 생성자에서 받습니다.
@@ -108,8 +108,10 @@ export class PixiUIOverlay {
                 // [디버그 1] 이름표가 '생성'되는 시점을 확인합니다.
                 console.log(`[디버그] ${unit.name}의 이름표를 새로 생성합니다.`);
 
-                const bgColor = 'rgba(0,0,0,0)';
-                const fontSize = Math.round(effectiveTileSize * 0.18);
+                const bgColor = UNIT_NAME_BG_COLORS[unit.type] || 'rgba(0,0,0,0)';
+                const fontSize = Math.round(
+                    effectiveTileSize * this.measureManager.get('vfx.unitNameFontSizeRatio')
+                );
 
                 // OffscreenTextManager로부터 캔버스를 받아 텍스처를 생성합니다.
                 const nameCanvas = this.offscreenTextManager.getOrCreateText(unit.name, { fontSize: fontSize, bgColor: bgColor });
@@ -137,7 +139,7 @@ export class PixiUIOverlay {
 
             // 이름표를 유닛 이미지 바로 아래 중앙에 배치
             nameSprite.anchor.set(0.5, 0);
-            const nameYPosition = drawY + effectiveTileSize + 5;
+            const nameYPosition = drawY + effectiveTileSize + this.measureManager.get('vfx.unitNameVerticalOffset');
             nameSprite.position.set(centerX, nameYPosition);
 
             // [디버그 3] 매 프레임 이름표의 '위치'와 '상태'를 확인합니다.

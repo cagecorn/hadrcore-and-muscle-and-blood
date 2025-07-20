@@ -61,7 +61,7 @@ export class MeasureManager {
                 barrierBarVerticalOffset: 8, // 배리어 바 수직 오프셋 (픽셀)
 
                 // 유닛 이름표 관련
-                unitNameFontSizeRatio: 0.18, // 이름표 폰트 크기 비율
+                unitNameFontSizeRatio: 0.15, // 이름표 폰트 크기 비율 (조금 더 작게)
                 unitNameVerticalOffset: 5,   // 이름표 수직 오프셋 (픽셀)
 
                 // 데미지 숫자 팝업 관련
