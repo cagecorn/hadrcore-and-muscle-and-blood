@@ -22,7 +22,7 @@ export async function runHeroEngineUnitTests(idManager, assetLoaderManager, dice
         },
         getImage: (assetId) => {
             if (assetId === 'hero_default_warrior_image') return { src: 'assets/images/warrior.png' };
-            if (assetId === 'hero_default_archer_image') return { src: 'assets/images/archer.png' };
+            if (assetId === 'hero_default_gunner_image') return { src: 'assets/images/gunner.png' };
             return undefined;
         }
     };

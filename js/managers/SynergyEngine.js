@@ -52,12 +52,12 @@ export class SynergyEngine {
                 description: '치유사 영웅들이 아군을 보호하고 생명력을 회복시킵니다.'
             },
             {
-                id: 'synergy_archer',
-                name: '궁수',
+                id: 'synergy_gunner',
+                name: '거너',
                 tiers: [
                     { count: 2, effect: { criticalChanceBonus: 0.10 } }
                 ],
-                description: '궁수 영웅들이 적의 약점을 노려 치명적인 일격을 가합니다.'
+                description: '거너 영웅들이 정확한 사격으로 치명적인 일격을 가합니다.'
             }
         ];
 

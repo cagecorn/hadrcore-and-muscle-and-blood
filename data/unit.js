@@ -33,7 +33,30 @@ export const UNITS = {
         },
         spriteId: 'sprite_warrior_default',
         tags: ['용병', '남자', '근접', '방어', '전사']
+    },
+    GUNNER: {
+        id: 'unit_gunner_001',
+        name: '신속한 거너',
+        classId: 'class_gunner',
+        type: UNIT_TYPES.MERCENARY,
+        baseStats: {
+            hp: 80,
+            attack: 18,
+            defense: 6,
+            speed: 6,
+            valor: 40,
+            strength: 15,
+            endurance: 12,
+            agility: 20,
+            intelligence: 10,
+            wisdom: 10,
+            luck: 15,
+            weight: 20,
+            attackRange: 3
+        },
+        spriteId: 'sprite_gunner_default',
+        tags: ['용병', '여자', '원거리', '거너']
     }
     // 다른 유닛들이 여기에 추가됩니다.
-    // ARCHER: { id: 'unit_archer_001', ... }
+    // GUNNER: { id: 'unit_gunner_001', ... }
 };

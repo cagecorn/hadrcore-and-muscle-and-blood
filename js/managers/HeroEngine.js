@@ -30,7 +30,7 @@ export class HeroEngine {
         console.log("[HeroEngine] Loading basic hero data...");
         // 예시로 warrior.png 이미지를 기본 영웅 이미지로 사용
         await this.assetLoaderManager.loadImage('hero_default_warrior_image', 'assets/images/warrior.png');
-        await this.assetLoaderManager.loadImage('hero_default_archer_image', 'assets/images/archer.png');
+        await this.assetLoaderManager.loadImage('hero_default_gunner_image', 'assets/images/gunner.png');
         await this.assetLoaderManager.loadImage('hero_default_wizard_image', 'assets/images/wizard.png');
         await this.assetLoaderManager.loadImage('hero_default_healer_image', 'assets/images/healer.png');
 
@@ -44,10 +44,10 @@ export class HeroEngine {
         });
 
         await this.generateHero({
-            heroId: 'hero_archer_001',
+            heroId: 'hero_gunner_001',
             name: '매의 눈 레오나',
-            classId: 'class_archer',
-            spriteId: 'hero_default_archer_image',
+            classId: 'class_gunner',
+            spriteId: 'hero_default_gunner_image',
             rarity: 'uncommon'
         });
 
@@ -124,7 +124,7 @@ export class HeroEngine {
         // 4. 특성 시스템은 아직 구현되지 않았으므로 스킵합니다.
 
         // ✨ 5. 랜덤한 2~3개의 시너지 부여
-        const allPossibleSynergies = ['synergy_warrior', 'synergy_mage', 'synergy_healer', 'synergy_archer'];
+        const allPossibleSynergies = ['synergy_warrior', 'synergy_mage', 'synergy_healer', 'synergy_gunner'];
         const numSynergies = this.diceEngine.getRandomInt(2, 3);
         const assignedSynergies = [];
         while (assignedSynergies.length < numSynergies) {
