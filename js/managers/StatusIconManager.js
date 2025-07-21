@@ -25,8 +25,7 @@ export class StatusIconManager {
         this.turnCountManager = turnCountManager;
 
         this.iconSizeRatio = 0.2;
-        // 아이콘은 HP 바 아래 한 곳에만 표시되도록 오프셋을 낮춥니다.
-        this.iconOffsetYRatio = 0.1;
+        // 아이콘을 유닛 오른쪽에 세로로 배치합니다.
         this.iconSpacing = 5;
     }
 
@@ -48,8 +47,8 @@ export class StatusIconManager {
             const { renderX: drawX, renderY: drawY } = bindings;
 
             const baseIconSize = effectiveTileSize * this.iconSizeRatio;
-            let currentIconDrawX = drawX + (effectiveTileSize - (activeEffects.size * baseIconSize + (activeEffects.size - 1) * this.iconSpacing)) / 2;
-            const iconDrawY = drawY - (effectiveTileSize * this.iconOffsetYRatio);
+            const iconDrawX = drawX + effectiveTileSize + this.iconSpacing;
+            let currentIconDrawY = drawY + (effectiveTileSize - (activeEffects.size * baseIconSize + (activeEffects.size - 1) * this.iconSpacing)) / 2;
 
             for (const [effectId, effectDataWrapper] of activeEffects.entries()) {
                 const icon = this.skillIconManager.getSkillIcon(effectId);
@@ -58,13 +57,13 @@ export class StatusIconManager {
                     if (effectDataWrapper.effectData.type === STATUS_EFFECT_TYPES.DEBUFF) {
                         ctx.strokeStyle = 'red';
                         ctx.lineWidth = 2;
-                        ctx.strokeRect(currentIconDrawX, iconDrawY, baseIconSize, baseIconSize);
+                        ctx.strokeRect(iconDrawX, currentIconDrawY, baseIconSize, baseIconSize);
                     } else if (effectDataWrapper.effectData.type === STATUS_EFFECT_TYPES.BUFF) {
                         ctx.strokeStyle = 'green';
                         ctx.lineWidth = 2;
-                        ctx.strokeRect(currentIconDrawX, iconDrawY, baseIconSize, baseIconSize);
+                        ctx.strokeRect(iconDrawX, currentIconDrawY, baseIconSize, baseIconSize);
                     }
-                    ctx.drawImage(icon, currentIconDrawX, iconDrawY, baseIconSize, baseIconSize);
+                    ctx.drawImage(icon, iconDrawX, currentIconDrawY, baseIconSize, baseIconSize);
                     ctx.restore();
 
                     if (effectDataWrapper.turnsRemaining !== -1) {
@@ -75,14 +74,14 @@ export class StatusIconManager {
                         ctx.textBaseline = 'bottom';
                         ctx.strokeStyle = 'black';
                         ctx.lineWidth = 2;
-                        const textX = currentIconDrawX + baseIconSize / 2;
-                        const textY = iconDrawY + baseIconSize;
+                        const textX = iconDrawX + baseIconSize / 2;
+                        const textY = currentIconDrawY + baseIconSize;
                         ctx.strokeText(effectDataWrapper.turnsRemaining.toString(), textX, textY);
                         ctx.fillText(effectDataWrapper.turnsRemaining.toString(), textX, textY);
                         ctx.restore();
                     }
 
-                    currentIconDrawX += baseIconSize + this.iconSpacing;
+                    currentIconDrawY += baseIconSize + this.iconSpacing;
                 }
             }
         }

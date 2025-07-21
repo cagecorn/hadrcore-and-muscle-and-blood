@@ -260,10 +260,10 @@ export class VFXManager {
 
         const barWidth = effectiveTileSize * this.measureManager.get('vfx.hpBarWidthRatio');
         const barHeight = effectiveTileSize * this.measureManager.get('vfx.hpBarHeightRatio');
-        const barOffsetY = -(barHeight + this.measureManager.get('vfx.hpBarVerticalOffset')); // 유닛 이미지 위에 위치
 
-        const hpBarDrawX = actualDrawX + (effectiveTileSize - barWidth) / 2;
-        const hpBarDrawY = actualDrawY + barOffsetY;
+        // HP 바를 유닛 왼쪽에 세로 중앙 정렬로 배치
+        const hpBarDrawX = actualDrawX - barWidth - this.measureManager.get('vfx.hpBarVerticalOffset');
+        const hpBarDrawY = actualDrawY + (effectiveTileSize - barHeight) / 2;
 
         ctx.fillStyle = 'rgba(50, 50, 50, 0.8)';
         ctx.fillRect(hpBarDrawX, hpBarDrawY, barWidth, barHeight);
@@ -293,13 +293,12 @@ export class VFXManager {
         const maxBarrier = unit.maxBarrier;
         const barrierRatio = maxBarrier > 0 ? currentBarrier / maxBarrier : 0;
 
-        // HP 바와 동일한 위치와 크기로 계산하여 정확히 겹치도록 합니다
+        // HP 바와 동일한 크기로 계산하되 위치는 좌측에 맞춥니다
         const barWidth = effectiveTileSize * this.measureManager.get('vfx.hpBarWidthRatio');
         const barHeight = effectiveTileSize * this.measureManager.get('vfx.hpBarHeightRatio');
-        const barOffsetY = -(barHeight + this.measureManager.get('vfx.hpBarVerticalOffset'));
 
-        const barrierBarDrawX = actualDrawX + (effectiveTileSize - barWidth) / 2;
-        const barrierBarDrawY = actualDrawY + barOffsetY;
+        const barrierBarDrawX = actualDrawX - barWidth - this.measureManager.get('vfx.hpBarVerticalOffset');
+        const barrierBarDrawY = actualDrawY + (effectiveTileSize - barHeight) / 2;
 
         // 노란색 배리어 바를 HP 바 위에 덧씌움 (배경과 테두리는 없음)
         ctx.fillStyle = '#FFFF00';
@@ -307,7 +306,7 @@ export class VFXManager {
     }
 
     /**
-     * 유닛 이름을 스프라이트 하단에 그립니다.
+     * 유닛 이름을 스프라이트 상단에 그립니다.
      * @param {CanvasRenderingContext2D} ctx
      * @param {object} unit
      * @param {number} effectiveTileSize
@@ -316,7 +315,7 @@ export class VFXManager {
      */
     drawUnitName(ctx, unit, effectiveTileSize, actualDrawX, actualDrawY) {
         const fontSize = effectiveTileSize * this.measureManager.get('vfx.unitNameFontSizeRatio');
-        const offsetY = effectiveTileSize + this.measureManager.get('vfx.unitNameVerticalOffset');
+        const offsetY = this.measureManager.get('vfx.unitNameVerticalOffset');
         const bgColor = UNIT_NAME_BG_COLORS[unit.type] || 'rgba(0,0,0,0)';
         const nameCanvas = this.offscreenTextManager.getOrCreateText(unit.name, {
             fontSize,
@@ -327,7 +326,7 @@ export class VFXManager {
         const drawWidth = nameCanvas.width * scale;
         const drawHeight = nameCanvas.height * scale;
         const drawX = actualDrawX + effectiveTileSize / 2 - drawWidth / 2;
-        const drawY = actualDrawY + offsetY;
+        const drawY = actualDrawY - offsetY - drawHeight;
         ctx.drawImage(nameCanvas, drawX, drawY, drawWidth, drawHeight);
     }
 
