@@ -98,6 +98,7 @@ import { TerritoryUIManager } from './managers/TerritoryUIManager.js';
 import { TerritorySceneManager } from './managers/TerritorySceneManager.js';
 import { TerritoryGridManager } from './managers/TerritoryGridManager.js';
 import { TavernManager } from './managers/TavernManager.js';
+import { HeroDetailedUIManager } from './managers/HeroDetailedUIManager.js';
 import { GAME_EVENTS, UI_STATES, BUTTON_IDS, ATTACK_TYPES, GAME_DEBUG_MODE } from './constants.js';
 
 import { UNITS } from '../data/unit.js';
@@ -297,7 +298,8 @@ export class GameEngine {
         this.territoryBackgroundManager = new TerritoryBackgroundManager(this.domEngine);
         this.territoryUIManager = new TerritoryUIManager(this.eventManager, this.domEngine);
         this.territoryGridManager = new TerritoryGridManager(this.domEngine);
-        this.tavernManager = new TavernManager(this.domEngine, this.sceneEngine, this.uiEngine, this.heroManager);
+        this.heroDetailedUIManager = new HeroDetailedUIManager(this.domEngine);
+        this.tavernManager = new TavernManager(this.domEngine, this.sceneEngine, this.uiEngine, this.heroManager, this.heroDetailedUIManager);
 
         // --- LAYER REGISTRATION ---
         this.layerEngine.registerLayer('combatScene', (ctx) => {
@@ -579,4 +581,5 @@ export class GameEngine {
     getHideAndSeekManager() { return this.hideAndSeekManager; }
     getDOMEngine() { return this.domEngine; }
     getTavernManager() { return this.tavernManager; }
+    getHeroDetailedUIManager() { return this.heroDetailedUIManager; }
 }

@@ -30,6 +30,14 @@ export class DOMEngine {
         this.registerElement('hero-panel', document.getElementById('hero-panel'));
         this.registerElement('battleStartHtmlBtn', document.getElementById('battleStartHtmlBtn'));
         this.registerElement('recruitWarriorBtn', document.getElementById('recruitWarriorBtn'));
+        this.registerElement('hero-detail-overlay', document.getElementById('hero-detail-overlay'));
+        this.registerElement('hero-detail-portrait', document.getElementById('hero-detail-portrait'));
+        this.registerElement('hero-detail-stats', document.getElementById('hero-detail-stats'));
+        this.registerElement('hero-detail-traits', document.getElementById('hero-detail-traits'));
+        this.registerElement('hero-detail-synergies', document.getElementById('hero-detail-synergies'));
+        this.registerElement('hero-detail-equipment', document.getElementById('hero-detail-equipment'));
+        this.registerElement('hero-detail-skills', document.getElementById('hero-detail-skills'));
+        this.registerElement('hero-detail-close-btn', document.getElementById('hero-detail-close-btn'));
     }
 
     _setupEventListeners() {
