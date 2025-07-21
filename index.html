@@ -36,17 +36,32 @@
         <div id="battle-log-panel" class="hidden"></div>
         <div id="hero-detail-overlay" class="hidden">
             <div id="hero-detail-container">
-                <div id="hero-detail-left">
-                    <img id="hero-detail-portrait" src="" alt="hero portrait">
-                    <div id="hero-detail-stats"></div>
-                    <div id="hero-detail-traits"></div>
-                    <div id="hero-detail-synergies"></div>
+                <div class="detail-header">
+                    <span class="unit-name"></span>
+                    <span class="unit-level"></span>
                 </div>
-                <div id="hero-detail-right">
-                    <div id="hero-detail-equipment"></div>
-                    <div id="hero-detail-skills"></div>
+                <div id="hero-detail-close-btn">X</div>
+                <div class="detail-content">
+                    <div id="hero-detail-left" class="detail-section left">
+                        <div id="hero-detail-portrait" class="unit-portrait"></div>
+                        <div id="hero-detail-traits" class="unit-description"></div>
+                    </div>
+                    <div id="hero-detail-right" class="detail-section right">
+                        <div id="hero-detail-stats" class="stats-grid"></div>
+                        <div id="hero-detail-equipment" class="equipment-grid"></div>
+                    </div>
                 </div>
-                <button id="hero-detail-close-btn">닫기</button>
+                <div class="detail-footer">
+                    <div class="unit-class">
+                        <div class="section-title">병종</div>
+                        <div class="class-icon"></div>
+                    </div>
+                    <div class="unit-skills">
+                        <div class="section-title">스킬</div>
+                        <div id="hero-detail-skills" class="skill-grid"></div>
+                    </div>
+                </div>
+                <div id="hero-detail-synergies" style="display:none;"></div>
             </div>
         </div>
     </div>

@@ -298,7 +298,7 @@ export class GameEngine {
         this.territoryBackgroundManager = new TerritoryBackgroundManager(this.domEngine);
         this.territoryUIManager = new TerritoryUIManager(this.eventManager, this.domEngine);
         this.territoryGridManager = new TerritoryGridManager(this.domEngine);
-        this.heroDetailedUIManager = new HeroDetailedUIManager(this.domEngine);
+        this.heroDetailedUIManager = new HeroDetailedUIManager(this.domEngine, this.statManager);
         this.tavernManager = new TavernManager(this.domEngine, this.sceneEngine, this.uiEngine, this.heroManager, this.heroDetailedUIManager);
 
         // --- LAYER REGISTRATION ---
@@ -405,6 +405,10 @@ export class GameEngine {
         await this.assetLoaderManager.loadImage('sprite_gunner_hitted', 'assets/images/gunner-hitted.png');
         await this.assetLoaderManager.loadImage('sprite_gunner_cast', 'assets/images/gunner-cast.png');
         await this.assetLoaderManager.loadImage('sprite_gunner_status', 'assets/images/gunner-status-effects.png');
+        await this.assetLoaderManager.loadImage('warrior-hire', 'assets/territory/warrior-hire.png');
+        await this.assetLoaderManager.loadImage('gunner-hire', 'assets/territory/gunner-hire.png');
+        await this.assetLoaderManager.loadImage('warrior-ui', 'assets/territory/warrior-ui.png');
+        await this.assetLoaderManager.loadImage('gunner-ui', 'assets/territory/gunner-ui.png');
         await this.assetLoaderManager.loadImage('sprite_battle_stage_forest', 'assets/images/battle-stage-forest.png');
         console.log(`[GameEngine] Registered unit ID: ${UNITS.WARRIOR.id}`);
         console.log(`[GameEngine] Loaded warrior sprite: ${UNITS.WARRIOR.spriteId}`);

@@ -1,7 +1,8 @@
 import { WARRIOR_SKILLS } from "../../data/warriorSkills.js";
 export class HeroDetailedUIManager {
-    constructor(domEngine) {
+    constructor(domEngine, statManager) {
         this.domEngine = domEngine;
+        this.statManager = statManager;
         this.overlay = domEngine.getElement('hero-detail-overlay');
         this.portraitImg = domEngine.getElement('hero-detail-portrait');
         this.statsEl = domEngine.getElement('hero-detail-stats');
@@ -15,7 +16,8 @@ export class HeroDetailedUIManager {
 
     show(heroData) {
         if (!this.overlay || !heroData) return;
-        this._populateLeft(heroData);
+        const finalStats = this.statManager ? this.statManager.getCalculatedStats(heroData) : (heroData.baseStats || {});
+        this._populateLeft(heroData, finalStats);
         this._populateRight(heroData);
         this.overlay.classList.remove('hidden');
     }
@@ -24,19 +26,21 @@ export class HeroDetailedUIManager {
         this.overlay?.classList.add('hidden');
     }
 
-    _populateLeft(hero) {
+    _populateLeft(hero, stats) {
         const portrait = this._getPortrait(hero.classId);
         if (this.portraitImg) {
             this.portraitImg.src = portrait;
             this.portraitImg.alt = hero.name;
         }
         if (this.statsEl) {
-            const s = hero.baseStats || {};
+            const s = stats || {};
             this.statsEl.innerHTML = `
                 <p>HP: ${hero.currentHp ?? s.hp}/${s.hp ?? '?'}</p>
-                <p>공격: ${s.attack ?? 0} 방어: ${s.defense ?? 0}</p>
-                <p>속도: ${s.speed ?? 0}</p>
-                <p>무게: ${s.weight ?? 0} 용맹: ${s.valor ?? 0}</p>`;
+                <p>용맹: ${s.valor ?? 0}</p>
+                <p>힘: ${s.strength ?? 0} 인내: ${s.endurance ?? 0}</p>
+                <p>민첩: ${s.agility ?? 0}</p>
+                <p>지능: ${s.intelligence ?? 0} 지혜: ${s.wisdom ?? 0}</p>
+                <p>행운: ${s.luck ?? 0}</p>`;
         }
         if (this.traitsEl) this.traitsEl.textContent = '특성: (미구현)';
         if (this.synergiesEl) this.synergiesEl.textContent = '시너지: (미구현)';
