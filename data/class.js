@@ -24,6 +24,15 @@ export const CLASSES = {
         moveRange: 3, // 전사의 이동 거리
         tags: ['근접', '방어', '용병', '전사']
     },
+    GUNNER: {
+        id: 'class_gunner',
+        name: '거너',
+        role: CLASS_ROLES.RANGED_DPS,
+        description: '총기를 사용해 원거리에서 적을 제압하는 병종.',
+        skills: [],
+        moveRange: 3,
+        tags: ['원거리', '용병', '거너']
+    },
     // ✨ 전사 상위 클래스 추가
     WARRIOR_VALIANT: {
         id: 'class_warrior_valiant',
@@ -37,5 +46,5 @@ export const CLASSES = {
     },
     // 다른 클래스들이 여기에 추가됩니다.
     // MAGE: { id: 'class_mage', ... }
-    // ARCHER: { id: 'class_archer', ... }
+    // GUNNER: { id: 'class_gunner', ... }
 };

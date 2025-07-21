@@ -1,7 +1,7 @@
 // js/managers/UnitActionManager.js
 
 import { GAME_EVENTS, GAME_DEBUG_MODE } from '../constants.js';
-import { STATUS_EFFECTS } from '../../data/statusEffects.js';
+import { STATUS_EFFECTS, STATUS_EFFECT_TYPES } from '../../data/statusEffects.js';
 
 export class UnitActionManager {
     /**
@@ -81,7 +81,7 @@ export class UnitActionManager {
      * 상태이상이 적용되었을 때 호출됩니다.
      * @param {{ unitId: string, statusEffectId: string }} data 
      */
-    _onStatusEffectApplied({ unitId, statusEffectId }) {
+    _onStatusEffectApplied({ unitId, statusEffectId, effectData }) {
         // ✨ '광폭화' 상태이상은 제외
         if (statusEffectId === STATUS_EFFECTS.BERSERK.id) {
             if (GAME_DEBUG_MODE) console.log(`[UnitActionManager] Berserk status applied to ${unitId}, skipping sprite change.`);
@@ -92,10 +92,11 @@ export class UnitActionManager {
         if (!unit || unit.currentHp <= 0) return;
 
         if (GAME_DEBUG_MODE) console.log(`[UnitActionManager] Status effect ${statusEffectId} detected on ${unitId}.`);
-        this.unitSpriteEngine.setUnitSprite(unitId, 'status'); // 'status' 상태 스프라이트로 변경
 
-        // 상태이상 효과는 일정 시간 지속될 수 있으므로, 여기서는 1초 후 기본 상태로 되돌립니다.
-        // 실제 게임에서는 상태이상이 끝나는 시점에 맞춰 복귀시키는 것이 더 좋습니다.
+        const isBuff = effectData && effectData.type === STATUS_EFFECT_TYPES.BUFF;
+        const spriteState = isBuff ? 'cast' : 'status';
+        this.unitSpriteEngine.setUnitSprite(unitId, spriteState);
+
         this.delayEngine.waitFor(1000).then(() => {
             const currentUnit = this.battleSimulationManager.unitsOnGrid.find(u => u.id === unitId);
             if (currentUnit && currentUnit.currentHp > 0) {

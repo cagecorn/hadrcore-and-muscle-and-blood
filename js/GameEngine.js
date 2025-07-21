@@ -379,6 +379,8 @@ export class GameEngine {
         await this.idManager.initialize();
         await this.idManager.addOrUpdateId(UNITS.WARRIOR.id, UNITS.WARRIOR);
         await this.idManager.addOrUpdateId(CLASSES.WARRIOR.id, CLASSES.WARRIOR);
+        await this.idManager.addOrUpdateId(UNITS.GUNNER.id, UNITS.GUNNER);
+        await this.idManager.addOrUpdateId(CLASSES.GUNNER.id, CLASSES.GUNNER);
         await this.idManager.addOrUpdateId(MONSTER_CLASSES.SKELETON.id, MONSTER_CLASSES.SKELETON);
         await this.idManager.addOrUpdateId(MONSTER_CLASSES.ZOMBIE.id, MONSTER_CLASSES.ZOMBIE);
         await this.idManager.addOrUpdateId(CLASSES.WARRIOR_VALIANT.id, CLASSES.WARRIOR_VALIANT);
@@ -393,8 +395,14 @@ export class GameEngine {
         await this.assetLoaderManager.loadImage('sprite_warrior_attack', 'assets/images/warrior-attack.png');
         await this.assetLoaderManager.loadImage('sprite_warrior_hitted', 'assets/images/warrior-hitted.png');
         await this.assetLoaderManager.loadImage('sprite_warrior_finish', 'assets/images/warrior-finish.png');
+        await this.assetLoaderManager.loadImage('sprite_warrior_cast', 'assets/images/warrior-cast.png');
         await this.assetLoaderManager.loadImage('sprite_warrior_status', 'assets/images/warrior-status-effects.png');
         await this.assetLoaderManager.loadImage('sprite_warrior_panel', 'assets/images/warrior-panel-1.png');
+        await this.assetLoaderManager.loadImage(UNITS.GUNNER.spriteId, 'assets/images/gunner.png');
+        await this.assetLoaderManager.loadImage('sprite_gunner_attack', 'assets/images/gunner-attack.png');
+        await this.assetLoaderManager.loadImage('sprite_gunner_hitted', 'assets/images/gunner-hitted.png');
+        await this.assetLoaderManager.loadImage('sprite_gunner_cast', 'assets/images/gunner-cast.png');
+        await this.assetLoaderManager.loadImage('sprite_gunner_status', 'assets/images/gunner-status-effects.png');
         await this.assetLoaderManager.loadImage('sprite_battle_stage_forest', 'assets/images/battle-stage-forest.png');
         console.log(`[GameEngine] Registered unit ID: ${UNITS.WARRIOR.id}`);
         console.log(`[GameEngine] Loaded warrior sprite: ${UNITS.WARRIOR.spriteId}`);

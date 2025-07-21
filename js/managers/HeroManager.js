@@ -71,6 +71,7 @@ export class HeroManager {
                 attack: 'assets/images/warrior-attack.png',
                 hitted: 'assets/images/warrior-hitted.png',
                 finish: 'assets/images/warrior-finish.png',
+                cast: 'assets/images/warrior-cast.png',
                 status: 'assets/images/warrior-status-effects.png'
             });
 

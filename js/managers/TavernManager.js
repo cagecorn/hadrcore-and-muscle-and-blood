@@ -9,10 +9,10 @@ export class TavernManager {
         this.heroManager = heroManager;
 
         // ✨ 고용 가능한 직업 및 관련 이미지 정보
-        this.availableClasses = ['warrior', 'archer', 'mage'];
+        this.availableClasses = ['warrior', 'gunner', 'mage'];
         this.classIllustrations = {
             'warrior': 'assets/territory/warrior-hire.png',
-            'archer': 'assets/territory/archer-hire.png',
+            'gunner': 'assets/territory/gunner-hire.png',
             'mage': 'assets/territory/mage-hire.png'
         };
         this.currentClassIndex = 0;
