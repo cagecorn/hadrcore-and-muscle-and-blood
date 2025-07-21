@@ -1,12 +1,13 @@
 import { GAME_DEBUG_MODE, UI_STATES } from '../constants.js';
 
 export class TavernManager {
-    constructor(domEngine, sceneEngine, uiEngine, heroManager) {
+    constructor(domEngine, sceneEngine, uiEngine, heroManager, heroDetailedUIManager) {
         if (GAME_DEBUG_MODE) console.log('🍻 TavernManager initialized.');
         this.domEngine = domEngine;
         this.sceneEngine = sceneEngine;
         this.uiEngine = uiEngine;
         this.heroManager = heroManager;
+        this.heroDetailedUIManager = heroDetailedUIManager;
 
         // ✨ 고용 가능한 직업 및 관련 이미지 정보
         this.availableClasses = ['warrior', 'gunner', 'mage'];
@@ -95,10 +96,13 @@ export class TavernManager {
         this._updateHireUI();
     }
 
-    hireSelectedHero() {
+    async hireSelectedHero() {
         const currentClass = this.availableClasses[this.currentClassIndex];
         if (GAME_DEBUG_MODE) console.log(`Attempting to hire a ${currentClass}.`);
-        alert(`${currentClass}(을)를 고용합니다! (실제 고용 로직은 추후 구현)`);
+        let classId = 'class_warrior';
+        if (currentClass === 'gunner') classId = 'class_gunner';
+        const hero = await this.heroManager.heroEngine.generateHero({ classId });
         this.closeHireUI();
+        this.heroDetailedUIManager?.show(hero);
     }
 }
