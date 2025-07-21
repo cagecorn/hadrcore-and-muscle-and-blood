@@ -25,7 +25,8 @@ export function runPixiUIOverlayUnitTests() {
             mockAnim,
             mockEventManager,
             mockSceneEngine,
-            mockOffscreenTextManager
+            mockOffscreenTextManager,
+            null
         );
         console.log('PixiUIOverlay: Initialized. [PASS]');
     } catch (e) {

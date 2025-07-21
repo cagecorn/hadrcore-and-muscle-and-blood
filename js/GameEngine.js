@@ -176,7 +176,8 @@ export class GameEngine {
             this.animationManager,
             this.eventManager,
             this.sceneEngine,
-            this.offscreenTextManager
+            this.offscreenTextManager,
+            this.cameraEngine
         );
 
         // 그림자 엔진은 PixiUIOverlay를 활용하도록 변경합니다.

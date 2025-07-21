@@ -71,4 +71,18 @@ export class CameraEngine {
         const worldY = (screenY - this.y) / this.zoom;
         return { x: worldX, y: worldY };
     }
+
+    /**
+     * 게임 월드 좌표를 화면 좌표로 변환합니다.
+     * UI 오버레이 등 카메라 변환을 적용하지 않는 레이어에서
+     * 정확한 위치 계산을 위해 사용됩니다.
+     * @param {number} worldX - 월드 좌표 X
+     * @param {number} worldY - 월드 좌표 Y
+     * @returns {{x:number, y:number}} 변환된 화면 좌표
+     */
+    worldToScreen(worldX, worldY) {
+        const screenX = worldX * this.zoom + this.x;
+        const screenY = worldY * this.zoom + this.y;
+        return { x: screenX, y: screenY };
+    }
 }

@@ -3,7 +3,7 @@ import { GAME_DEBUG_MODE, GAME_EVENTS, ATTACK_TYPES, UI_STATES, SKILL_TYPE_COLOR
 
 export class PixiUIOverlay {
     // OffscreenTextManager를 생성자에서 받습니다.
-    constructor(renderer, measureManager, battleSimulationManager, animationManager, eventManager, sceneEngine, offscreenTextManager) {
+    constructor(renderer, measureManager, battleSimulationManager, animationManager, eventManager, sceneEngine, offscreenTextManager, cameraEngine) {
         if (GAME_DEBUG_MODE) console.log('🎨 PixiUIOverlay initialized.');
         this.renderer = renderer;
         this.measureManager = measureManager;
@@ -12,6 +12,7 @@ export class PixiUIOverlay {
         this.eventManager = eventManager;
         this.sceneEngine = sceneEngine;
         this.offscreenTextManager = offscreenTextManager; // OffscreenTextManager 인스턴스 저장
+        this.cameraEngine = cameraEngine; // 카메라 변환 정보 참조
 
         const view = document.createElement('canvas');
         view.id = 'pixi-ui-canvas';
@@ -135,12 +136,18 @@ export class PixiUIOverlay {
             }
 
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
-            const centerX = drawX + effectiveTileSize / 2;
+            const worldCenterX = drawX + effectiveTileSize / 2;
+            const worldNameY = drawY + effectiveTileSize + this.measureManager.get('vfx.unitNameVerticalOffset');
+            const barWidth = effectiveTileSize * 0.8;
+            const barHeight = effectiveTileSize * 0.1;
+            const worldBarY = drawY - barHeight - 5;
+
+            const screenCenter = this.cameraEngine ? this.cameraEngine.worldToScreen(worldCenterX, worldNameY) : { x: worldCenterX, y: worldNameY };
+            const barScreenPos = this.cameraEngine ? this.cameraEngine.worldToScreen(worldCenterX, worldBarY) : { x: worldCenterX, y: worldBarY };
 
             // 이름표를 유닛 이미지 바로 아래 중앙에 배치
             nameSprite.anchor.set(0.5, 0);
-            const nameYPosition = drawY + effectiveTileSize + this.measureManager.get('vfx.unitNameVerticalOffset');
-            nameSprite.position.set(centerX, nameYPosition);
+            nameSprite.position.set(screenCenter.x, screenCenter.y);
 
             // [디버그 3] 매 프레임 이름표의 '위치'와 '상태'를 확인합니다.
             console.log(
@@ -152,19 +159,17 @@ export class PixiUIOverlay {
             );
 
             // HP 바 위치를 유닛 위쪽으로 조정해 이름표와 겹치지 않게 함
-            const barWidth = effectiveTileSize * 0.8;
-            const barHeight = effectiveTileSize * 0.1;
-            const barYOffset = drawY - barHeight - 5;
-            // HP 바 로직
             const maxHp = unit.baseStats?.hp || 1;
             const hpRatio = Math.max(0, unit.currentHp / maxHp);
+            const screenBarWidth = barWidth;
+            const screenBarHeight = barHeight;
 
             bar.clear();
             bar.beginFill(0x333333, 0.8);
-            bar.drawRect(centerX - barWidth / 2, barYOffset, barWidth, barHeight);
+            bar.drawRect(barScreenPos.x - screenBarWidth / 2, barScreenPos.y, screenBarWidth, screenBarHeight);
             bar.endFill();
             bar.beginFill(0x00ff00);
-            bar.drawRect(centerX - barWidth / 2, barYOffset, barWidth * hpRatio, barHeight);
+            bar.drawRect(barScreenPos.x - screenBarWidth / 2, barScreenPos.y, screenBarWidth * hpRatio, screenBarHeight);
             bar.endFill();
         }
 
@@ -176,7 +181,10 @@ export class PixiUIOverlay {
             const progress = (now - obj.start) / dmgDuration;
             if (progress >= 1) { obj.text.destroy(); return false; }
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
-            obj.text.position.set(drawX + effectiveTileSize / 2, drawY - progress * effectiveTileSize * 0.5);
+            const worldX = drawX + effectiveTileSize / 2;
+            const worldY = drawY - progress * effectiveTileSize * 0.5;
+            const screenPos = this.cameraEngine ? this.cameraEngine.worldToScreen(worldX, worldY) : { x: worldX, y: worldY };
+            obj.text.position.set(screenPos.x, screenPos.y);
             obj.text.alpha = 1 - progress;
             return true;
         });
@@ -190,7 +198,10 @@ export class PixiUIOverlay {
             if (progress >= 1) { obj.text.destroy(); return false; }
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
             const offsetY = floatSpeed * (now - obj.start);
-            obj.text.position.set(drawX + effectiveTileSize / 2, drawY - offsetY - (effectiveTileSize * 0.2));
+            const worldX = drawX + effectiveTileSize / 2;
+            const worldY = drawY - offsetY - (effectiveTileSize * 0.2);
+            const screenPos = this.cameraEngine ? this.cameraEngine.worldToScreen(worldX, worldY) : { x: worldX, y: worldY };
+            obj.text.position.set(screenPos.x, screenPos.y);
             obj.text.alpha = 1 - progress;
             return true;
         });
