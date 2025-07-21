@@ -6,6 +6,7 @@ import { AnimationManager } from '../../js/managers/AnimationManager.js';
 import { MeasureManager } from '../../js/managers/MeasureManager.js';
 import { LogicManager } from '../../js/managers/LogicManager.js';
 import { EventManager } from '../../js/managers/EventManager.js';
+import { OffscreenTextManager } from '../../js/managers/OffscreenTextManager.js';
 
 export function runVFXManagerUnitTests() {
     console.log("--- VFXManager Unit Test Start ---");
@@ -19,6 +20,7 @@ export function runVFXManagerUnitTests() {
     const mockCameraEngine = {};
     const mockLogicManager = new LogicManager(mockMeasureManager, { getCurrentSceneName: () => 'combatScreen' });
     const mockEventManager = new EventManager();
+    const mockOffscreenTextManager = new OffscreenTextManager();
 
     const mockAnimationManager = new AnimationManager(mockMeasureManager);
     const mockBattleSimulationManager = new BattleSimulationManager(
@@ -35,10 +37,12 @@ export function runVFXManagerUnitTests() {
         fillRectCalled: false,
         fillTextCalled: false,
         strokeRectCalled: false,
+        drawImageCalled: false,
         clearRect: () => {},
         fillRect: function() { this.fillRectCalled = true; },
         fillText: function() { this.fillTextCalled = true; },
         strokeRect: function() { this.strokeRectCalled = true; },
+        drawImage: function() { this.drawImageCalled = true; },
         save: () => {},
         restore: () => {},
         globalAlpha: 1,
@@ -61,7 +65,7 @@ export function runVFXManagerUnitTests() {
     // 테스트 1: 초기화 확인
     testCount++;
     try {
-        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
+        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager, mockOffscreenTextManager);
         if (vfxManager.activeDamageNumbers instanceof Array && vfxManager.eventManager === mockEventManager) {
             console.log("VFXManager: Initialized correctly. [PASS]");
             passCount++;
@@ -75,7 +79,7 @@ export function runVFXManagerUnitTests() {
     // 테스트 2: addDamageNumber 메서드
     testCount++;
     try {
-        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
+        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager, mockOffscreenTextManager);
         vfxManager.addDamageNumber(mockUnit.id, 25, 'yellow');
         if (vfxManager.activeDamageNumbers.length === 1 &&
             vfxManager.activeDamageNumbers[0].damage === 25 &&
@@ -92,7 +96,7 @@ export function runVFXManagerUnitTests() {
     // 테스트 3: update 메서드 - 데미지 숫자 제거 확인
     testCount++;
     try {
-        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
+        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager, mockOffscreenTextManager);
         vfxManager.addDamageNumber(mockUnit.id, 10, 'red');
         const dmgNum = vfxManager.activeDamageNumbers[0];
         dmgNum.startTime = performance.now() - dmgNum.duration - 100;
@@ -110,7 +114,7 @@ export function runVFXManagerUnitTests() {
     // 테스트 4: drawBarrierBar 메서드
     testCount++;
     try {
-        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
+        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager, mockOffscreenTextManager);
         mockCtx.fillRectCalled = false;
         mockCtx.strokeRectCalled = false;
 
@@ -133,23 +137,24 @@ export function runVFXManagerUnitTests() {
     // 테스트 5: draw 메서드 - HP 바와 배리어 바, 데미지 숫자 그리기 호출 확인
     testCount++;
     try {
-        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
+        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager, mockOffscreenTextManager);
         vfxManager.addDamageNumber(mockUnit.id, 50, 'red');
 
         mockCtx.fillRectCalled = false;
         mockCtx.strokeRectCalled = false;
         mockCtx.fillTextCalled = false;
+        mockCtx.drawImageCalled = false;
 
         vfxManager.draw(mockCtx);
 
-        if (mockCtx.fillRectCalled && mockCtx.strokeRectCalled && mockCtx.fillTextCalled) {
+        if (mockCtx.fillRectCalled && mockCtx.strokeRectCalled && mockCtx.drawImageCalled) {
             console.log("VFXManager: draw called drawing operations for HP, Barrier, and Damage Numbers. [PASS]");
             passCount++;
         } else {
             console.error("VFXManager: draw failed to call all expected drawing operations. [FAIL]", {
                 fillRect: mockCtx.fillRectCalled,
                 strokeRect: mockCtx.strokeRectCalled,
-                fillText: mockCtx.fillTextCalled
+                drawImage: mockCtx.drawImageCalled
             });
         }
     } catch (e) {
@@ -159,10 +164,10 @@ export function runVFXManagerUnitTests() {
     // 테스트 6: drawUnitName을 통한 이름표 그리기 확인
     testCount++;
     try {
-        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
-        mockCtx.fillTextCalled = false;
+        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager, mockOffscreenTextManager);
+        mockCtx.drawImageCalled = false;
         vfxManager.draw(mockCtx);
-        if (mockCtx.fillTextCalled) {
+        if (mockCtx.drawImageCalled) {
             console.log("VFXManager: drawUnitName drew unit name. [PASS]");
             passCount++;
         } else {
@@ -175,7 +180,7 @@ export function runVFXManagerUnitTests() {
     // 테스트 7: 이벤트 매니저를 통한 damageNumberDisplay 연동 확인 (간접적)
     testCount++;
     try {
-        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager);
+        const vfxManager = new VFXManager(mockRenderer, mockMeasureManager, mockCameraEngine, mockBattleSimulationManager, mockAnimationManager, mockEventManager, mockOffscreenTextManager);
         vfxManager.activeDamageNumbers = [];
         mockEventManager.emit('displayDamage', { unitId: mockUnit.id, damage: 123, color: 'yellow' });
 
