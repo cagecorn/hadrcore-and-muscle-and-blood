@@ -208,7 +208,16 @@ export class GameEngine {
         this.coordinateManager = new CoordinateManager(this.battleSimulationManager, this.battleGridManager);
 
         // 7. Visual Effects & Rendering Helpers
-        this.vfxManager = new VFXManager(this.renderer, this.measureManager, this.cameraEngine, this.battleSimulationManager, this.animationManager, this.eventManager, this.particleEngine);
+        this.vfxManager = new VFXManager(
+            this.renderer,
+            this.measureManager,
+            this.cameraEngine,
+            this.battleSimulationManager,
+            this.animationManager,
+            this.eventManager,
+            this.offscreenTextManager,
+            this.particleEngine
+        );
         this.vfxManager.assetLoaderManager = this.assetLoaderManager;
         this.vfxManager.statusEffectManager = this.statusEffectManager;
         this.bindingManager = new BindingManager();

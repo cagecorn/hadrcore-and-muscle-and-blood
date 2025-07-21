@@ -1,10 +1,10 @@
 // js/managers/VFXManager.js
 
-import { GAME_EVENTS, GAME_DEBUG_MODE, SKILL_TYPE_COLORS } from '../constants.js';
+import { GAME_EVENTS, GAME_DEBUG_MODE, SKILL_TYPE_COLORS, UNIT_NAME_BG_COLORS } from '../constants.js';
 
 export class VFXManager {
     // animationManager를 추가로 받아 유닛의 애니메이션 위치를 참조합니다.
-    constructor(renderer, measureManager, cameraEngine, battleSimulationManager, animationManager, eventManager, particleEngine = null) { // ✨ particleEngine 추가
+    constructor(renderer, measureManager, cameraEngine, battleSimulationManager, animationManager, eventManager, offscreenTextManager, particleEngine = null) { // ✨ particleEngine 추가
         if (GAME_DEBUG_MODE) console.log("\u2728 VFXManager initialized. Ready to render visual effects. \u2728");
         this.renderer = renderer;
         this.measureManager = measureManager;
@@ -12,6 +12,7 @@ export class VFXManager {
         this.battleSimulationManager = battleSimulationManager; // 유닛 데이터를 가져오기 위함
         this.animationManager = animationManager; // ✨ AnimationManager 저장
         this.eventManager = eventManager;
+        this.offscreenTextManager = offscreenTextManager;
         this.particleEngine = particleEngine; // ✨ ParticleEngine 저장
 
         this.activeDamageNumbers = [];
@@ -316,11 +317,18 @@ export class VFXManager {
     drawUnitName(ctx, unit, effectiveTileSize, actualDrawX, actualDrawY) {
         const fontSize = effectiveTileSize * this.measureManager.get('vfx.unitNameFontSizeRatio');
         const offsetY = effectiveTileSize + this.measureManager.get('vfx.unitNameVerticalOffset');
-        ctx.fillStyle = '#FFFFFF';
-        ctx.font = `bold ${fontSize}px Arial`;
-        ctx.textAlign = 'center';
-        ctx.textBaseline = 'top';
-        ctx.fillText(unit.name, actualDrawX + effectiveTileSize / 2, actualDrawY + offsetY);
+        const bgColor = UNIT_NAME_BG_COLORS[unit.type] || 'rgba(0,0,0,0)';
+        const nameCanvas = this.offscreenTextManager.getOrCreateText(unit.name, {
+            fontSize,
+            fontColor: '#FFFFFF',
+            bgColor
+        });
+        const scale = 1 / this.offscreenTextManager.renderScale;
+        const drawWidth = nameCanvas.width * scale;
+        const drawHeight = nameCanvas.height * scale;
+        const drawX = actualDrawX + effectiveTileSize / 2 - drawWidth / 2;
+        const drawY = actualDrawY + offsetY;
+        ctx.drawImage(nameCanvas, drawX, drawY, drawWidth, drawHeight);
     }
 
     /**
