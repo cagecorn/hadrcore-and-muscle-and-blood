@@ -37,7 +37,7 @@ export class OffscreenTextManager {
         const scaledFontSize = fontSize * this.renderScale;
         const padding = 5 * this.renderScale;
 
-        newCtx.font = `bold ${scaledFontSize}px \"Nanum Gothic\", Arial, sans-serif`;
+        newCtx.font = `${scaledFontSize}px \"Nanum Gothic\", Arial, sans-serif`;
         const textMetrics = newCtx.measureText(text);
 
         const canvasWidth = textMetrics.width + padding * 2;
@@ -63,7 +63,7 @@ export class OffscreenTextManager {
 
         // 텍스트 그리기
         newCtx.fillStyle = fontColor;
-        newCtx.font = `bold ${scaledFontSize}px \"Nanum Gothic\", Arial, sans-serif`;
+        newCtx.font = `${scaledFontSize}px \"Nanum Gothic\", Arial, sans-serif`;
         newCtx.textAlign = 'center';
         newCtx.textBaseline = 'middle';
         newCtx.fillText(text, canvasWidth / 2, canvasHeight / 2);
