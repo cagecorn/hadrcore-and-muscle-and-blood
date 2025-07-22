@@ -1,10 +1,11 @@
 // js/managers/MercenaryPanelManager.js
 
 export class MercenaryPanelManager {
-    constructor(measureManager, battleSimulationManager, logicManager, eventManager) {
+    constructor(measureManager, battleSimulationManager, logicManager, eventManager, heroEngine) {
         console.log("\uD83D\uDC65 MercenaryPanelManager initialized. Ready to display mercenary details. \uD83D\uDC65");
         this.measureManager = measureManager;
         this.battleSimulationManager = battleSimulationManager;
+        this.heroEngine = heroEngine;
         this.logicManager = logicManager;
         this.eventManager = eventManager;
 
@@ -19,7 +20,7 @@ export class MercenaryPanelManager {
             return;
         }
         heroPanel.innerHTML = '';
-        const units = this.battleSimulationManager ? this.battleSimulationManager.unitsOnGrid : [];
+        const units = this.heroEngine ? this.heroEngine.getAllHeroes() : (this.battleSimulationManager ? this.battleSimulationManager.unitsOnGrid : []);
 
         for (let i = 0; i < this.numSlots; i++) {
             const slot = document.createElement('div');
