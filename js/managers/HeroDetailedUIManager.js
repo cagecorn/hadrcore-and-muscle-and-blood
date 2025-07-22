@@ -29,8 +29,13 @@ export class HeroDetailedUIManager {
     _populateLeft(hero, stats) {
         const portrait = this._getPortrait(hero.classId);
         if (this.portraitImg) {
-            this.portraitImg.src = portrait;
-            this.portraitImg.alt = hero.name;
+            if (this.portraitImg.tagName === 'IMG') {
+                this.portraitImg.src = portrait;
+                this.portraitImg.alt = hero.name;
+            } else {
+                this.portraitImg.style.backgroundImage = `url(${portrait})`;
+                this.portraitImg.title = hero.name;
+            }
         }
         if (this.statsEl) {
             const s = stats || {};
