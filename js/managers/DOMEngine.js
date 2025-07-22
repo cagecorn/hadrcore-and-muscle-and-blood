@@ -20,6 +20,7 @@ export class DOMEngine {
         this.registerElement('tavern-screen', document.getElementById('tavern-screen'));
         this.registerElement('tavern-grid', document.getElementById('tavern-grid'));
         this.registerElement('hire-hero-btn', document.getElementById('hire-hero-btn'));
+        this.registerElement('tavern-back-btn', document.getElementById('tavern-back-btn'));
         // ✨ 고용 UI 요소 등록
         this.registerElement('hire-ui-overlay', document.getElementById('hire-ui-overlay'));
         this.registerElement('hire-class-image', document.getElementById('hire-class-image'));
@@ -29,7 +30,6 @@ export class DOMEngine {
         this.registerElement('battle-log-panel', document.getElementById('battle-log-panel'));
         this.registerElement('hero-panel', document.getElementById('hero-panel'));
         this.registerElement('battleStartHtmlBtn', document.getElementById('battleStartHtmlBtn'));
-        this.registerElement('recruitWarriorBtn', document.getElementById('recruitWarriorBtn'));
         this.registerElement('hero-detail-overlay', document.getElementById('hero-detail-overlay'));
         this.registerElement('hero-detail-portrait', document.getElementById('hero-detail-portrait'));
         this.registerElement('hero-detail-stats', document.getElementById('hero-detail-stats'));
@@ -53,14 +53,12 @@ export class DOMEngine {
         const gameCanvas = this.getElement('gameCanvas');
         const logPanel = this.getElement('battle-log-panel');
         const battleStartBtn = this.getElement('battleStartHtmlBtn');
-        const recruitBtn = this.getElement('recruitWarriorBtn');
         const heroPanelBtn = document.getElementById('toggleHeroPanelBtn');
 
         if (sceneName === UI_STATES.MAP_SCREEN) {
             territory?.classList.remove('hidden');
             tavernIcon?.classList.remove('hidden');
             battleStartBtn?.classList.remove('hidden');
-            recruitBtn?.classList.remove('hidden');
             heroPanelBtn?.classList.remove('hidden');
 
             tavernScreen?.classList.add('hidden');
@@ -72,7 +70,6 @@ export class DOMEngine {
             territory?.classList.add('hidden');
             tavernIcon?.classList.add('hidden');
             battleStartBtn?.classList.add('hidden');
-            recruitBtn?.classList.add('hidden');
             heroPanelBtn?.classList.add('hidden');
 
             gameCanvas?.classList.add('hidden');
@@ -81,7 +78,6 @@ export class DOMEngine {
             territory?.classList.add('hidden');
             tavernIcon?.classList.add('hidden');
             battleStartBtn?.classList.add('hidden');
-            recruitBtn?.classList.add('hidden');
             heroPanelBtn?.classList.add('hidden');
 
             tavernScreen?.classList.add('hidden');
