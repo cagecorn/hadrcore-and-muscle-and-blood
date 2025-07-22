@@ -178,8 +178,8 @@ canvas {
 
 #tavern-grid {
     display: grid;
-    grid-template-columns: repeat(2, 1fr);
-    grid-template-rows: repeat(2, 1fr);
+    grid-template-columns: repeat(4, 1fr); /* 가로로 한 줄 배치 */
+    grid-template-rows: 1fr;
     width: 80%;
     height: 60%;
     transform: scale(0.33);
