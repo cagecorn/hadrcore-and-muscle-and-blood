@@ -261,9 +261,9 @@ export class VFXManager {
         const barWidth = effectiveTileSize * this.measureManager.get('vfx.hpBarWidthRatio');
         const barHeight = effectiveTileSize * this.measureManager.get('vfx.hpBarHeightRatio');
 
-        // HP 바를 유닛 왼쪽에 세로 중앙 정렬로 배치
-        const hpBarDrawX = actualDrawX - barWidth - this.measureManager.get('vfx.hpBarVerticalOffset');
-        const hpBarDrawY = actualDrawY + (effectiveTileSize - barHeight) / 2;
+        // HP 바를 유닛 머리 위 중앙에 배치하도록 위치 계산을 수정
+        const hpBarDrawX = actualDrawX + (effectiveTileSize - barWidth) / 2;
+        const hpBarDrawY = actualDrawY - barHeight - this.measureManager.get('vfx.hpBarVerticalOffset');
 
         ctx.fillStyle = 'rgba(50, 50, 50, 0.8)';
         ctx.fillRect(hpBarDrawX, hpBarDrawY, barWidth, barHeight);
@@ -297,8 +297,8 @@ export class VFXManager {
         const barWidth = effectiveTileSize * this.measureManager.get('vfx.hpBarWidthRatio');
         const barHeight = effectiveTileSize * this.measureManager.get('vfx.hpBarHeightRatio');
 
-        const barrierBarDrawX = actualDrawX - barWidth - this.measureManager.get('vfx.hpBarVerticalOffset');
-        const barrierBarDrawY = actualDrawY + (effectiveTileSize - barHeight) / 2;
+        const barrierBarDrawX = actualDrawX + (effectiveTileSize - barWidth) / 2;
+        const barrierBarDrawY = actualDrawY - barHeight - this.measureManager.get('vfx.hpBarVerticalOffset');
 
         // 노란색 배리어 바를 HP 바 위에 덧씌움 (배경과 테두리는 없음)
         ctx.fillStyle = '#FFFF00';
@@ -326,7 +326,8 @@ export class VFXManager {
         const drawWidth = nameCanvas.width * scale;
         const drawHeight = nameCanvas.height * scale;
         const drawX = actualDrawX + effectiveTileSize / 2 - drawWidth / 2;
-        const drawY = actualDrawY - offsetY - drawHeight;
+        // 이름은 유닛의 발밑에 위치하도록 변경
+        const drawY = actualDrawY + effectiveTileSize + offsetY;
         ctx.drawImage(nameCanvas, drawX, drawY, drawWidth, drawHeight);
     }
 
@@ -411,7 +412,7 @@ export class VFXManager {
             ctx.fillStyle = dmgNum.color || ((dmgNum.damage > 0) ? '#FF4500' : '#00FF00');
             const baseFontSize = this.measureManager.get('vfx.damageNumberBaseFontSize');
             const scaleFactor = this.measureManager.get('vfx.damageNumberScaleFactor');
-            ctx.font = `bold ${baseFontSize + (1 - progress) * scaleFactor}px Arial`;
+            ctx.font = `${baseFontSize + (1 - progress) * scaleFactor}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             ctx.fillText(
@@ -443,7 +444,7 @@ export class VFXManager {
             ctx.save();
             ctx.globalAlpha = alpha;
             ctx.fillStyle = effect.color;
-            ctx.font = `bold ${effectiveTileSize * 0.25}px Arial`;
+            ctx.font = `${effectiveTileSize * 0.25}px Arial`;
             ctx.textAlign = 'center';
             ctx.textBaseline = 'bottom';
             ctx.fillText(

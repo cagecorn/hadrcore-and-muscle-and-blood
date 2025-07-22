@@ -138,9 +138,9 @@ export class PixiUIOverlay {
             const { drawX, drawY } = this.animationManager.getRenderPosition(unit.id, unit.gridX, unit.gridY, effectiveTileSize, gridOffsetX, gridOffsetY);
             const worldCenterX = drawX + effectiveTileSize / 2;
             const worldNameY = drawY + effectiveTileSize + this.measureManager.get('vfx.unitNameVerticalOffset');
-            const barWidth = effectiveTileSize * 0.8;
-            const barHeight = effectiveTileSize * 0.1;
-            const worldBarY = drawY - barHeight - 5;
+            const barWidth = effectiveTileSize * this.measureManager.get('vfx.hpBarWidthRatio');
+            const barHeight = effectiveTileSize * this.measureManager.get('vfx.hpBarHeightRatio');
+            const worldBarY = drawY - barHeight - this.measureManager.get('vfx.hpBarVerticalOffset');
 
             const screenCenter = this.cameraEngine ? this.cameraEngine.worldToScreen(worldCenterX, worldNameY) : { x: worldCenterX, y: worldNameY };
             const barScreenPos = this.cameraEngine ? this.cameraEngine.worldToScreen(worldCenterX, worldBarY) : { x: worldCenterX, y: worldBarY };

@@ -54,14 +54,14 @@ export class MeasureManager {
             vfx: {
                 // HP/Barrier Bar 관련
                 hpBarWidthRatio: 0.8,      // HP 바 너비 (타일 크기의 80%)
-                hpBarHeightRatio: 0.1,     // HP 바 높이 (타일 크기의 10%)
+                hpBarHeightRatio: 0.06,    // HP 바 높이 (타일 크기의 6%)
                 hpBarVerticalOffset: 5,    // HP 바 수직 오프셋 (픽셀)
                 barrierBarWidthRatio: 0.8, // 배리어 바 너비 (타일 크기의 80%)
                 barrierBarHeightRatio: 0.05, // 배리어 바 높이 (타일 크기의 5%)
                 barrierBarVerticalOffset: 8, // 배리어 바 수직 오프셋 (픽셀)
 
                 // 유닛 이름표 관련
-                unitNameFontSizeRatio: 0.15, // 이름표 폰트 크기 비율 (조금 더 작게)
+                unitNameFontSizeRatio: 0.12, // 이름표 폰트 크기 비율
                 unitNameVerticalOffset: 5,   // 이름표 수직 오프셋 (픽셀)
 
                 // 데미지 숫자 팝업 관련
