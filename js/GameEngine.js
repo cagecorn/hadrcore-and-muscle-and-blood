@@ -189,7 +189,7 @@ export class GameEngine {
         );
 
         // 6. UI, Input, Log & Other Managers
-        this.mercenaryPanelManager = new MercenaryPanelManager(this.measureManager, this.battleSimulationManager, this.logicManager, this.eventManager);
+        this.mercenaryPanelManager = new MercenaryPanelManager(this.measureManager, this.battleSimulationManager, this.logicManager, this.eventManager, this.heroEngine);
         this.buttonEngine = new ButtonEngine();
         const combatLogPanelElement = document.getElementById('battle-log-panel');
         if (!combatLogPanelElement) {
@@ -299,7 +299,16 @@ export class GameEngine {
         this.territoryUIManager = new TerritoryUIManager(this.eventManager, this.domEngine);
         this.territoryGridManager = new TerritoryGridManager(this.domEngine);
         this.heroDetailedUIManager = new HeroDetailedUIManager(this.domEngine, this.statManager);
-        this.tavernManager = new TavernManager(this.domEngine, this.sceneEngine, this.uiEngine, this.heroManager, this.heroDetailedUIManager);
+        this.tavernManager = new TavernManager(
+            this.domEngine,
+            this.sceneEngine,
+            this.uiEngine,
+            this.heroManager,
+            this.heroDetailedUIManager,
+            this.battleFormationManager,
+            this.battleSimulationManager,
+            this.mercenaryPanelManager
+        );
 
         // --- LAYER REGISTRATION ---
         this.layerEngine.registerLayer('combatScene', (ctx) => {

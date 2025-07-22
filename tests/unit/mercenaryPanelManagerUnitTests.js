@@ -2,7 +2,7 @@
 
 import { MercenaryPanelManager } from '../../js/managers/MercenaryPanelManager.js';
 
-export function runMercenaryPanelManagerUnitTests(measureManager, battleSimulationManager, logicManager, eventManager) {
+export function runMercenaryPanelManagerUnitTests(measureManager, battleSimulationManager, logicManager, eventManager, heroEngine) {
     console.log("--- MercenaryPanelManager Unit Test Start ---");
 
     let testCount = 0;
@@ -17,7 +17,7 @@ export function runMercenaryPanelManagerUnitTests(measureManager, battleSimulati
     // 테스트 1: 초기화 및 캔버스 속성 확인
     testCount++;
     try {
-        const panelManager = new MercenaryPanelManager(measureManager, battleSimulationManager, logicManager, eventManager);
+        const panelManager = new MercenaryPanelManager(measureManager, battleSimulationManager, logicManager, eventManager, heroEngine);
         if (panelManager.gridRows === 2 && panelManager.gridCols === 6) {
             console.log("MercenaryPanelManager: Initialized correctly. [PASS]");
             passCount++;
@@ -31,7 +31,7 @@ export function runMercenaryPanelManagerUnitTests(measureManager, battleSimulati
     // 테스트 2: recalculatePanelDimensions 호출 후 슬롯 크기 확인
     testCount++;
     try {
-        const panelManager = new MercenaryPanelManager(measureManager, battleSimulationManager, logicManager, eventManager);
+        const panelManager = new MercenaryPanelManager(measureManager, battleSimulationManager, logicManager, eventManager, heroEngine);
         panelManager.recalculatePanelDimensions(); // 수동 호출
         const expectedSlotWidth = 600 / 6; // 600px / 6 cols
         const expectedSlotHeight = 200 / 2; // 200px / 2 rows
@@ -49,7 +49,7 @@ export function runMercenaryPanelManagerUnitTests(measureManager, battleSimulati
     // 테스트 3: draw 메서드가 호출되는지 시각적 확인 (콘솔 로그를 통한 간접 확인)
     testCount++;
     try {
-        const panelManager = new MercenaryPanelManager(measureManager, battleSimulationManager, logicManager, eventManager);
+        const panelManager = new MercenaryPanelManager(measureManager, battleSimulationManager, logicManager, eventManager, heroEngine);
         const originalFillRect = mockCtx.fillRect;
         let fillRectCalled = false;
         mockCtx.fillRect = function(...args) {
@@ -83,7 +83,7 @@ export function runMercenaryPanelManagerUnitTests(measureManager, battleSimulati
         const originalUnitsOnGrid = battleSimulationManager.unitsOnGrid;
         battleSimulationManager.unitsOnGrid = [mockUnit];
 
-        const panelManager = new MercenaryPanelManager(measureManager, battleSimulationManager, logicManager, eventManager);
+        const panelManager = new MercenaryPanelManager(measureManager, battleSimulationManager, logicManager, eventManager, heroEngine);
         const originalFillText = mockCtx.fillText;
         let fillTextCalledForUnit = false;
         mockCtx.fillText = function(text, ...args) {
