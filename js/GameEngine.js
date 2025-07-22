@@ -461,10 +461,6 @@ export class GameEngine {
     }
 
     _setupEventListeners() {
-        const recruitButton = document.getElementById('recruitWarriorBtn');
-        if (recruitButton) {
-            recruitButton.addEventListener('click', () => this.recruitNewWarrior());
-        }
         const toggleHeroPanelBtn = document.getElementById(BUTTON_IDS.TOGGLE_HERO_PANEL);
         if (toggleHeroPanelBtn) {
             toggleHeroPanelBtn.addEventListener('click', () => this.uiEngine.toggleHeroPanel());
@@ -475,15 +471,6 @@ export class GameEngine {
         }
     }
 
-    async recruitNewWarrior() {
-        if (GAME_DEBUG_MODE) console.log("[GameEngine] '전사 고용' 버튼 클릭됨. 새로운 전사를 생성합니다...");
-        const newHeroes = await this.heroManager.createWarriors(1);
-        if (newHeroes && newHeroes.length > 0) {
-            const newWarrior = newHeroes[0];
-            this.battleFormationManager.placeAllies(newHeroes);
-            console.log(`%c${newWarrior.name}이(가) 당신의 부대에 합류했습니다!`, "color: #7289DA; font-weight: bold;");
-        }
-    }
 
     _registerCleanupTasks() {
         this.eraserEngine.registerCleanupTask(UI_STATES.COMBAT_SCREEN, () => {

@@ -24,6 +24,7 @@ export class TavernManager {
         this.hireImageElement = this.domEngine.getElement('hire-class-image');
         this.prevButton = this.domEngine.getElement('prev-class-btn');
         this.nextButton = this.domEngine.getElement('next-class-btn');
+        this.backButton = this.domEngine.getElement('tavern-back-btn');
 
         this._setupEventListeners();
     }
@@ -36,6 +37,9 @@ export class TavernManager {
         // 기본 그리드 안의 영웅 고용 버튼
         const hireHeroBtn = this.domEngine.getElement('hire-hero-btn');
         hireHeroBtn?.addEventListener('click', () => this.openHireUI());
+
+        // 뒤로 가기 버튼
+        this.backButton?.addEventListener('click', () => this.exitTavern());
 
         // 오버레이 내부 버튼과 이벤트
         this.prevButton?.addEventListener('click', () => this._showPrevClass());
@@ -58,6 +62,14 @@ export class TavernManager {
         this.sceneEngine.setCurrentScene(UI_STATES.TAVERN_SCREEN);
         this.uiEngine.setUIState(UI_STATES.TAVERN_SCREEN);
         this.domEngine.updateUIForScene(UI_STATES.TAVERN_SCREEN);
+        this.closeHireUI();
+    }
+
+    exitTavern() {
+        if (GAME_DEBUG_MODE) console.log('Leaving the tavern...');
+        this.sceneEngine.setCurrentScene(UI_STATES.MAP_SCREEN);
+        this.uiEngine.setUIState(UI_STATES.MAP_SCREEN);
+        this.domEngine.updateUIForScene(UI_STATES.MAP_SCREEN);
         this.closeHireUI();
     }
 
