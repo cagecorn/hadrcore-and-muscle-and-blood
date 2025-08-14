@@ -1,0 +1,1941 @@
+/* ✨ [추가] Cinzel 폰트를 body에 적용하여 전역 폰트로 설정합니다. */
+body {
+    margin: 0;
+    padding: 0;
+    color: rgba(255, 255, 255, 0.87);
+    background-color: #000000;
+  font-family: 'Cinzel', serif; /* ✨ 폰트 적용 */
+}
+
+/* ✨ [추가] 부드러운 전환 효과를 위한 기본 스타일 */
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+    pointer-events: auto;
+    opacity: 0; /* ✨ 초기에는 투명하게 */
+    visibility: hidden; /* ✨ 초기에는 보이지 않고 상호작용도 안 되게 */
+    transition: opacity 0.3s ease-in-out, visibility 0.3s ease-in-out; /* ✨ 전환 효과 */
+}
+
+/* ✨ [수정] 모달이 표시될 때 적용할 클래스 */
+.modal-overlay.visible {
+    opacity: 1;
+    visibility: visible; /* ✨ 보이면서 상호작용 가능하게 */
+}
+
+/* ✨ [추가] 활성 턴 UI 강조를 위한 애니메이션 */
+@keyframes active-turn-glow {
+    0% {
+        border-color: #4a4a4a;
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+    50% {
+        border-color: #f0e68c; /* 밝은 노란색 */
+        box-shadow: 0 0 20px rgba(240, 230, 140, 0.7);
+    }
+    100% {
+        border-color: #4a4a4a;
+        box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    }
+}
+
+/* ✨ [추가] 활성 턴 UI에 적용될 클래스 */
+#combat-ui-container.active-turn-ui {
+    animation: active-turn-glow 2s infinite;
+}
+
+#app {
+    width: 100%;
+    height: 100vh;
+    overflow: hidden;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+#ui-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    overflow: hidden;
+    z-index: 100;
+}
+
+.ui-element {
+    pointer-events: all;
+    padding: 8px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #fff;
+    border-radius: 5px;
+    color: #fff;
+    user-select: none;
+}
+
+/* --- 영지 화면 DOM 스타일 --- */
+
+#territory-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none; 
+    background-size: cover;
+    background-position: center;
+    background-image: url(../assets/images/territory/city-1.png);
+}
+
+/* --- 용병 관리 화면 DOM 스타일 --- */
+#party-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    background-size: cover;
+    background-position: center;
+    background-image: url(../assets/images/territory/party-scene.png);
+    display: none; /* 초기에는 숨김 */
+}
+
+#party-grid {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+}
+
+#party-active-grid {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 25%;
+    display: grid;
+    grid-template-columns: repeat(12, 1fr);
+    gap: 10px;
+    pointer-events: auto;
+}
+
+#party-reserve-grid {
+    position: absolute;
+    top: 35%;
+    left: 5%;
+    width: 90%;
+    height: 60%;
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(80px, 1fr));
+    gap: 10px;
+    overflow-y: auto;
+    pointer-events: auto;
+}
+
+.party-slot, .reserve-unit {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.party-slot-image, .reserve-image {
+    width: 100%;
+    height: 60px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+}
+
+.slot-name {
+    font-size: 12px;
+    color: #fff;
+    margin-top: 4px;
+    text-align: center;
+}
+
+#party-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 6px 12px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #fff;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+#territory-grid {
+    position: absolute;
+    top: 35%;
+    left: 15%;
+    width: 40%;
+    height: 50%;
+    display: grid;
+    gap: 15px;
+    pointer-events: auto;
+}
+
+.building-icon {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    transition: transform 0.1s ease-in-out;
+}
+
+.building-icon:hover {
+    transform: scale(1.1);
+}
+
+/* --- 선술집 뷰 스타일 (수정) --- */
+#tavern-view {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    pointer-events: auto;
+    display: flex; /* Flexbox를 사용하여 중앙 정렬 */
+    justify-content: center;
+    align-items: center;
+}
+
+#tavern-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 6px 12px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #fff;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+}
+
+#tavern-grid {
+    /* position, top, left, transform 속성 제거 */
+    width: 60%; /* 너비 조정 */
+    height: 20%; /* 높이 조정 */
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 20px;
+}
+
+.tavern-button {
+    width: 100%;
+    height: 100%;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+.tavern-button:hover {
+    transform: scale(1.05);
+    filter: brightness(1.2);
+}
+
+/* --- 용병 고용 모달 스타일 (수정) --- */
+/* ✨ ID 선택자 대신 공통 클래스를 사용합니다. */
+
+#hire-modal-content {
+    position: relative;
+    /* 배경을 반투명하게 수정 */
+    background-color: rgba(26, 26, 26, 0.85); 
+    padding: 20px;
+    border-radius: 10px;
+    border: 2px solid #444;
+    box-shadow: 0 0 20px rgba(0,0,0,0.5);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+#hire-modal-close {
+    position: absolute;
+    top: 10px;
+    right: 15px;
+    font-size: 24px;
+    color: #fff;
+    cursor: pointer;
+}
+
+#hire-image-viewer {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#mercenary-image {
+    max-width: 400px;
+    max-height: 600px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+
+#mercenary-image:hover {
+    transform: scale(1.02);
+}
+
+.hire-arrow {
+    font-size: 40px;
+    color: #fff;
+    cursor: pointer;
+    user-select: none;
+    padding: 10px;
+}
+
+/* Phaser 게임 캔버스를 담는 컨테이너 */
+#game-container {
+    position: absolute;
+    z-index: 1; 
+}
+
+/* --- 유닛 상세 정보창 스타일 --- */
+/* ✨ ID 선택자 대신 공통 클래스를 사용합니다. */
+
+#unit-detail-pane {
+    /* 가로형 레이아웃을 위해 크기 조정 */
+    width: 1000px;
+    height: 550px;
+    background-color: #2c2a29;
+    border: 3px solid #1a1817;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.7);
+    color: #e0e0e0;
+    font-family: sans-serif;
+    padding: 20px;
+    display: flex;
+    flex-direction: column;
+    position: relative;
+}
+
+#unit-detail-close {
+    position: absolute;
+    top: 15px;
+    right: 20px;
+    font-size: 20px;
+    cursor: pointer;
+    color: #888;
+}
+#unit-detail-close:hover {
+    color: #fff;
+}
+
+.detail-header {
+    display: flex;
+    justify-content: space-between;
+    font-size: 24px;
+    font-weight: bold;
+    border-bottom: 2px solid #444;
+    padding-bottom: 10px;
+    margin-bottom: 15px;
+}
+.unit-name {
+    color: #fff;
+}
+.unit-level {
+    color: #f0e68c;
+}
+
+.detail-content {
+    display: flex;
+    flex-grow: 1;
+    gap: 20px;
+}
+
+.detail-section {
+    display: flex;
+    flex-direction: column;
+}
+.detail-section.left {
+    width: 50%;
+}
+.detail-section.right {
+    width: 50%;
+    display: flex;
+    gap: 15px;
+}
+
+.unit-description {
+    font-style: italic;
+    color: #aaa;
+    border: 1px dashed #555;
+    padding: 10px;
+    border-radius: 5px;
+    text-align: center;
+}
+
+.traits-section, .synergy-section {
+    margin-top: 10px;
+}
+
+.placeholder-box {
+    height: 60px;
+    background-color: rgba(0,0,0,0.3);
+    border: 1px dashed #444;
+    border-radius: 4px;
+}
+
+.section-title {
+    font-size: 18px;
+    font-weight: bold;
+    margin-bottom: 10px;
+    text-align: center;
+    background-color: #3a3837;
+    padding: 5px;
+    border-radius: 3px;
+}
+
+.stats-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0 15px;
+}
+
+/* equipment-grid는 오른쪽 영역을 차지하게 됩니다. */
+.equipment-grid {
+    display: grid;
+    grid-template-columns: repeat(4, 1fr);
+    gap: 10px;
+    justify-items: center;
+    margin-top: 10px;
+}
+
+.stat-item {
+    display: flex;
+    justify-content: space-between;
+    padding: 4px 8px;
+    background-color: rgba(0,0,0,0.2);
+    margin-bottom: 4px;
+    border-radius: 2px;
+}
+.stat-item span:last-child {
+    color: #fff;
+    font-weight: bold;
+}
+
+
+.equip-slot {
+    width: 80px;
+    height: 100px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.equip-slot-image {
+    width: 70px;
+    height: 70px;
+    background-color: rgba(0,0,0,0.3);
+    border: 2px dashed #555;
+    border-radius: 5px;
+}
+
+.equip-slot-label {
+    margin-top: 6px;
+    font-size: 14px;
+    color: #aaa;
+}
+
+.detail-footer {
+    display: flex;
+    border-top: 2px solid #444;
+    padding-top: 10px;
+    margin-top: 15px;
+    gap: 20px;
+}
+
+.unit-class {
+    width: 100px;
+}
+.class-icon {
+    width: 100%;
+    height: 60px;
+    background-color: rgba(0,0,0,0.3);
+    border: 1px solid #444;
+    border-radius: 4px;
+}
+
+.unit-skills {
+    flex-grow: 1;
+}
+.unit-skills-container {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    width: 100%;
+    margin-bottom: 20px;
+}
+
+/* --- 장비 카드 섹션 스타일 --- */
+.equipment-section {
+    width: 100%;
+}
+
+
+.unit-skills .skill-grid {
+    display: flex;
+    gap: 10px;
+    justify-content: center;
+    margin-top: 10px;
+}
+.unit-skills .skill-slot {
+    width: 60px;
+    height: 60px;
+    background-size: cover;
+    background-repeat: no-repeat;
+    background-position: center;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    border: 2px solid transparent;
+}
+.unit-skills .skill-slot.active-slot { border-color: #FF8C00; }
+.unit-skills .skill-slot.buff-slot { border-color: #1E90FF; }
+.unit-skills .skill-slot.debuff-slot { border-color: #DC143C; }
+.unit-skills .skill-slot.passive-slot { border-color: #32CD32; }
+
+/* --- ✨ [신규] AID 타입 스타일 추가 --- */
+.unit-skills .skill-slot.aid-slot { border-color: #F5F5F5; }
+.unit-skills .skill-slot.empty-slot { border-color: #555; }
+
+.skill-slot .slot-rank {
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+    font-size: 10px;
+    color: #aaa;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 2px 5px;
+    border-radius: 3px;
+}
+
+/* --- 용병 고용 모달에 버튼 스타일 추가 --- */
+#hire-enemy-button {
+    width: 50%;
+    padding: 8px;
+    margin-top: 15px;
+    background-color: #7f1d1d;
+    color: #fecaca;
+    font-size: 14px;
+    text-align: center;
+    border: 1px solid #991b1b;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+#hire-enemy-button:hover {
+    background-color: #991b1b;
+    color: #fff;
+}
+
+
+/* --- 출정 화면 DOM 스타일 --- */
+#dungeon-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    background-size: cover;
+    background-position: center;
+    display: none;
+}
+
+#dungeon-grid {
+    position: absolute;
+    top: 10%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 30%;
+    height: 80%;
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: repeat(10, 1fr);
+    gap: 10px;
+    pointer-events: auto;
+}
+
+.dungeon-tile {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 3 / 2;
+    background-size: cover;
+    background-position: center;
+    cursor: pointer;
+    border-radius: 4px;
+}
+
+.dungeon-label {
+    position: absolute;
+    bottom: 0;
+    width: 100%;
+    background-color: rgba(0,0,0,0.6);
+    color: #fff;
+    font-size: 14px;
+    text-align: center;
+}
+
+#dungeon-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 6px 12px;
+    background-color: rgba(0,0,0,0.7);
+    border: 1px solid #fff;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+/* --- 진형 화면 DOM 스타일 --- */
+#formation-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    pointer-events: none;
+    background-size: cover;
+    background-position: center;
+    display: none;
+}
+
+#formation-stage {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-size: cover;
+    background-position: center;
+    pointer-events: none;
+}
+
+#formation-grid {
+    position: absolute;
+    top: 5%;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 90%;
+    height: 90%;
+    display: grid;
+    grid-template-columns: repeat(16, 1fr);
+    grid-template-rows: repeat(9, 1fr);
+    pointer-events: auto;
+}
+
+.formation-cell {
+    border: 1px solid rgba(255,255,255,0.3);
+    position: relative;
+}
+
+.formation-cell.ally-area {
+    background-color: rgba(0,0,255,0.1);
+}
+
+.formation-unit {
+    width: 100%;
+    height: 100%;
+    position: relative;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center bottom;
+    cursor: grab;
+}
+
+.formation-unit-name {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    background-color: rgba(0,0,0,0.5);
+    color: #fff;
+    font-size: 12px;
+    text-align: center;
+}
+
+/* --- 전투 이름표 스타일 --- */
+.battle-name-tag {
+    font-size: 12px;
+    color: #fff;
+    border-radius: 2px;
+    padding: 2px 4px;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+#formation-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 6px 12px;
+    background-color: rgba(0,0,0,0.7);
+    border: 1px solid #fff;
+    border-radius: 4px;
+    color: #fff;
+    cursor: pointer;
+    pointer-events: auto;
+}
+
+
+/* --- 스킬 관리 씬 스타일 --- */
+#skill-management-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-size: cover;
+    background-position: center;
+    /* 상호작용을 위해 pointer-events를 허용합니다 */
+    pointer-events: auto;
+    display: none; /* 초기에는 숨김 */
+}
+
+/* --- 선조 소환 씬 스타일 --- */
+#summon-management-container {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-size: cover;
+    background-position: center;
+    pointer-events: auto;
+    display: none;
+}
+
+/* --- 장비 관리 씬 스타일 --- */
+#equipment-management-container {
+    /* skill-management-container와 동일한 스타일을 공유 */
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 10;
+    background-size: cover;
+    background-position: center;
+    pointer-events: auto;
+    display: none;
+}
+
+#skill-main-layout {
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    padding: 20px;
+    height: 100%;
+}
+
+.skill-panel {
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 2px solid #555;
+    border-radius: 8px;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    pointer-events: auto; /* ✨ 마우스 이벤트 활성화 */
+}
+
+#skill-list-panel { flex-basis: 20%; }
+#skill-details-panel { flex-basis: 40%; }
+#skill-inventory-panel { flex-basis: 40%; }
+
+.panel-title {
+    background-color: #222;
+    color: #eee;
+    padding: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    text-align: center;
+    border-bottom: 2px solid #555;
+}
+
+.panel-content {
+    padding: 10px;
+    overflow-y: auto;
+}
+
+.merc-list-item {
+    padding: 8px;
+    color: #ddd;
+    cursor: pointer;
+    border-bottom: 1px solid #444;
+}
+.merc-list-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.merc-skill-slots-container {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 20px;
+}
+
+.merc-skill-slots-container-vertical {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.section-title-small {
+    font-size: 16px;
+    font-weight: bold;
+    text-align: center;
+    color: #ccc;
+    margin-bottom: 10px;
+    border-bottom: 1px solid #555;
+    padding-bottom: 5px;
+}
+
+.merc-skill-slot {
+    width: 80px;
+    height: 80px;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #888;
+    border-radius: 5px;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    cursor: pointer;
+}
+.merc-skill-slot.active-slot { border-color: #FF8C00; }
+.merc-skill-slot.buff-slot { border-color: #1E90FF; }
+.merc-skill-slot.debuff-slot { border-color: #DC143C; }
+.merc-skill-slot.passive-slot { border-color: #32CD32; }
+/* ✨ [수정] 소환 스킬 슬롯 스타일 */
+.merc-skill-slot.summon-slot {
+    border-color: #9966CC;
+    border-width: 4px;
+}
+.merc-skill-slot.empty-slot {
+    border-color: #555;
+    cursor: default;
+}
+.merc-skill-slot span {
+    position: absolute;
+    bottom: 2px;
+    right: 4px;
+    background-color: transparent;
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 1);
+    font-size: 12px;
+    color: #fff;
+}
+
+/* --- MBTI 슬롯 인디케이터 스타일 --- */
+.mbti-slot-indicator {
+    position: absolute;
+    bottom: 2px;
+    left: 4px;
+    font-size: 16px;
+    font-weight: bold;
+    color: rgba(255, 255, 255, 0.7);
+    text-shadow: 1px 1px 2px rgba(0, 0, 0, 1);
+    pointer-events: none;
+}
+
+.skill-inventory-cell {
+    width: 60px;
+    height: 60px;
+    border: 1px dashed #666;
+    float: left;
+    margin: 4px;
+}
+
+#skill-back-button {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    padding: 8px 15px;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #fff;
+    color: #fff;
+    cursor: pointer;
+    pointer-events: auto;
+    z-index: 100;
+}
+
+/* --- 스킬 카드 스타일 --- */
+.skill-card {
+    width: 100px;
+    height: 140px;
+    background-color: #333;
+    border: 1px solid #777;
+    border-radius: 5px;
+    display: flex;
+    flex-direction: column;
+    overflow: hidden;
+    cursor: pointer;
+}
+.skill-card:hover {
+    border-color: #fff;
+}
+
+.skill-illustration {
+    width: 100%;
+    height: 60px; /* 정사각형에 가까운 비율 */
+    background-color: #222; /* 임시 배경색 */
+    background-size: cover;
+    background-position: center;
+}
+
+.skill-info {
+    padding: 4px;
+    font-size: 10px;
+    color: #eee;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+}
+
+.skill-name {
+    font-weight: bold;
+    font-size: 12px;
+    text-align: center;
+    border-bottom: 1px solid #555;
+    margin-bottom: 2px;
+    padding-bottom: 2px;
+}
+
+.skill-type-cost {
+    display: flex;
+    justify-content: space-between;
+    font-size: 9px;
+    color: #ccc;
+}
+
+.skill-description {
+    margin-top: 4px;
+    flex-grow: 1;
+}
+
+/* --- 스킬 카드 추가 스타일 --- */
+.skill-card.active-card { border-top: 5px solid #FF8C00; }
+.skill-card.buff-card { border-top: 5px solid #1E90FF; }
+.skill-card.debuff-card { border-top: 5px solid #DC143C; }
+.skill-card.passive-card { border-top: 5px solid #32CD32; }
+/* --- ✨ [신규] AID 타입 스타일 추가 --- */
+.skill-card.aid-card { border-top: 5px solid #F5F5F5; }
+
+.skill-cost-container {
+    display: flex;
+    align-items: center;
+    margin-top: 2px;
+}
+
+.token-icon {
+    width: 12px;
+    height: 12px;
+    margin-right: 2px;
+}
+
+/* --- 스킬 관리 씬 레이아웃 --- */
+.merc-portrait-small {
+    width: 150px;
+    height: 150px;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #888;
+    border-radius: 5px;
+    margin: 0 auto 15px auto; /* 중앙 정렬 및 하단 여백 */
+    cursor: pointer;
+}
+.merc-portrait-small:hover {
+    border-color: #fff;
+}
+
+.merc-skill-slots-container {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 10px;
+}
+
+
+/* --- 스킬 인벤토리 카드 --- */
+.skill-inventory-card {
+    width: 60px;
+    height: 60px;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #555;
+    border-radius: 4px;
+    float: left;
+    margin: 4px;
+    cursor: grab;
+    position: relative;
+    box-sizing: border-box;
+}
+.skill-inventory-card:hover {
+    border-color: #fff;
+    transform: scale(1.05);
+}
+.skill-inventory-card.active-card { border-color: #FF8C00; }
+.skill-inventory-card.buff-card { border-color: #1E90FF; }
+.skill-inventory-card.debuff-card { border-color: #DC143C; }
+.skill-inventory-card.passive-card { border-color: #32CD32; }
+/* --- ✨ [신규] AID 타입 스타일 추가 --- */
+.skill-inventory-card.aid-card { border-color: #F5F5F5; }
+
+/* ✨ 스킬 클래스 태그 스타일 */
+.skill-class-tag {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    background-color: rgba(0, 0, 0, 0.8);
+    color: #ffc107;
+    font-size: 10px;
+    font-weight: bold;
+    padding: 1px 3px;
+    border-radius: 2px;
+    line-height: 1;
+}
+
+/* --- 스킬 툴팁 스타일 --- */
+/* ✨ [수정] 스킬 툴팁 스타일 수정 */
+#skill-tooltip {
+    position: absolute;
+    width: 200px;
+    z-index: 9999;
+    pointer-events: none;
+    display: flex;
+    flex-direction: column;
+    background-color: #2a2a2a;
+    border-radius: 10px;
+    border: 2px solid #888;
+    min-height: 280px; /* 최소 높이 설정 */
+}
+
+.skill-card-large.active-card { border-color: #FF8C00; }
+.skill-card-large.buff-card { border-color: #1E90FF; }
+.skill-card-large.debuff-card { border-color: #DC143C; }
+.skill-card-large.passive-card { border-color: #32CD32; }
+/* --- ✨ [신규] AID 타입 스타일 추가 --- */
+.skill-card-large.aid-card { border-color: #F5F5F5; }
+
+.skill-illustration-large {
+    width: 100%;
+    height: 120px;
+    background-size: cover;
+    background-position: center;
+}
+
+.skill-info-large { padding: 8px; /* ... */ }
+.skill-name-large { font-size: 18px; /* ... */ }
+/* ... 나머지 툴팁 내부 스타일 ... */
+
+.skill-cost-container-large {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 4px;
+    margin-top: 5px;
+}
+
+.token-icon-large {
+    width: 24px;
+    height: 24px;
+    margin-top: 4px;
+}
+
+/* --- 스킬 등급 오오라 --- */
+.grade-rare {
+    box-shadow: 0 0 10px #3498db, 0 0 5px #3498db inset;
+}
+.grade-epic {
+    box-shadow: 0 0 12px #9b59b6, 0 0 7px #9b59b6 inset;
+}
+.grade-legendary {
+    box-shadow: 0 0 15px #f1c40f, 0 0 10px #f1c40f inset;
+    animation: legendary-glow 2s infinite alternate;
+}
+
+@keyframes legendary-glow {
+    from {
+        box-shadow: 0 0 15px #f1c40f, 0 0 10px #f1c40f inset;
+    }
+    to {
+        box-shadow: 0 0 25px #f39c12, 0 0 15px #f39c12 inset;
+    }
+}
+
+/* --- 스킬 등급 별 스타일 --- */
+.grade-stars {
+    position: absolute;
+    top: 2px;
+    left: 2px;
+    display: flex;
+    gap: 1px;
+}
+
+.grade-stars img {
+    width: 10px;
+    height: 10px;
+}
+
+.grade-stars-large {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    display: flex;
+    gap: 2px;
+}
+
+.grade-stars-large img {
+    width: 20px;
+    height: 20px;
+}
+
+/* --- 전투 중 활성 유닛 UI --- */
+/* --- 전투 중 활성 유닛 UI (수정) --- */
+#combat-ui-container {
+    position: absolute;
+    bottom: 10px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    height: 110px;
+    background-color: rgba(0, 0, 0, 0.75);
+    border: 2px solid #4a4a4a;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0,0,0,0.5);
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px;
+    z-index: 200;
+    pointer-events: none;
+    box-sizing: border-box;
+}
+
+.combat-info-panel {
+    height: 100%;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    color: #e0e0e0;
+    font-family: sans-serif;
+    gap: 4px;
+}
+
+.combat-top-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.combat-bottom-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.unit-name-level {
+    font-size: 24px;
+    font-weight: bold;
+    color: #fff;
+}
+
+.unit-stats {
+    font-size: 16px;
+    color: #f0e68c;
+}
+
+/* 체력바 스타일 */
+.combat-health-bar-container {
+    position: relative;
+    flex-grow: 1;
+    height: 10px;
+    background-color: #333;
+    border: 1px solid #555;
+    border-radius: 5px;
+}
+
+/* ✨ [신규] 배리어 바 스타일 */
+.combat-barrier-bar {
+    position: absolute;
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #ffd700; /* 노란색 */
+    border-radius: 4px;
+    transition: width 0.2s ease-in-out;
+    z-index: 2; /* 체력바 위에 오도록 설정 */
+}
+
+.combat-health-bar-container .unit-stats {
+    position: absolute;
+    top: -18px;
+    right: 0;
+    font-size: 12px;
+}
+
+.combat-health-bar {
+    position: absolute; /* ✨ 배리어 바와 겹치도록 설정 */
+    top: 0;
+    left: 0;
+    height: 100%;
+    background-color: #22c55e; /* 녹색 */
+    border-radius: 4px;
+    transition: width 0.2s ease-in-out;
+    z-index: 1; /* 배리어 바보다 아래에 오도록 설정 */
+}
+
+/* 토큰 컨테이너 스타일 */
+.combat-token-container {
+    display: flex;
+    gap: 4px;
+}
+
+.combat-token-icon {
+    width: 20px;
+    height: 20px;
+}
+
+.combat-skill-container {
+    display: flex;
+    gap: 6px;
+}
+
+.combat-skill-icon {
+    width: 40px;
+    height: 40px;
+    background-size: cover;
+    background-position: center;
+    border: 1px solid #666;
+    border-radius: 4px;
+    position: relative;
+}
+
+.skill-cooldown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: rgba(0,0,0,0.6);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: #fff;
+    font-weight: bold;
+}
+
+
+.unit-effects {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+    margin-top: 0;
+}
+
+.effect-icon-wrapper {
+    position: relative;
+    width: 32px;
+    height: 32px;
+}
+
+.effect-icon {
+    width: 100%;
+    height: 100%;
+    border: 1px solid #666;
+    border-radius: 4px;
+}
+
+.effect-duration {
+    position: absolute;
+    bottom: -2px;
+    right: -2px;
+    background-color: rgba(0,0,0,0.8);
+    color: #fff;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 1px 4px;
+    border-radius: 3px;
+    line-height: 1;
+}
+
+.combat-right-panel {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+}
+
+/* 전투 UI 버튼들을 감싸는 컨테이너 */
+#battle-controls {
+    display: flex;
+    gap: 8px;
+    pointer-events: auto;
+}
+
+/* 전투 컨트롤 버튼 공통 스타일 */
+.battle-control-button {
+    background-color: #2a2a2a;
+    border: 1px solid #888;
+    color: #f0e68c;
+    font-family: 'Cinzel', serif;
+    font-size: 16px;
+    font-weight: bold;
+    padding: 4px 8px;
+    border-radius: 5px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.battle-control-button:hover {
+    background-color: #f0e68c;
+    color: #2a2a2a;
+}
+
+.battle-control-button:disabled {
+    background-color: #444;
+    color: #888;
+    cursor: not-allowed;
+}
+
+.combat-portrait-panel {
+    width: 100px;
+    height: 100px;
+    background-size: cover;
+    background-position: center;
+    border: 2px solid #888;
+    border-radius: 5px;
+    background-size: 200%;
+}
+
+
+/* --- 턴 순서 패널 스타일 --- */
+#turn-order-container {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    width: 180px;
+    max-height: 85vh;
+    background-color: rgba(0, 0, 0, 0.6);
+    border: 1px solid #444;
+    border-radius: 8px;
+    padding: 8px;
+    box-sizing: border-box;
+    overflow-y: auto;
+    z-index: 150;
+    pointer-events: none;
+}
+
+.turn-order-entry {
+    display: flex;
+    align-items: center;
+    margin-bottom: 8px;
+    padding: 5px;
+    border-radius: 4px;
+    transition: background-color 0.3s;
+}
+
+.turn-order-entry.active-turn {
+    background-color: rgba(255, 215, 0, 0.3);
+    border: 1px solid rgba(255, 215, 0, 0.7);
+}
+
+.turn-order-portrait {
+    width: 40px;
+    height: 40px;
+    background-size: cover;
+    background-position: center;
+    border-radius: 50%;
+    border: 2px solid #666;
+    margin-right: 10px;
+    flex-shrink: 0;
+}
+
+.turn-order-name {
+    color: #fff;
+    font-size: 14px;
+    font-weight: bold;
+    text-shadow: 1px 1px 2px #000;
+}
+
+/* --- 스킬 툴팁 태그 스타일 --- */
+.skill-tags-container-large {
+    margin-top: 8px;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+}
+
+.skill-tag {
+    background-color: rgba(0, 0, 0, 0.6);
+    color: #ccc;
+    font-size: 11px;
+    padding: 2px 6px;
+    border-radius: 10px;
+    border: 1px solid #555;
+    white-space: nowrap;
+}
+
+/* --- 공유 자원 패널 스타일 --- */
+#shared-resource-container {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: auto;
+    background-color: rgba(0, 0, 0, 0.7);
+    border: 1px solid #555;
+    border-radius: 8px;
+    padding: 6px 12px;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    z-index: 150;
+    pointer-events: none;
+    color: #fff;
+    font-family: sans-serif;
+    font-size: 14px;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.5);
+}
+
+.resource-item {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.resource-name {
+    color: #aaa;
+}
+
+.resource-value {
+    font-weight: bold;
+    color: #f0e68c; /* 밝은 노란색 */
+    min-width: 20px; /* 숫자가 바뀔 때 레이아웃이 흔들리지 않도록 */
+    text-align: left;
+}
+
+/* --- 스킬 관리 씬 필터 탭 스타일 --- */
+.skill-filter-tabs-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 10px;
+    border-bottom: 2px solid #555;
+}
+
+.skill-filter-tab {
+    background-color: #3a3837;
+    border: 1px solid #555;
+    color: #ccc;
+    padding: 5px 10px;
+    border-radius: 15px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.skill-filter-tab:hover {
+    background-color: #4a4847;
+    color: #fff;
+}
+
+.skill-filter-tab.active {
+    background-color: #f0e68c;
+    color: #333;
+    font-weight: bold;
+    border-color: #f0e68c;
+}
+
+/* --- ✨ [신규] 유닛 상세 정보창 등급 표시 스타일 --- */
+.unit-grades-container {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 15px;
+}
+
+.unit-portrait {
+    width: 250px; /* 기존보다 너비 약간 축소 */
+    height: 300px;
+    background-size: contain;
+    background-repeat: no-repeat;
+    background-position: center top;
+    border-radius: 5px;
+    border: 2px solid #555;
+    flex-shrink: 0; /* 컨테이너 크기가 줄어도 초상화는 줄어들지 않음 */
+    position: relative; /* ✨ 숙련도 태그의 부모 기준이 되도록 추가 */
+    display: flex; /* ✨ Flexbox를 사용하여 하단 정렬 */
+    align-items: flex-end; /* ✨ 자식 요소를 아래로 정렬 */
+    justify-content: center; /* ✨ 자식 요소를 가운데로 정렬 */
+}
+
+/* ======================================================================= */
+/* ✨ 2 & 3. [수정] 클래스 패시브 아이콘 위치 및 스타일 조정, 툴팁 추가 */
+/* ======================================================================= */
+.class-passive-section {
+    position: absolute;
+    top: 5px;
+    left: 5px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    background-color: rgba(0, 0, 0, 0.7);
+    padding: 5px;
+    border-radius: 4px;
+    cursor: help;
+    z-index: 5; /* 태그 위에 표시되도록 z-index 추가 */
+}
+
+.passive-skill-icon {
+    width: 30px; /* 크기 살짝 줄임 */
+    height: 30px;
+    border-radius: 4px;
+    border: 1px solid #555;
+}
+
+.passive-skill-name {
+    display: none; /* 이름은 툴팁으로 보여주므로 숨김 */
+}
+
+/* 툴팁을 위한 공통 스타일 */
+[data-tooltip]:not(.grade-item):not(.specialization-tag):not(.attribute-tag):not(.stat-item) {
+    position: relative;
+}
+
+[data-tooltip]:not(.grade-item):not(.specialization-tag):not(.attribute-tag):not(.stat-item)::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 110%; /* 요소 바로 위에 표시 */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1a1817;
+    color: #e0e0e0;
+    padding: 10px 15px;
+    border-radius: 5px;
+    border: 1px solid #555;
+    font-size: 14px;
+    line-height: 1.4;
+    white-space: pre-wrap; /* \n 문자를 줄바꿈으로 인식 */
+    width: 300px; /* 툴팁 너비 고정 */
+    z-index: 1000;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    text-align: left;
+}
+
+[data-tooltip]:not(.grade-item):not(.specialization-tag):not(.attribute-tag):not(.stat-item):hover::after {
+    opacity: 1;
+}
+/* ======================================================================= */
+
+/* ✨ [신규] 숙련도 태그 컨테이너 스타일 */
+.proficiency-tags-container {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 4px;
+    justify-content: center;
+    padding: 6px;
+    background: linear-gradient(to top, rgba(0, 0, 0, 0.8) 0%, rgba(0, 0, 0, 0) 100%);
+    width: 100%;
+}
+
+/* ✨ [신규] 개별 숙련도 태그 스타일 */
+.proficiency-tag {
+    background-color: rgba(240, 230, 140, 0.2);
+    border: 1px solid rgba(240, 230, 140, 0.6);
+    color: #f0e68c;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 12px;
+}
+
+/* ✨ [신규] 개별 특화 태그 스타일 */
+.specialization-tag {
+    background-color: rgba(59, 130, 246, 0.2);
+    border: 1px solid rgba(59, 130, 246, 0.6);
+    color: #60a5fa;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 12px;
+    cursor: help;
+}
+
+/* ✨ [신규] 개별 속성 특화 태그 스타일 */
+.attribute-tag {
+    background-color: rgba(220, 38, 38, 0.2);
+    border: 1px solid rgba(220, 38, 38, 0.6);
+    color: #ef4444;
+    font-size: 12px;
+    font-weight: bold;
+    padding: 3px 8px;
+    border-radius: 12px;
+    cursor: help;
+}
+
+.unit-grades {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    font-size: 20px;
+    font-weight: bold;
+}
+
+.unit-grades.left {
+    align-items: flex-start;
+}
+
+.unit-grades.right {
+    align-items: flex-end;
+}
+
+.grade-item {
+    padding: 8px 12px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 1px solid #444;
+    border-radius: 5px;
+    cursor: help; /* 마우스 커서를 도움말로 변경 */
+    position: relative; /* 툴팁의 기준점이 됨 */
+}
+
+/* --- ✨ [신규] 등급 툴팁 스타일 --- */
+.grade-item:hover::after {
+    content: attr(data-tooltip); /* data-tooltip 속성 내용을 가져옴 */
+    position: absolute;
+    bottom: 125%; /* 아이템 위쪽에 표시 */
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1a1817;
+    color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    font-size: 14px;
+    white-space: nowrap; /* 툴팁 내용이 줄바꿈되지 않도록 */
+    z-index: 10;
+    pointer-events: none; /* 툴팁 위로 마우스가 올라가도 이벤트가 막히지 않도록 */
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+.grade-item:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #1a1817 transparent transparent transparent;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* ✨ [신규] 특화 태그 툴팁 스타일 */
+.specialization-tag:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1a1817;
+    color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+/* ✨ [신규] 속성 태그 툴팁 스타일 */
+.attribute-tag:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 125%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1a1817;
+    color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+}
+
+
+.grade-item:hover::after,
+.grade-item:hover::before,
+.specialization-tag:hover::after,
+.attribute-tag:hover::after {
+    opacity: 1;
+}
+
+/* --- 스킬 툴팁 태그 강조 스타일 --- */
+#skill-tooltip .skill-tag.proficient-tag {
+    color: #f0e68c; /* 밝은 노란색 (숙련) */
+    border-color: #f0e68c;
+    background-color: rgba(240, 230, 140, 0.15);
+}
+
+#skill-tooltip .skill-tag.specialized-tag {
+    color: #60a5fa; /* 밝은 파란색 (특화) */
+    border-color: #60a5fa;
+    background-color: rgba(59, 130, 246, 0.15);
+}
+
+/* --- 유닛 상세 정보창 스탯 페이지네이션 --- */
+.stats-container {
+    display: flex;
+    flex-direction: column;
+}
+
+.stats-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.stats-header .section-title {
+    margin-bottom: 0;
+    flex-grow: 1;
+}
+
+.stats-pagination {
+    display: flex;
+    border: 1px solid #555;
+    border-radius: 5px;
+    overflow: hidden;
+}
+
+.stats-page-btn {
+    background-color: transparent;
+    border: none;
+    color: #888;
+    padding: 4px 12px;
+    cursor: pointer;
+    font-size: 14px;
+    border-left: 1px solid #555;
+}
+
+.stats-page-btn:first-child {
+    border-left: none;
+}
+
+.stats-page-btn.active {
+    background-color: #f0e68c;
+    color: #222;
+    font-weight: bold;
+}
+
+.stats-page {
+    display: none; /* 기본적으로 모든 페이지 숨김 */
+}
+
+.stats-page.active {
+    display: grid; /* 활성화된 페이지만 보이도록 함 */
+}
+
+/* --- 기본 스탯 툴팁 스타일 --- */
+.stat-item {
+    position: relative; /* 툴팁의 기준점 */
+}
+
+.stat-item:hover::after {
+    content: attr(data-tooltip);
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: #1a1817;
+    color: #e0e0e0;
+    padding: 8px 12px;
+    border-radius: 4px;
+    border: 1px solid #555;
+    font-size: 14px;
+    white-space: nowrap;
+    z-index: 10;
+    pointer-events: none;
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-bottom: 8px; /* 툴팁과 항목 사이 간격 */
+}
+
+.stat-item:hover::before {
+    content: '';
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    border-width: 6px;
+    border-style: solid;
+    border-color: #1a1817 transparent transparent transparent;
+    opacity: 0;
+    transition: opacity 0.2s;
+    margin-bottom: 2px;
+}
+
+.stat-item:hover::after,
+.stat-item:hover::before {
+    opacity: 1; /* 마우스를 올렸을 때만 보이도록 */
+}
+
+/* 툴팁 내용이 없는 항목은 효과 비활성화 */
+.stat-item:not([data-tooltip]):hover::after,
+.stat-item:not([data-tooltip]):hover::before {
+    display: none;
+}
+
+/* --- 장비 관리 씬 전용 스타일 --- */
+.merc-equipment-slots-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.merc-equip-slot {
+    width: 280px;
+    height: 60px;
+    background-color: rgba(0, 0, 0, 0.4);
+    border: 2px solid #666;
+    border-radius: 5px;
+    display: flex;
+    align-items: center;
+    padding: 5px;
+    font-size: 14px;
+    color: #ccc;
+    background-size: cover;
+    background-position: center;
+    position: relative;
+}
+.merc-equip-slot:hover {
+    border-color: #fff;
+}
+.merc-equip-slot-label {
+    position: absolute;
+    bottom: 2px;
+    left: 5px;
+    background-color: rgba(0,0,0,0.7);
+    padding: 2px 4px;
+    border-radius: 3px;
+}
+
+.item-inventory-card {
+    width: 60px;
+    height: 60px;
+    background-size: cover;
+    background-position: center;
+    border: 3px solid #555;
+    border-radius: 4px;
+    float: left;
+    margin: 4px;
+    cursor: grab;
+    position: relative;
+    box-sizing: border-box;
+}
+.item-inventory-card:hover {
+    border-color: #fff;
+    transform: scale(1.05);
+}
+
+/* --- 아이템 툴팁 스타일 --- */
+#item-tooltip {
+    position: absolute;
+    width: 250px;
+    z-index: 9999;
+    pointer-events: none;
+    background-color: #1a1a1a;
+    border-radius: 10px;
+    border: 2px solid #888;
+    color: #e0e0e0;
+}
+.item-card-large.grade-rare { border-color: #3498db; }
+.item-card-large.grade-epic { border-color: #9b59b6; }
+.item-card-large.grade-legendary { border-color: #f1c40f; }
+
+.item-illustration-large { width: 100%; height: 120px; background-size: cover; background-position: center; }
+.item-info-large { padding: 10px; }
+.item-name-large { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+.item-type-synergy-large { display: flex; justify-content: space-between; color: #aaa; margin-bottom: 10px; }
+.item-section-title { font-weight: bold; color: #f0e68c; margin-top: 10px; border-bottom: 1px solid #444; padding-bottom: 3px; }
+.item-stats-large ul, .item-mbti-large ul { list-style: none; padding: 0; margin: 5px 0 0 0; }
+.item-stats-large li, .item-mbti-large li { font-size: 14px; margin-bottom: 3px; }
+.item-sockets-large { display: flex; gap: 5px; margin-top: 5px; }
+.item-socket-empty { width: 20px; height: 20px; background-color: #111; border: 1px solid #555; border-radius: 50%; }
+
+/* --- 스킬 인벤토리 카드 비활성화 스타일 --- */
+.skill-inventory-card.unusable-card {
+    opacity: 0.5;
+    filter: grayscale(80%);
+    cursor: not-allowed;
+}
+
+/* --- 나레이션 패널 스타일 --- */
+#narration-container {
+    position: absolute;
+    bottom: 130px; /* 전투 UI 바로 위에 위치 */
+    left: 50%;
+    transform: translateX(-50%);
+    width: 700px;
+    background-color: rgba(0, 0, 0, 0.6);
+    border-top: 2px solid #666;
+    border-radius: 8px 8px 0 0;
+    padding: 10px 15px;
+    z-index: 199; /* 전투 UI(200) 바로 아래 */
+    pointer-events: none;
+    transition: opacity 0.5s ease-in-out;
+    text-align: center;
+}
+
+.narration-text {
+    margin: 0;
+    color: #f0e68c; /* 밝은 노란색 */
+    font-size: 16px;
+    font-style: italic;
+    text-shadow: 1px 1px 2px #000;
+}
